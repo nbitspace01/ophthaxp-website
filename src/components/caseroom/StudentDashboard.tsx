@@ -44,7 +44,7 @@ function StartCard({
       <div className="relative">
         <Eyebrow>{enrollment ? enrollment.program_name : "Ready when you are"}</Eyebrow>
 
-        <h3 className="mt-3 font-serif text-[clamp(1.6rem,2.4vw,2.1rem)] leading-[1.1] text-white">
+        <h3 className="mt-3 font-serif text-[clamp(1.15rem,1.8vw,1.5rem)] leading-[1.2] text-white">
           New case
         </h3>
 

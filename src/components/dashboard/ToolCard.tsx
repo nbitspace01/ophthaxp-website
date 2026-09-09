@@ -60,11 +60,11 @@ export function ToolCard({ item, joined = false }: { item: ThreadItem; joined?: 
       </div>
 
       <div className="relative mt-auto pt-14">
-        <h2 className="font-serif text-[clamp(2rem,3.4vw,2.9rem)] leading-[1.05] text-white">
+        <h2 className="font-serif text-[clamp(1.35rem,2.2vw,1.875rem)] leading-[1.2] text-white">
           {item.name}
         </h2>
         {item.attribution ? (
-          <p className="mt-1 font-serif text-xl italic text-white/45">{item.attribution}</p>
+          <p className="mt-1 font-serif text-base italic text-white/45">{item.attribution}</p>
         ) : null}
         <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/55">{item.blurb}</p>
       </div>

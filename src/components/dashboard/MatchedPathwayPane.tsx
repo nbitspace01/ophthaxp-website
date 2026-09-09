@@ -57,7 +57,7 @@ export function MatchedPathwayPane({ match }: { match: PathwayMatch | null }) {
         <p className="relative mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
           {match.name}
         </p>
-        <p className="relative mt-3 max-w-2xl font-serif text-[clamp(1.6rem,3vw,2.5rem)] leading-[1.1] text-white">
+        <p className="relative mt-3 max-w-2xl font-serif text-[clamp(1.15rem,2vw,1.5rem)] leading-[1.2] text-white">
           {match.blurb}
         </p>
 

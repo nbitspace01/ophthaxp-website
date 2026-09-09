@@ -347,7 +347,7 @@ export function CasePlayer() {
   if (startError) {
     return (
       <div className="mx-auto grid max-w-md gap-5 py-24 text-center">
-        <p className="font-serif text-2xl text-white">Could not start the case</p>
+        <p className="font-serif text-lg text-white">Could not start the case</p>
         <ErrorNote>{startError}</ErrorNote>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -377,7 +377,7 @@ export function CasePlayer() {
     return (
       <div className="grid place-items-center py-32 text-center">
         <TypingDots label="Writing a fresh patient" />
-        <p className="mt-5 font-serif text-2xl text-white">Writing a fresh patient…</p>
+        <p className="mt-5 font-serif text-lg text-white">Writing a fresh patient…</p>
         <p className="mt-2 text-sm text-white/40">Grounded in a real published case report.</p>
       </div>
     );
@@ -400,7 +400,7 @@ export function CasePlayer() {
     <Panel as="aside" className="quiet-scroll lg:h-full lg:overflow-y-auto">
       <Eyebrow>The patient</Eyebrow>
       {session.blurb ? (
-        <p className="mt-3 font-serif text-lg leading-snug text-white/90">{session.blurb}</p>
+        <p className="mt-3 font-serif text-base leading-snug text-white/90">{session.blurb}</p>
       ) : null}
 
       <div className="mt-6 grid gap-5">

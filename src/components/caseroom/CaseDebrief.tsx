@@ -64,7 +64,7 @@ export function LockInModal({
       aria-labelledby="caseroom-lockin-title"
     >
       <div className="w-full max-w-lg rounded-[22px] bg-ink-900 p-6 ring-1 ring-white/[0.08] sm:p-8">
-        <h2 id="caseroom-lockin-title" className="font-serif text-2xl leading-tight text-white">
+        <h2 id="caseroom-lockin-title" className="font-serif text-lg leading-tight text-white">
           Lock in your diagnosis
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-white/50">
@@ -199,7 +199,7 @@ export function ResultCard({ result, onClose }: { result: CaseResult; onClose: (
 
         <h2
           id="caseroom-result-title"
-          className="mt-5 font-serif text-[clamp(1.7rem,3.4vw,2.5rem)] leading-[1.1] text-white"
+          className="mt-5 font-serif text-[clamp(1.25rem,2.2vw,1.75rem)] leading-[1.2] text-white"
         >
           {result.headline}
         </h2>
@@ -209,7 +209,7 @@ export function ResultCard({ result, onClose }: { result: CaseResult; onClose: (
             hunt for it. */}
         <div className="mt-6 rounded-[18px] bg-white/[0.03] p-5 ring-1 ring-white/[0.06]">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <XpDelta delta={delta} className="font-serif text-3xl" />
+            <XpDelta delta={delta} className="font-serif text-xl" />
             <span className="text-sm text-white/45">{deltaLabel}</span>
             <span className="ml-auto text-[13px] tabular-nums text-white/40">
               {result.before} → {result.after} XP

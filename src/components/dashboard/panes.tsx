@@ -41,10 +41,10 @@ export function PaneShell({
             {eyebrow}
             {meta ? <span className="text-white/25"> · {meta}</span> : null}
           </p>
-          <h3 className="mt-2.5 font-serif text-3xl leading-tight text-white sm:text-[2.6rem]">
+          <h3 className="mt-2.5 font-serif text-[1.35rem] leading-tight text-white sm:text-[1.75rem]">
             {title}
             {attribution ? (
-              <span className="ml-2.5 font-serif text-xl italic text-white/45">
+              <span className="ml-2.5 font-serif text-base italic text-white/45">
                 {attribution}
               </span>
             ) : null}
@@ -119,7 +119,7 @@ export function ComingSoonPane({ item, joined = false }: { item: ThreadItem; joi
       pill={{ label: "Coming soon", tone: "quiet" }}
     >
       <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/12 bg-white/[0.02] px-6 py-14 text-center">
-        <p className="max-w-md font-serif text-xl leading-snug text-white/85">{item.blurb}</p>
+        <p className="max-w-md font-serif text-base leading-snug text-white/85">{item.blurb}</p>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-white/45">
           It is being built now. Nothing to see here yet — and nothing made up to fill the space.
         </p>

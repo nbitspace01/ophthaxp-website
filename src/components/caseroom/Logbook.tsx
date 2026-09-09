@@ -330,7 +330,7 @@ export function Logbook({ history }: { history: HistoryEntry[] }) {
         {tab === "recent" ? (
           history.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="font-serif text-lg text-white/70">No cases yet</p>
+              <p className="font-serif text-base text-white/70">No cases yet</p>
               <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-white/40">
                 Your first workup will show up here, with the scores and the attending&rsquo;s note.
               </p>

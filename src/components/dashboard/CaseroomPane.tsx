@@ -54,7 +54,7 @@ function Figure({
   return (
     <div className="rounded-2xl bg-white/[0.025] px-5 py-4 ring-1 ring-white/[0.06]">
       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">{label}</p>
-      <p className="mt-3 font-serif text-[2.4rem] leading-none tabular-nums text-white">{value}</p>
+      <p className="mt-3 font-serif text-[1.75rem] leading-none tabular-nums text-white">{value}</p>
       {/* The line under a figure is where its meaning lives — "14" is a count,
           "+2 this week" is a direction. It is left out rather than filled when
           there is nothing measured to put there. */}
@@ -120,7 +120,7 @@ function LevelRail({ level }: { level: number }) {
 
         {line}
 
-        <span aria-hidden className="shrink-0 pl-3.5 text-[26px] leading-none text-white/35">
+        <span aria-hidden className="shrink-0 pl-3.5 text-[20px] leading-none text-white/35">
           ∞
         </span>
       </div>
@@ -146,7 +146,7 @@ function LevelRail({ level }: { level: number }) {
 function Reading({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex-1 px-5 first:pl-0 last:pr-0">
-      <p className="font-serif text-2xl leading-none tabular-nums text-white/90">{value}</p>
+      <p className="font-serif text-lg leading-none tabular-nums text-white/90">{value}</p>
       <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
         {label}
       </p>
@@ -216,7 +216,7 @@ export function CaseroomPane({ item, active }: { item: ThreadItem; active: boole
         cta={{ label: "Start your first case", href: "/account/caseroom" }}
       >
         <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/12 bg-white/[0.02] px-6 py-14 text-center">
-          <p className="max-w-md font-serif text-xl leading-snug text-white/85">
+          <p className="max-w-md font-serif text-base leading-snug text-white/85">
             A patient walks in. You take the history, order what you need, and commit to a
             diagnosis.
           </p>
@@ -295,7 +295,7 @@ export function CaseroomPane({ item, active }: { item: ThreadItem; active: boole
               ) : null}
             </div>
 
-            <p className="mt-4 font-serif text-[clamp(1.15rem,1.7vw,1.5rem)] leading-snug text-white">
+            <p className="mt-4 font-serif text-[clamp(1rem,1.4vw,1.15rem)] leading-snug text-white">
               {[coach?.improving, coach?.focus].filter(Boolean).join(" ") ||
                 "Not enough cases yet for Iris to read a pattern."}
             </p>
@@ -328,7 +328,7 @@ export function CaseroomPane({ item, active }: { item: ThreadItem; active: boole
                 without the risk of serving a different patient on the click.
                 What is certain is the topic and the level it will be pitched
                 at, so that is what is said. */}
-            <p className="mt-4 font-serif text-[clamp(1.15rem,1.7vw,1.5rem)] leading-snug text-white">
+            <p className="mt-4 font-serif text-[clamp(1rem,1.4vw,1.15rem)] leading-snug text-white">
               A fresh {topic ? `${topic} ` : ""}patient, pitched at level {profile.level}
             </p>
 

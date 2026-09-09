@@ -185,7 +185,7 @@ export default async function AccountPage() {
             </div>
 
             <div className="relative mt-auto pt-16">
-              <h3 className="font-serif text-[clamp(2.4rem,5vw,4rem)] leading-[1.02] text-white">
+              <h3 className="font-serif text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.25] text-white">
                 Explore Programmes
               </h3>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-white/55">
@@ -202,7 +202,7 @@ export default async function AccountPage() {
         </div>
 
         <div id="applications" className="dash-section mt-16 lg:mt-20">
-          <h3 className="font-serif text-2xl text-white sm:text-3xl">Your applications</h3>
+          <h3 className="font-serif text-lg text-white sm:text-xl">Your applications</h3>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/45">
             Everything you have started or submitted, where it has got to, and what you have been
             charged.

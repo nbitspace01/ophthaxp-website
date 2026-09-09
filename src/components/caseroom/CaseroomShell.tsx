@@ -38,7 +38,7 @@ function ConsoleComingSoon({ role }: { role: string }) {
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
         {role === "admin" ? "Administration" : "Mentor console"}
       </p>
-      <h1 className="mt-4 font-serif text-[clamp(2rem,4vw,3rem)] leading-[1.1] text-white">
+      <h1 className="mt-4 font-serif text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.25] text-white">
         Not here yet
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-white/55">
@@ -88,7 +88,7 @@ export function CaseroomShell() {
     return (
       <div className="grid place-items-center py-32 text-center">
         <TypingDots label="Opening Caseroom" />
-        <p className="mt-5 font-serif text-2xl text-white">Caseroom</p>
+        <p className="mt-5 font-serif text-lg text-white">Caseroom</p>
       </div>
     );
   }
@@ -96,7 +96,7 @@ export function CaseroomShell() {
   if (state.status === "failed") {
     return (
       <div className="mx-auto grid max-w-md gap-5 py-24 text-center">
-        <h1 className="font-serif text-2xl text-white">Caseroom is not answering</h1>
+        <h1 className="font-serif text-lg text-white">Caseroom is not answering</h1>
         <ErrorNote>{state.message}</ErrorNote>
         <Link
           href="/account"

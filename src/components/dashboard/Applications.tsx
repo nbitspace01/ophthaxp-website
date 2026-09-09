@@ -152,7 +152,7 @@ export function ApplicationList({ rows }: { rows: ApplicationRow[] }) {
 export function ApplicationsEmpty() {
   return (
     <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-14 text-center">
-      <h3 className="font-serif text-xl text-white">Nothing applied for yet</h3>
+      <h3 className="font-serif text-base text-white">Nothing applied for yet</h3>
       <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-white/55">
         When you apply to a programme it shows up here, with everything you have filled in so far
         and where it has got to.
@@ -199,7 +199,7 @@ function ApplicationCard({
     <section className="flex flex-col rounded-[22px] bg-ink-900/70 p-6 ring-1 ring-white/[0.08] sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="font-serif text-xl text-white sm:text-2xl">{courseName}</h3>
+          <h3 className="font-serif text-base text-white sm:text-lg">{courseName}</h3>
           {mentorName ? <p className="mt-1 text-sm text-white/55">with {mentorName}</p> : null}
         </div>
         <span

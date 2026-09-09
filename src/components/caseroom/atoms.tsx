@@ -233,7 +233,7 @@ export function LevelMeter({ xp }: { xp: number }) {
       <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
         <div>
           <Eyebrow>Current level</Eyebrow>
-          <p className="mt-2 font-serif text-[clamp(1.75rem,3vw,2.5rem)] leading-none text-white">
+          <p className="mt-2 font-serif text-[clamp(1.25rem,2.2vw,1.75rem)] leading-none text-white">
             {levelName(level)}
           </p>
         </div>
@@ -279,7 +279,7 @@ export function LevelMeter({ xp }: { xp: number }) {
 export function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <Panel hover="lift" className="flex flex-col justify-between">
-      <p className="relative font-serif text-[clamp(2rem,4vw,2.75rem)] leading-none tabular-nums text-white">
+      <p className="relative font-serif text-[clamp(1.5rem,2.6vw,2rem)] leading-none tabular-nums text-white">
         {value}
       </p>
       <p className="relative mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45 transition duration-300 group-hover:text-white/65">
