@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 
 const NOCODE_BASE = process.env.NOCODE_API_BASE_URL || "";
-const NOCODE_APP_ID = process.env.NOCODE_APP_ID || "";
-const NOCODE_ORG_ID = process.env.NOCODE_ORG_ID || "";
-const NOCODE_LEADS_USER_ID = process.env.NOCODE_LEADS_USER_ID || "";
+// The key is the whole identity: the platform resolves the organisation and
+// the user that created it from the key itself, so neither is carried here.
 const NOCODE_API_KEY = process.env.NOCODE_API_KEY || "";
 const APPLY_MODULE =
   process.env.NOCODE_APPLY_LEADS_MODULE || "ophthaxp_apply_leads";
@@ -283,26 +282,25 @@ export async function POST(req: Request) {
     record.status = "new";
   }
 
-  if (!NOCODE_BASE || !NOCODE_APP_ID || !NOCODE_ORG_ID || !NOCODE_LEADS_USER_ID) {
+  if (!NOCODE_BASE || !NOCODE_API_KEY) {
     console.warn(
-      `[leads] nocode env not fully set — NOCODE_API_BASE_URL="${NOCODE_BASE}" NOCODE_APP_ID="${NOCODE_APP_ID}" NOCODE_ORG_ID set=${Boolean(NOCODE_ORG_ID)} NOCODE_LEADS_USER_ID set=${Boolean(
-        NOCODE_LEADS_USER_ID,
+      `[leads] nocode env not fully set — NOCODE_API_BASE_URL="${NOCODE_BASE}" NOCODE_API_KEY set=${Boolean(
+        NOCODE_API_KEY,
       )}. Lead NOT written to DB; falling through to webhook/echo.`,
     );
   } else {
     const moduleTitle = isBrochure ? BROCHURE_MODULE : APPLY_MODULE;
-    const url = `${NOCODE_BASE}/api/public/data/${NOCODE_APP_ID}/${NOCODE_ORG_ID}/${encodeURIComponent(
-      moduleTitle,
-    )}`;
+    const url = `${NOCODE_BASE}/api/data/${encodeURIComponent(moduleTitle)}`;
     console.log(`[leads] POST → ${url} intent=${intent}`);
     try {
       const res = await fetch(url, {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ...record,
-          loggedUser: { id: NOCODE_LEADS_USER_ID },
-        }),
+        // No `app-id` or `org-id`: the platform fills both in from the key's
+        // own row, and a second copy here would only go stale.
+        headers: { "content-type": "application/json", "x-api-key": NOCODE_API_KEY },
+        // Wrapped, so our column names can never collide with the fields the
+        // platform injects into the same body.
+        body: JSON.stringify({ data: record }),
       });
       const bodyText = await res.text().catch(() => "");
       if (!res.ok) {
