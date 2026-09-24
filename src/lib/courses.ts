@@ -28,6 +28,16 @@ function pickString(rec: RawRecord, ...keys: string[]): string | undefined {
   return undefined;
 }
 
+/**
+ * A person's name as shown on the site: a bare middle initial gets its full
+ * stop, so "Dr. Srinivas K Rao" from the admin panel reads "Dr. Srinivas K. Rao".
+ */
+function formatPersonName(name: string): string;
+function formatPersonName(name: string | undefined): string | undefined;
+function formatPersonName(name: string | undefined): string | undefined {
+  return name?.replace(/(^|\s)([A-Z])(?=\s)/g, "$1$2.");
+}
+
 function pickNumber(rec: RawRecord, ...keys: string[]): number | undefined {
   for (const k of keys) {
     const v = rec[k];
@@ -244,7 +254,7 @@ function pickModules(rec: RawRecord): CourseModule[] {
  * nocode backend sometimes stores this reference cleanly (a slug string or a
  * numeric row id) but often stores a corrupted, multiply-nested JSON blob:
  *   {"slug":null,"name":null,"id":"{\"slug\":null,...\"id\":\"{\\\"slug\\\":
- *    \\\"dr-srinivas-k-rao\\\",\\\"name\\\":\\\"Dr. Srinivas K Rao\\\",...}\"}"}
+ *    \\\"dr-srinivas-k-rao\\\",\\\"name\\\":\\\"Dr. Srinivas K. Rao\\\",...}\"}"}
  * where only the innermost object carries the real values. Recursively unwrap
  * it, preferring the deepest (innermost) non-null slug/name/title/city.
  */
@@ -420,17 +430,18 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     // `doctorSlug` reference blob, then any explicit mentor-name field. This
     // survives even when the doctor record itself can't be resolved into
     // `faculty` (e.g. a broken reference id that matches no doctor row).
-    mentorName:
+    mentorName: formatPersonName(
       doctorRef.name ||
-      pickString(
-        rec,
-        "mentorName",
-        "mentor_name",
-        "doctorName",
-        "doctor_name",
-        "facultyName",
-        "faculty_name",
-      ),
+        pickString(
+          rec,
+          "mentorName",
+          "mentor_name",
+          "doctorName",
+          "doctor_name",
+          "facultyName",
+          "faculty_name",
+        ),
+    ),
     // Who a Star books a call with. Read off the course row first because in
     // the merged setup a course and its doctor are the same record; when they
     // are not, attachFaculty fills it from the linked doctor instead.
@@ -463,7 +474,7 @@ function pickBool(rec: RawRecord, ...keys: string[]): boolean | undefined {
 
 function mapRecordToDoctor(rec: RawRecord): Doctor | null {
   const slug = pickString(rec, "slug", "Slug");
-  const name = pickString(rec, "name", "fullName");
+  const name = formatPersonName(pickString(rec, "name", "fullName"));
   if (!slug || !name) return null;
   const specialtyRaw =
     pickString(rec, "specialty", "Specialty") ??

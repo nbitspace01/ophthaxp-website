@@ -62,7 +62,7 @@ export function LegendTrailer({
   src,
   poster,
   name,
-  subtitle = "Documentary Trailer",
+  subtitle = "What Becomes Possible",
 }: {
   src?: string;
   poster?: string;
@@ -121,7 +121,7 @@ export function LegendTrailer({
 
   const badge = (
     <span className="pointer-events-none absolute right-4 top-4 z-20 inline-flex h-11 items-center rounded-full border-[1.5px] border-ink-700 bg-ink-800 px-6 text-[15px] font-medium text-white sm:right-6 sm:top-6">
-      Trailer
+      Legend Video
     </span>
   );
 

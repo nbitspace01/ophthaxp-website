@@ -237,7 +237,7 @@ export function ApplyFormModal({
   onClose: () => void;
   courseId: string;
   courseName?: string;
-  /** Faculty name shown in the brochure email hero, e.g. "Dr. Srinivas K Rao". */
+  /** Faculty name shown in the brochure email hero, e.g. "Dr. Srinivas K. Rao". */
   mentorName?: string;
   intent?: Intent;
   brochureUrl?: string;
@@ -993,7 +993,7 @@ function NextStepPanel({ onClose }: { onClose: () => void }) {
         </p>
         <ol className="mt-3 grid gap-2 text-sm text-white/70">
           <li>Our team reviews your application.</li>
-          <li>You&rsquo;ll be invited to book an exploratory call.</li>
+          <li>You&rsquo;ll then book an exploratory call.</li>
           <li>Confirm the call and settle the fee to lock your slot.</li>
         </ol>
         <p className="mt-4 text-xs text-white/45">

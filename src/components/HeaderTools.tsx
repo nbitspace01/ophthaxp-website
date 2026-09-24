@@ -32,13 +32,14 @@ type Tool = {
   icon: (props: { className?: string }) => React.ReactNode;
 };
 
+/* Order: VUF (Visualise your future) → Caseroom → LoMa. */
 const TOOLS: Tool[] = [
   {
-    key: "loma",
-    label: "LoMa — ask a medical question",
-    href: "/#smart-assist",
-    section: "smart-assist",
-    icon: (props) => <LoMaIcon {...props} />,
+    key: "horizon",
+    label: "Visualise your future — size your practice",
+    href: "/#roi",
+    section: "roi",
+    icon: (props) => <Crosshair strokeWidth={1.6} {...props} />,
   },
   {
     // Caseroom is not built, so this one goes nowhere. It is still here because
@@ -53,11 +54,11 @@ const TOOLS: Tool[] = [
     icon: (props) => <ScanSearch strokeWidth={1.6} {...props} />,
   },
   {
-    key: "horizon",
-    label: "Visualise your future — size your practice",
-    href: "/#roi",
-    section: "roi",
-    icon: (props) => <Crosshair strokeWidth={1.6} {...props} />,
+    key: "loma",
+    label: "LoMa — ask a medical question",
+    href: "/#smart-assist",
+    section: "smart-assist",
+    icon: (props) => <LoMaIcon {...props} />,
   },
 ];
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HERO_IMAGES as FALLBACK_HERO_IMAGES } from "@/lib/data";
 import type { HeroImage } from "@/lib/courses";
 import { HeroBand } from "./HeroBand";
+import { HeroRotatingText } from "./HeroRotatingText";
 
 /** Columns needed to span the widest breakpoint. */
 const STRIP_MIN = 7;
@@ -49,7 +50,7 @@ export function Hero({ images }: { images?: HeroImage[] }) {
         </h1>
 
         <p className="animate-fadeUp mx-auto mt-3 max-w-2xl text-base text-white/60 [animation-delay:640ms] sm:text-lg">
-          Transforming how ophthalmologists think, decide, and practice
+          <HeroRotatingText />
         </p>
 
         <div className="animate-fadeUp mt-5 flex justify-center [animation-delay:740ms]">

@@ -96,12 +96,12 @@ function DirectVideo({
             >
               <path d="M8 5v14l11-7z" />
             </svg>
-            Watch Trailer
+            Watch Now
           </span>
           <button
             type="button"
             onClick={handleStart}
-            aria-label="Play trailer"
+            aria-label="Play video"
             className="absolute inset-0 z-10 cursor-pointer bg-transparent"
           />
         </>
@@ -110,7 +110,7 @@ function DirectVideo({
   );
 }
 
-export function TrailerPlayer({ src, poster, title = "Trailer", className }: Props) {
+export function TrailerPlayer({ src, poster, title = "Video", className }: Props) {
   if (!src) {
     return (
       <div className={className}>
@@ -119,7 +119,7 @@ export function TrailerPlayer({ src, poster, title = "Trailer", className }: Pro
           <img src={poster} alt={title} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-black/40 text-sm text-white/60">
-            No trailer uploaded
+            No video uploaded
           </div>
         )}
       </div>
