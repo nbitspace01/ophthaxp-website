@@ -84,8 +84,16 @@ export function AccountMenu() {
   // Nobody signed in — the icon is the login link itself.
   if (!signedIn) {
     return (
-      <Link href="/login" aria-label="Log in or create an account" className={iconCls}>
+      <Link href="/login" aria-label="Log in or create an account" className={`group/tip relative ${iconCls}`}>
         <User className="h-[22px] w-[22px]" strokeWidth={1.6} aria-hidden />
+        {/* Hover label, styled like the header tool chips' labels. Right-aligned
+            because the icon is the last thing in the header. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-full border border-white/10 bg-black/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60 shadow-lg backdrop-blur group-hover/tip:block group-focus-visible/tip:block"
+        >
+          Sign up
+        </span>
       </Link>
     );
   }

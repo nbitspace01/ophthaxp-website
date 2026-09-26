@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Sparkle, X } from "lucide-react";
 import { HERO_VIDEO_POSTER } from "@/lib/data";
 
-const TRAILER_SRC = "/Screen%20Recording%202026-05-09%20132251.mp4";
+const TRAILER_SRC = "/Dr%20Srinivas%20K%20Rao.mp4";
 
 /** The featured programme. Swap these to feature another programme or Legend. */
 const FEATURED = {
@@ -37,14 +37,13 @@ export function LegendsVideo() {
   return (
     <section
       aria-labelledby="legends-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-[120px]"
+      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="legends-title"
-        className="mx-auto max-w-3xl text-center text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.3] tracking-[-0.01em] text-white"
+        className="text-center text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.3] tracking-[-0.01em] text-white"
       >
-        Now, the Legends are
-        <br className="hidden sm:block" /> closer than they appear.
+        Now, the Legends are closer than they appear.
       </h2>
 
       <div

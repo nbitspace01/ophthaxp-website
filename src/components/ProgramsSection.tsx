@@ -152,7 +152,7 @@ export function ProgramsSection({
     <section
       id="programs"
       aria-labelledby="programs-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-[120px]"
+      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="programs-title"
@@ -160,8 +160,8 @@ export function ProgramsSection({
       >
         Legacy Transfer Programmes
       </h2>
-      <p className="mx-auto mt-4 max-w-[46rem] text-center text-sm leading-relaxed text-white/45 sm:text-[15px]">
-        “Each programme is a methodical, months-long hybrid journey with the Legend, built around the high-stakes realities of the specialty and your practice. The programme’s architecture starts and ends in your practice: every engagement with the Legend returns to practice; every return deepens the next—and the journey transforms how you think, decide, perform and grow.”
+      <p className="mx-auto mt-4 text-center text-[15px] leading-relaxed text-white/45 sm:text-[17px] lg:ml-[133px] lg:mr-[180px]">
+        Each programme is a methodical, months-long hybrid journey with the Legend, built around the high-stakes realities of the specialty and your practice. The programme’s architecture starts and ends in your practice: every engagement with the Legend returns to practice; every return deepens the next, transforming how you think, decide, perform, and grow.
       </p>
 
       {/* Specialty tabs */}

@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
-import { Crosshair, ScanSearch } from "lucide-react";
+import { ScanSearch } from "lucide-react";
 import { LoMaIcon } from "./LoMaIcon";
 
 /**
@@ -39,7 +40,25 @@ const TOOLS: Tool[] = [
     label: "Visualise your future — size your practice",
     href: "/#roi",
     section: "roi",
-    icon: (props) => <Crosshair strokeWidth={1.6} {...props} />,
+    // The lit orb from the "Your Future is here..." chip on the map, same
+    // markup and animation at the same chip scale.
+    icon: () => (
+      <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center">
+        <span
+          aria-hidden
+          className="how-orb-halo absolute inset-0 rounded-full bg-spark/50 blur-[6px]"
+        />
+        <Image
+          src="/visualize-orb.gif"
+          alt=""
+          width={150}
+          height={150}
+          unoptimized
+          aria-hidden
+          className="how-orb-core relative h-5 w-5 object-contain"
+        />
+      </span>
+    ),
   },
   {
     // Caseroom is not built, so this one goes nowhere. It is still here because
@@ -70,11 +89,15 @@ const TOOLS: Tool[] = [
 const CHIP_BASE =
   "inline-flex h-9 w-9 items-center justify-center rounded-[12px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60";
 
-/* The hover is terracotta rather than a brighter grey: the tabs beside these
-   already warm to the accent, and a header where one control lights up in the
-   brand colour and the next in white reads as two headers. */
-const CHIP_LIVE =
-  "border-white/10 bg-white/5 text-white/85 hover:border-accent/50 hover:bg-accent/15 hover:text-accent-soft";
+/* No hover styling: the chip stays as it is and only its name appears below
+   (TIP_LIVE). */
+const CHIP_LIVE = "border-white/10 bg-white/5 text-white/85";
+
+/* The name under a live chip, on hover or keyboard focus. Same look as the
+   Caseroom label, but display:none until shown — an invisible nowrap label
+   still counts towards the page width and would widen it on a phone. */
+const TIP_LIVE =
+  "pointer-events-none absolute top-full z-50 mt-2 hidden whitespace-nowrap rounded-full border border-white/10 bg-black/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60 shadow-lg backdrop-blur group-hover/tip:block group-focus-visible/tip:block";
 
 const CHIP_SOON = "cursor-default border-white/[0.06] bg-white/[0.03] text-white/30";
 
@@ -121,7 +144,18 @@ export function HeaderTools() {
 
   return (
     <ul className="flex items-center gap-1.5 sm:gap-2">
-      {TOOLS.map((tool) => (
+      {TOOLS.map((tool, i) => {
+        // The last chip sits near the right edge, so its label hangs right-aligned
+        // under it instead of centred, which would run off a phone screen.
+        const tip = (
+          <span
+            aria-hidden
+            className={`${TIP_LIVE} ${i === TOOLS.length - 1 ? "right-0" : "left-1/2 -translate-x-1/2"}`}
+          >
+            {tool.label}
+          </span>
+        );
+        return (
         <li key={tool.key} className="relative">
           {tool.comingSoon ? (
             /* Not a link and not a button: there is nothing to activate. It is
@@ -144,23 +178,24 @@ export function HeaderTools() {
               href={tool.href}
               onClick={jumpTo(tool.section, tool.href)}
               aria-label={tool.label}
-              title={tool.label}
-              className={`${CHIP_BASE} ${CHIP_LIVE}`}
+              className={`group/tip ${CHIP_BASE} ${CHIP_LIVE}`}
             >
               {tool.icon({ className: "h-4 w-4" })}
+              {tip}
             </a>
           ) : (
             <Link
               href={tool.href}
               aria-label={tool.label}
-              title={tool.label}
-              className={`${CHIP_BASE} ${CHIP_LIVE}`}
+              className={`group/tip ${CHIP_BASE} ${CHIP_LIVE}`}
             >
               {tool.icon({ className: "h-4 w-4" })}
+              {tip}
             </Link>
           )}
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }
