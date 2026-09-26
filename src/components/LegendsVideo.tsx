@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Sparkle, X } from "lucide-react";
 import { HERO_VIDEO_POSTER } from "@/lib/data";
 
-const TRAILER_SRC = "/Dr%20Srinivas%20K%20Rao.mp4";
-
 /** The featured programme. Swap these to feature another programme or Legend. */
 const FEATURED = {
   programme: "Building a Modern Cornea Practice",
@@ -13,7 +11,12 @@ const FEATURED = {
   cta: "What Becomes Possible",
 };
 
-export function LegendsVideo() {
+/**
+ * `videoSrc` is the featured programme’s video from the admin panel (its
+ * trailer video field), so it is changed there rather than in code. Without
+ * one the play button is left out.
+ */
+export function LegendsVideo({ videoSrc }: { videoSrc?: string }) {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -56,7 +59,7 @@ export function LegendsVideo() {
           <>
             <video
               ref={videoRef}
-              src={TRAILER_SRC}
+              src={videoSrc}
               controls
               playsInline
               autoPlay
@@ -100,6 +103,7 @@ export function LegendsVideo() {
               <p className="mt-5 text-sm text-white/70">
                 with <span className="font-semibold text-white">{FEATURED.legend}</span>
               </p>
+              {videoSrc && (
               <button
                 ref={triggerRef}
                 type="button"
@@ -110,6 +114,7 @@ export function LegendsVideo() {
                 <Play className="h-4 w-4" aria-hidden />
                 {FEATURED.cta}
               </button>
+              )}
             </div>
           </>
         )}
