@@ -38,14 +38,15 @@ export function PageLoader({ label = "Preparing your experience" }: { label?: st
           <span className="absolute inset-3 animate-[loader-spin-reverse_3.2s_linear_infinite] rounded-full border border-transparent [border-bottom-color:theme(colors.accent.soft)] [border-left-color:rgba(167,139,250,0.25)]" />
           {/* Soft glow ring */}
           <span className="absolute inset-5 rounded-full bg-accent/15 blur-md" />
-          {/* Brand monogram — the two pillars from the Legends of Medicine mark */}
-          <span
+          {/* Brand mark — the Legends of Medicine favicon */}
+          <img
+            src="/brand/favicon-512.png"
+            alt=""
             aria-hidden
-            className="relative flex items-end gap-[5px] [animation:loader-pulse_2.4s_ease-in-out_infinite]"
-          >
-            <span className="block h-9 w-[6px] rounded-[2px] bg-gradient-to-b from-white/95 via-white/85 to-white/60 shadow-[0_0_18px_rgba(255,255,255,0.25)]" />
-            <span className="block h-9 w-[6px] rounded-[2px] bg-gradient-to-b from-white/95 via-white/85 to-white/60 shadow-[0_0_18px_rgba(255,255,255,0.25)]" />
-          </span>
+            width={512}
+            height={512}
+            className="relative block h-14 w-14 rounded-full [animation:loader-pulse_2.4s_ease-in-out_infinite]"
+          />
         </div>
 
         <div className="flex flex-col items-center gap-2">

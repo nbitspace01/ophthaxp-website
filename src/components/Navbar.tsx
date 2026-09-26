@@ -14,7 +14,7 @@ const LINKS: { label: string; href: string }[] = [
   // Points at the four-step walkthrough — "Every Step Towards Becoming
   // Legendary" — not at the outlook calculator. That one has its own way in,
   // the horizon chip in HeaderTools.
-  { label: "Journey", href: "/#how-it-works" },
+  { label: "Access", href: "/#how-it-works" },
 ];
 
 export function Navbar() {

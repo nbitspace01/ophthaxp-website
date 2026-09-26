@@ -364,10 +364,10 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
               {p.trailerVideoUrl && (
                 <a
-                  href="#trailer"
+                  href="#legend-video"
                   className="mt-6 inline-block text-sm font-semibold text-white underline decoration-white/50 underline-offset-[6px] transition hover:decoration-white"
                 >
-                  Watch Trailer
+                  What Becomes Possible
                 </a>
               )}
 
@@ -429,7 +429,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         ══════════════════════════════════════════════════════════════ */}
         {(p.trailerVideoUrl || heroImage) && (
           <section
-            id="trailer"
+            id="legend-video"
             aria-labelledby="legend-title"
             className={`scroll-mt-24 ${SECTION}`}
           >
@@ -570,8 +570,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   reads as a promise that the certificate is already earned. */}
               <p className="mt-4 text-[13px] text-white/45">
                 {viewer
-                  ? "Shown made out to you — a preview, not an award."
-                  : "A preview. Log in and it is made out in your name."}
+                  ? "Shown made out to you — a sample, not an award."
+                  : "A sample. Log in and it is made out in your name."}
               </p>
             </div>
             {/* Cropped in on the plate. Uncropped, the frame is 30% of the

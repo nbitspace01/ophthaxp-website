@@ -860,7 +860,7 @@ export function ApplyWizard({
               </p>
               <p className="mt-2 text-xs text-white/45">
                 {booked.status === "confirmed"
-                  ? `Times shown in ${booked.timeZone}. The invitation is in your inbox.`
+                  ? `Times shown in ${booked.timeZone}. The booking confirmation is in your inbox.`
                   : `Times shown in ${booked.timeZone}. It is yours to confirm at checkout — ` +
                     "we hold it for a short while, so finish up to keep it."}
               </p>
@@ -1121,7 +1121,7 @@ export function ApplyWizard({
               is booked and your application is with the team.
             </p>
             <p className="mt-3 text-xs text-white/45">
-              Your fee is paid, the invitation is in your calendar and your Legend has theirs.
+              Your fee is paid, the call is in your calendar and your Legend has it in theirs.
             </p>
             {paymentRef ? (
               <p className="mt-3 break-all font-mono text-[11px] text-white/35">

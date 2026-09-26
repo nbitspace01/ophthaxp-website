@@ -75,7 +75,7 @@ function buildTiers(basePriceInr?: number): Tier[] {
         "Everything in Silver",
         "1:1 mentor sessions (6 per cohort)",
         "Personalised learning roadmap",
-        "Live OT observation invites",
+        "Live OT observation access",
         "Practice-growth & ROI consults",
         "Lifetime alumni network access",
         "30-day money-back guarantee",

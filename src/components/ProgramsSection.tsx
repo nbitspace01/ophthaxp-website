@@ -3,53 +3,47 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronsLeft, ChevronsRight, Baby } from "lucide-react";
+import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import {
   AllSpecialtiesIcon,
+  CataractIcon,
   CorneaIcon,
   GlaucomaIcon,
-  OculoplastyIcon,
   PracticeManagementIcon,
   RefractiveSurgeryIcon,
   RetinaIcon,
 } from "@/components/SpecialtyIcons";
-import { DOCTORS, SPECIALTY_TABS } from "@/lib/data";
+import { DOCTORS } from "@/lib/data";
 import type { Doctor, Program, Specialty } from "@/types";
 import { cn } from "@/lib/utils";
 
 /**
- * The mark on each filter chip.
+ * The filter chips, in display order, each with its mark from the Figma icon
+ * family and the backend specialties it shows.
  *
- * Six come from the Figma and are one drawn family — the same eye, with what
- * distinguishes each specialty added to it. The Figma row covered All,
- * Cataract, Glaucoma, Refractive Surgery, Cornea, Retina and Practice
- * Management; this site's tabs also include Pediatric and Oculoplasty.
- * Oculoplasty is now drawn into the family by hand — the same eye with its lid
- * crease marked — because a pair of scissors among eight anatomical marks read
- * as exactly what it was. Pediatric keeps its lucide stand-in until the
- * artwork exists, rather than being handed a drawing that means something
- * else.
+ * The backend has no separate cataract specialty — cataract (phaco) and
+ * refractive share "phaco-refractive-surgery" — so both chips match it.
  */
-const SPECIALTY_ICONS: Record<Specialty, React.ComponentType<{ className?: string }>> = {
-  all: AllSpecialtiesIcon,
-  "cornea-ocular-surface": CorneaIcon,
-  "phaco-refractive-surgery": RefractiveSurgeryIcon,
-  "retina-vitreo-retinal-surgery": RetinaIcon,
-  glaucoma: GlaucomaIcon,
-  "pediatric-ophthalmology": Baby,
-  oculoplasty: OculoplastyIcon,
-  "ophthalmology-practice-mastery": PracticeManagementIcon,
-};
-
-/* The filter row runs across a single line in the design, so the tabs show the
-   short clinical name rather than the full title carried in SPECIALTY_TABS. */
-const SHORT_LABELS: Partial<Record<Specialty, string>> = {
-  "cornea-ocular-surface": "Cornea",
-  "phaco-refractive-surgery": "Refractive Surgery",
-  "retina-vitreo-retinal-surgery": "Retina",
-  "pediatric-ophthalmology": "Pediatric",
-  "ophthalmology-practice-mastery": "Practice Management",
-};
+const FILTERS: {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  /** Empty for "All". */
+  specialties: Specialty[];
+}[] = [
+  { key: "all", label: "All", icon: AllSpecialtiesIcon, specialties: [] },
+  { key: "cataract", label: "Cataract", icon: CataractIcon, specialties: ["phaco-refractive-surgery"] },
+  { key: "cornea", label: "Cornea", icon: CorneaIcon, specialties: ["cornea-ocular-surface"] },
+  { key: "glaucoma", label: "Glaucoma", icon: GlaucomaIcon, specialties: ["glaucoma"] },
+  { key: "retina", label: "Retina", icon: RetinaIcon, specialties: ["retina-vitreo-retinal-surgery"] },
+  { key: "refractive", label: "Refractive", icon: RefractiveSurgeryIcon, specialties: ["phaco-refractive-surgery"] },
+  {
+    key: "practice-mastery",
+    label: "Practice Mastery",
+    icon: PracticeManagementIcon,
+    specialties: ["ophthalmology-practice-mastery"],
+  },
+];
 
 export function ProgramsSection({
   doctors,
@@ -81,7 +75,7 @@ export function ProgramsSection({
     }
     return map;
   }, [programs, data]);
-  const [active, setActive] = useState<Specialty>("all");
+  const [active, setActive] = useState<string>("all");
   const [pageCount, setPageCount] = useState(1);
   const [activePage, setActivePage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -121,8 +115,9 @@ export function ProgramsSection({
   }, [data, courseByDoctorSlug]);
 
   const filtered = useMemo(() => {
-    if (active === "all") return entries;
-    return entries.filter((e) => e.doctor.specialty.includes(active));
+    const filter = FILTERS.find((f) => f.key === active);
+    if (!filter || filter.specialties.length === 0) return entries;
+    return entries.filter((e) => e.doctor.specialty.some((sp) => filter.specialties.includes(sp)));
   }, [active, entries]);
 
   // Track scroll position so the bottom pagination reflects the reader's place
@@ -190,7 +185,7 @@ export function ProgramsSection({
     <section
       id="programs"
       aria-labelledby="programs-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-[120px]"
+      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="programs-title"
@@ -198,9 +193,8 @@ export function ProgramsSection({
       >
         Legacy Transfer Programmes
       </h2>
-      <p className="mx-auto mt-4 max-w-[46rem] text-center text-sm leading-relaxed text-white/45 sm:text-[15px]">
-        Each programme is carefully structured and led by experienced practitioners,
-        designed to help you advance through focused, real-time learning.
+      <p className="mx-auto mt-4 text-center text-[15px] leading-relaxed text-white/45 sm:text-[17px] lg:ml-[133px] lg:mr-[180px]">
+        Each programme is a methodical, months-long hybrid journey with the Legend, built around the high-stakes realities of the specialty and your practice. The programme’s architecture starts and ends in your practice: every engagement with the Legend returns to practice; every return deepens the next, transforming how you think, decide, perform, and grow.
       </p>
 
       {/* Specialty tabs */}
@@ -209,9 +203,9 @@ export function ProgramsSection({
         aria-label="Specialty filters"
         className="mx-auto mt-10 flex max-w-5xl flex-wrap justify-center gap-3 sm:mt-14"
       >
-        {SPECIALTY_TABS.map((tab) => {
+        {FILTERS.map((tab) => {
           const selected = active === tab.key;
-          const Icon = SPECIALTY_ICONS[tab.key] ?? AllSpecialtiesIcon;
+          const Icon = tab.icon;
           return (
             <button
               key={tab.key}
@@ -227,7 +221,7 @@ export function ProgramsSection({
               )}
             >
               <Icon className="h-[22px] w-[22px]" />
-              {SHORT_LABELS[tab.key] ?? tab.label}
+              {tab.label}
             </button>
           );
         })}

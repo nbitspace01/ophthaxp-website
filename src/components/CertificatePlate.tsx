@@ -51,7 +51,7 @@ export interface Signatory {
  * a programme awards is signed by the Legend who taught it.
  */
 export const HOUSE_SIGNATORY: Signatory = {
-  name: "Dr. Srinivas K Rao",
+  name: "Dr. Srinivas K. Rao",
   role: "Cornea & Cataract Specialist",
 };
 
