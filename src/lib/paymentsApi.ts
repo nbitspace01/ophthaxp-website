@@ -26,8 +26,9 @@
 
 const BASE = process.env.NOCODE_API_BASE_URL || "";
 const APP_ID = process.env.NOCODE_APP_ID || "";
-const ORG_ID = process.env.NOCODE_ORG_ID || "";
 const API_KEY = process.env.NOCODE_API_KEY || "";
+import { resolveOrgId } from "./platformIdentity";
+
 const APPLY_LEADS_MODULE =
   process.env.NOCODE_APPLY_LEADS_MODULE || "ophthaxp_apply_leads";
 
@@ -45,7 +46,7 @@ const TIMEOUT_MS = 15000;
 const PAID_STATUSES = ["succeeded", "collected"];
 
 export function isPaymentConfigured(): boolean {
-  return Boolean(BASE && APP_ID && ORG_ID && API_KEY);
+  return Boolean(BASE && APP_ID && API_KEY);
 }
 
 /**
@@ -60,12 +61,15 @@ export function exploratoryFeeInr(): number | null {
   return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : null;
 }
 
+/**
+ * `app-id` and `org-id` used to be sent here. They are gone because the
+ * platform fills both in from the key's own row on every authenticated call —
+ * sending our own was only ever a second place for them to go stale.
+ */
 function headers(): Record<string, string> {
   return {
     "content-type": "application/json",
     "x-api-key": API_KEY,
-    "app-id": APP_ID,
-    "org-id": ORG_ID,
   };
 }
 
@@ -88,9 +92,9 @@ async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>): Promise
  * move that lead to `call_fee_paid`. The website addresses modules by title
  * everywhere else, so the id has to be looked up.
  *
- * A read through the public data API answers it: the envelope carries `tId`
- * alongside the rows. Cached for the life of the server process — a module's
- * id does not change, and this sits in the path of a checkout.
+ * A read through the data API answers it: the envelope carries `tId` alongside
+ * the rows. Cached for the life of the server process — a module's id does not
+ * change, and this sits in the path of a checkout.
  */
 const moduleIdCache = new Map<string, number>();
 
@@ -98,14 +102,12 @@ export async function resolveModuleId(title: string): Promise<number | null> {
   const cached = moduleIdCache.get(title);
   if (cached) return cached;
 
-  const url = `${BASE}/api/public/data/${APP_ID}/${ORG_ID}/${encodeURIComponent(
-    title,
-  )}?limit=1`;
+  const url = `${BASE}/api/data/${encodeURIComponent(title)}?limit=1`;
 
   try {
     return await withTimeout(async (signal) => {
       const res = await fetch(url, {
-        headers: { "content-type": "application/json" },
+        headers: headers(),
         signal,
         cache: "no-store",
       });
@@ -183,6 +185,15 @@ export async function createExploratoryCheckout(
     return { ok: false, error: "Payments are not available right now." };
   }
 
+  // Checkout is the one platform call that is *not* authenticated — it sits
+  // above the middleware so a QR code can open a payment page with no
+  // credentials — so nothing injects the organisation for us and it has to
+  // travel in the body. Asked of the key once and remembered. If the lookup
+  // cannot answer, the field is left off entirely rather than guessed at: the
+  // platform then derives the organisation from `appId`, which is right for a
+  // single-organisation app and is the platform's own documented fallback.
+  const organizationId = await resolveOrgId();
+
   try {
     return await withTimeout(async (signal) => {
       const res = await fetch(`${BASE}/api/payments/checkout`, {
@@ -195,7 +206,7 @@ export async function createExploratoryCheckout(
           amount: feeInr * 100,
           currency: "INR",
           appId: APP_ID,
-          organizationId: ORG_ID,
+          ...(organizationId ? { organizationId } : {}),
           description: input.courseName
             ? `Booking fee — ${input.courseName}`
             : "Legends of Medicine booking fee",

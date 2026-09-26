@@ -14,8 +14,6 @@
 
 const BASE = process.env.NOCODE_API_BASE_URL || "";
 const API_KEY = process.env.NOCODE_API_KEY || "";
-const APP_ID = process.env.NOCODE_APP_ID || "";
-const ORG_ID = process.env.NOCODE_ORG_ID || "";
 
 /** Google is on the other end of some of these; be patient, but not forever. */
 const TIMEOUT_MS = 15000;
@@ -52,15 +50,18 @@ export interface Appointment {
 }
 
 export function isBookingConfigured(): boolean {
-  return Boolean(BASE && API_KEY && APP_ID && ORG_ID);
+  return Boolean(BASE && API_KEY);
 }
 
+/**
+ * `app-id` and `org-id` used to be sent here. They are gone because the
+ * platform fills both in from the key's own row on every authenticated call —
+ * sending our own was only ever a second place for them to go stale.
+ */
 function headers(): Record<string, string> {
   return {
     "content-type": "application/json",
     "x-api-key": API_KEY,
-    "app-id": APP_ID,
-    "org-id": ORG_ID,
   };
 }
 

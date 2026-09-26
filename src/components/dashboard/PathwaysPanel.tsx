@@ -122,7 +122,7 @@ function Discovery({ match }: { match: PathwayMatch | null }) {
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
         A considered match
       </p>
-      <h2 className="mt-3 font-serif text-3xl leading-tight text-white">{match.name}</h2>
+      <h2 className="mt-3 font-serif text-xl leading-tight text-white">{match.name}</h2>
       <p className="mt-4 text-sm leading-relaxed text-white/55">{match.blurb}</p>
       <Cta href={`/programs/${match.slug}`} label="View pathway" />
     </>
@@ -150,7 +150,7 @@ function Record({ record }: { record: PathwayRecord }) {
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
         Your record
       </p>
-      <p className="mt-3 font-serif text-3xl leading-tight text-white">
+      <p className="mt-3 font-serif text-xl leading-tight text-white">
         {record.total} {record.total === 1 ? "application" : "applications"}
         {record.submitted > 0 ? (
           <span className="text-white/35"> · {record.submitted} submitted</span>

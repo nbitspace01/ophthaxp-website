@@ -99,7 +99,6 @@ export async function POST(req: Request) {
   await updateApplication(
     applicationId,
     { current_step: STEP.checkout, last_seen_at: new Date().toISOString() },
-    user.email,
   ).catch(() => undefined);
 
   return NextResponse.json({

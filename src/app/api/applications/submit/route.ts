@@ -95,7 +95,6 @@ export async function POST(req: Request) {
       submitted_at: new Date().toISOString(),
       last_seen_at: new Date().toISOString(),
     },
-    user.email,
   );
 
   if (!marked) {

@@ -35,7 +35,7 @@ export function PageHeading({
         </p>
         <Heading
           id={id}
-          className="mt-3 font-serif text-[clamp(2rem,4.6vw,3.9rem)] leading-[1.05] tracking-[-0.015em] text-white"
+          className="mt-3 font-serif text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.25] text-white"
         >
           {title}
         </Heading>

@@ -152,7 +152,7 @@ export async function POST(req: Request) {
 
   if (!isConfigured()) {
     console.error(
-      "[applications] platform env not set — NOCODE_API_BASE_URL / NOCODE_APP_ID / NOCODE_ORG_ID / NOCODE_API_KEY",
+      "[applications] platform env not set — NOCODE_API_BASE_URL / NOCODE_API_KEY",
     );
     return NextResponse.json(
       { error: "Applications are not available right now. Please try again shortly." },
@@ -214,7 +214,7 @@ export async function POST(req: Request) {
     };
 
     if (draft?.id) {
-      await updateApplication(draft.id, record, existing.id);
+      await updateApplication(draft.id, record);
       return NextResponse.json({ ok: true, applicationId: draft.id, nextStep: 2, user: existing });
     }
 
@@ -226,7 +226,6 @@ export async function POST(req: Request) {
         status: "draft",
         source: "apply-flow",
       },
-      existing.id,
     );
 
     if (created.id == null) return couldNotOpen(created.reason);
@@ -285,7 +284,6 @@ export async function POST(req: Request) {
       source: "apply-flow",
       last_seen_at: nowIso(),
     },
-    applicant.id,
   );
 
   // Stop here rather than letting them walk into step 2 with no application
@@ -339,11 +337,7 @@ export async function PATCH(req: Request) {
       ? { current_step: pickWritable(body).current_step }
       : pickWritable(body);
 
-  const saved = await updateApplication(
-    id,
-    { ...fields, last_seen_at: nowIso() },
-    user.email,
-  );
+  const saved = await updateApplication(id, { ...fields, last_seen_at: nowIso() });
 
   if (!saved) return NextResponse.json({ error: "Could not save your progress" }, { status: 502 });
   return NextResponse.json({ ok: true, applicationId: id });

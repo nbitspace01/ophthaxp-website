@@ -1,26 +1,26 @@
 /**
  * The application rows behind the apply flow.
  *
- * Everything here goes through the platform's public data API. Accounts and
- * sessions are not this file's business — those use the platform's own auth
- * endpoints, in `platformAuth.ts`.
+ * Everything here goes through the platform's module data API, authenticated
+ * with an API key. Accounts and sessions are not this file's business — those
+ * use the platform's own auth endpoints, in `platformAuth.ts`.
  *
  * Nothing here is reachable from the browser. Every caller is a route handler
  * that has already checked the session cookie.
  */
 
 const BASE = process.env.NOCODE_API_BASE_URL || "";
-const APP_ID = process.env.NOCODE_APP_ID || "";
-const ORG_ID = process.env.NOCODE_ORG_ID || "";
 /**
- * Whose name the row is written under.
+ * Whose name the rows are written under.
  *
- * The same system account the lead route already uses. The applicant's own
- * identity lives in the row's `email` and `user_id` columns — `created_by` is
- * about which account performed the write, and the applicant does not have a
- * platform session to write with.
+ * The key *is* the identity. The platform looks it up on every request and
+ * fills in both the organisation and the user that created it, which is why
+ * neither is carried in the environment any more. The applicant's own identity
+ * still lives in the row's `email` and `user_id` columns — `created_by` only
+ * records which account performed the write, and the applicant has no platform
+ * session to write with.
  */
-const SYSTEM_USER = process.env.NOCODE_LEADS_USER_ID || "";
+const API_KEY = process.env.NOCODE_API_KEY || "";
 const APPLICATIONS_MODULE =
   process.env.NOCODE_APPLICATIONS_MODULE || "ophthaxp_applications";
 const APPLY_LEADS_MODULE =
@@ -72,7 +72,7 @@ export interface ApplicationRecord {
 }
 
 export function isConfigured(): boolean {
-  return Boolean(BASE && APP_ID && ORG_ID);
+  return Boolean(BASE && API_KEY);
 }
 
 async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>): Promise<T> {
@@ -85,16 +85,23 @@ async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>): Promise
   }
 }
 
+/**
+ * The only auth header these calls need.
+ *
+ * `app-id` and `org-id` are deliberately absent: the platform fills both in
+ * from the key's own row, and sending our own would only be a second place for
+ * them to go stale.
+ */
+function headers(): Record<string, string> {
+  return { "content-type": "application/json", "x-api-key": API_KEY };
+}
+
 function leadsUrl(): string {
-  return `${BASE}/api/public/data/${APP_ID}/${ORG_ID}/${encodeURIComponent(
-    APPLY_LEADS_MODULE,
-  )}`;
+  return `${BASE}/api/data/${encodeURIComponent(APPLY_LEADS_MODULE)}`;
 }
 
 function dataUrl(suffix = ""): string {
-  return `${BASE}/api/public/data/${APP_ID}/${ORG_ID}/${encodeURIComponent(
-    APPLICATIONS_MODULE,
-  )}${suffix}`;
+  return `${BASE}/api/data/${encodeURIComponent(APPLICATIONS_MODULE)}${suffix}`;
 }
 
 /**
@@ -149,14 +156,19 @@ export async function createLead(record: LeadRecord): Promise<number | null> {
   return withTimeout(async (signal) => {
     const res = await fetch(leadsUrl(), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       body: JSON.stringify({
-        ...record,
-        intent: "apply",
-        source: "apply-flow",
-        // Every lead enters the funnel untouched; the admin panel moves it on.
-        status: "new",
-        loggedUser: { id: SYSTEM_USER },
+        // The record has to be wrapped. Left unwrapped, the platform strips
+        // only the fields it injected and treats everything else as columns —
+        // which happens to work, until one of your field names collides with
+        // one of theirs.
+        data: {
+          ...record,
+          intent: "apply",
+          source: "apply-flow",
+          // Every lead enters the funnel untouched; the admin panel moves it on.
+          status: "new",
+        },
       }),
       signal,
       cache: "no-store",
@@ -196,20 +208,19 @@ export interface CreateApplicationResult {
  * step 2 with nothing behind them, only to be told at the very end that their
  * application could not be found.
  *
- * The likeliest refusal by far is HTTP 403 `MODULE_NOT_PUBLIC`: the public data
- * API only accepts writes to modules whose settings have `isPublic` turned on,
- * which is a toggle in the admin panel and not something the module JSON can
- * carry.
+ * The refusals worth recognising are both about the key: 401 when it is
+ * missing, mistyped or revoked, and 403 when the account that owns it has no
+ * create permission on the module. A key carries no permissions of its own —
+ * it inherits the full role of whoever created it.
  */
 export async function createApplication(
   record: ApplicationRecord,
-  userId: string,
 ): Promise<CreateApplicationResult> {
   return withTimeout(async (signal) => {
     const res = await fetch(dataUrl(), {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...record, loggedUser: { id: SYSTEM_USER || userId } }),
+      headers: headers(),
+      body: JSON.stringify({ data: record }),
       signal,
       cache: "no-store",
     });
@@ -217,9 +228,11 @@ export async function createApplication(
 
     if (!res.ok) {
       const hint =
-        res.status === 403
-          ? ` — the "${APPLICATIONS_MODULE}" module is not marked public. Turn on public API access for it in the admin panel.`
-          : "";
+        res.status === 401
+          ? " — NOCODE_API_KEY is missing, wrong, revoked or expired."
+          : res.status === 403
+            ? ` — the account behind NOCODE_API_KEY has no create permission on "${APPLICATIONS_MODULE}".`
+            : "";
       console.error(
         `[apply] application insert failed status=${res.status} body=${text}${hint}`,
       );
@@ -245,13 +258,15 @@ export async function createApplication(
 export async function updateApplication(
   id: number,
   record: ApplicationRecord,
-  userId: string,
 ): Promise<boolean> {
   return withTimeout(async (signal) => {
     const res = await fetch(dataUrl(`/${id}`), {
       method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...record, loggedUser: { id: SYSTEM_USER || userId } }),
+      headers: headers(),
+      // `dId` in the *body* is what picks the row; the `:dId` in the path is
+      // read by nobody. Leave it out and the platform quietly switches to a
+      // WHERE-matched bulk update across the whole module.
+      body: JSON.stringify({ dId: id, data: record }),
       signal,
       cache: "no-store",
     });
@@ -288,7 +303,7 @@ export async function findOpenApplication(
 
   return withTimeout(async (signal) => {
     const res = await fetch(`${dataUrl()}?${params.toString()}`, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });
@@ -362,7 +377,7 @@ export async function findApplicantProfile(
 
   return withTimeout(async (signal) => {
     const res = await fetch(`${dataUrl()}?${params.toString()}`, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });
@@ -414,7 +429,7 @@ export async function findApplicationForCourse(
 
   return withTimeout(async (signal) => {
     const res = await fetch(`${dataUrl()}?${params.toString()}`, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });
@@ -455,7 +470,7 @@ export async function listApplications(ownerEmail: string): Promise<ApplicationR
 
   return withTimeout(async (signal) => {
     const res = await fetch(`${dataUrl()}?${params.toString()}`, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });
@@ -478,18 +493,17 @@ export async function listApplications(ownerEmail: string): Promise<ApplicationR
  *
  * The answer lives on the lead row, which the rest of the business already
  * moves along — the mentor's decision, the call fee, the course fee. Read
- * through the same public data API, and read-only: nothing here writes to a
- * lead.
+ * through the same data API, and read-only: nothing here writes to a lead.
  */
 export async function getLeadStatus(leadId: number): Promise<string | null> {
   const leadsModule = process.env.NOCODE_APPLY_LEADS_MODULE || "ophthaxp_apply_leads";
-  const url = `${BASE}/api/public/data/${APP_ID}/${ORG_ID}/${encodeURIComponent(
+  const url = `${BASE}/api/data/${encodeURIComponent(
     leadsModule,
   )}?id=${leadId}&limit=1`;
 
   return withTimeout(async (signal) => {
     const res = await fetch(url, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });
@@ -514,7 +528,7 @@ export async function getApplicationById(
 
   return withTimeout(async (signal) => {
     const res = await fetch(`${dataUrl()}?${params.toString()}`, {
-      headers: { "content-type": "application/json" },
+      headers: headers(),
       signal,
       cache: "no-store",
     });

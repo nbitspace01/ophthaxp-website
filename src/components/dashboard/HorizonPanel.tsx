@@ -87,7 +87,7 @@ function Filled({ outlook }: { outlook: OutlookSnapshot }) {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40">
           Latest outlook
         </p>
-        <h4 className="mt-2 font-serif text-2xl leading-tight text-white sm:text-[2rem]">
+        <h4 className="mt-2 font-serif text-[1.25rem] leading-tight text-white sm:text-[1.5rem]">
           {outlook.specialization} <span className="text-white/30">·</span> {where}
         </h4>
 
@@ -98,7 +98,7 @@ function Filled({ outlook }: { outlook: OutlookSnapshot }) {
               className="flex items-baseline justify-between gap-4 border-b border-white/[0.07] py-3.5 last:border-b-0"
             >
               <dt className="text-sm text-white/55">{stat.label}</dt>
-              <dd className="text-base font-semibold tabular-nums text-white">{stat.value}</dd>
+              <dd className="text-sm font-semibold tabular-nums text-white">{stat.value}</dd>
             </div>
           ))}
         </dl>
@@ -123,7 +123,7 @@ function Filled({ outlook }: { outlook: OutlookSnapshot }) {
 function Empty({ loading }: { loading: boolean }) {
   return (
     <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/12 bg-white/[0.02] px-6 py-14 text-center">
-      <p className="max-w-md font-serif text-xl leading-snug text-white/85">
+      <p className="max-w-md font-serif text-base leading-snug text-white/85">
         {loading
           ? "Looking for your last outlook…"
           : "Pick a location and a specialty, and see the practice your present choices are quietly building."}

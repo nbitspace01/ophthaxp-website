@@ -108,7 +108,7 @@ export function ThreadRail({
                   >
                     {threadNumber(index)} · {item.eyebrow}
                   </span>
-                  <span className="mt-1 block truncate font-serif text-lg text-white">
+                  <span className="mt-1 block truncate font-serif text-base text-white">
                     {item.name}
                     {item.attribution ? (
                       <span className="ml-1.5 font-sans text-xs italic text-white/45">
