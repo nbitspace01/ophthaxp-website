@@ -1,4 +1,4 @@
-# OphthaXP — Frontend (Next.js 14)
+# OphthaXP — Frontend (Next.js 14) 
 
 Live, cohort-based mentorship for practising ophthalmologists and final-year MBBS students. This repo is the **frontend only** — the API routes under `/api/*` are stubs that you can either replace by proxying to your real backend or implement directly with Next.js route handlers.
 
@@ -184,5 +184,6 @@ The `stubReply()` function in `src/app/api/ai-chat/route.ts` already handles "MB
 ## License
 
 Private — © OphthaXP.
-#   w e b s i t e  
+#   w e b s i t e 
+ 
  
