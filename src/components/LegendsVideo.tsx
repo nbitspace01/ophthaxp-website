@@ -12,11 +12,12 @@ const FEATURED = {
 };
 
 /**
- * `videoSrc` is the featured programme’s video from the admin panel (its
- * trailer video field), so it is changed there rather than in code. Without
- * one the play button is left out.
+ * Section 3's video is fixed here on purpose: it is Dr. Srinivas K. Rao's
+ * video and does not follow the course video set in the admin panel.
  */
-export function LegendsVideo({ videoSrc }: { videoSrc?: string }) {
+const VIDEO_SRC = "https://res.cloudinary.com/gxylqfgq/video/upload/v1790403016/Dr_Srinivas_K_Rao.mp4";
+
+export function LegendsVideo() {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -59,7 +60,7 @@ export function LegendsVideo({ videoSrc }: { videoSrc?: string }) {
           <>
             <video
               ref={videoRef}
-              src={videoSrc}
+              src={VIDEO_SRC}
               controls
               playsInline
               autoPlay
@@ -103,7 +104,6 @@ export function LegendsVideo({ videoSrc }: { videoSrc?: string }) {
               <p className="mt-5 text-sm text-white/70">
                 with <span className="font-semibold text-white">{FEATURED.legend}</span>
               </p>
-              {videoSrc && (
               <button
                 ref={triggerRef}
                 type="button"
@@ -114,7 +114,6 @@ export function LegendsVideo({ videoSrc }: { videoSrc?: string }) {
                 <Play className="h-4 w-4" aria-hidden />
                 {FEATURED.cta}
               </button>
-              )}
             </div>
           </>
         )}

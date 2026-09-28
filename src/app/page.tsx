@@ -26,11 +26,6 @@ export default async function HomePage() {
     fetchHeroImagesFromBackend(),
   ]);
 
-  // Section 3’s video: the featured programme’s, else the first with one.
-  const featuredVideo = (
-    programs.find((p) => p.isFeatured && p.trailerVideoUrl) ?? programs.find((p) => p.trailerVideoUrl)
-  )?.trailerVideoUrl;
-
   const courseLd = courseListJsonLd(
     programs.map((p) => ({ name: p.name, slug: p.slug, description: p.description })),
   );
@@ -45,7 +40,7 @@ export default async function HomePage() {
       <main>
         <Hero images={heroImages} />
         <JourneySection />
-        <LegendsVideo videoSrc={featuredVideo} />
+        <LegendsVideo />
         <ProgramsSection doctors={selectDisplayDoctors(doctors)} programs={programs} />
         <HowItWorks />
         <HomeRoiSection />
