@@ -706,31 +706,6 @@ body {
   animation: how-wave-swell 4.4s ease-in-out infinite;
 }
 
-/* Hero pre-title: the incoming phrase as skeleton bars, one per wrapped line,
-   with a highlight sweeping across before the text itself fades in. */
-@keyframes skeleton-shimmer {
-  from {
-    background-position: 150% 0;
-  }
-  to {
-    background-position: -50% 0;
-  }
-}
-.skeleton-text {
-  color: transparent;
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.09) 25%,
-    rgba(255, 255, 255, 0.24) 50%,
-    rgba(255, 255, 255, 0.09) 75%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1s ease-in-out infinite;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-
 /* Orb glow on the "Visualize your Future" chip: the halo behind it breathes
    while the orb itself brightens on the same beat. */
 @keyframes how-orb-halo {

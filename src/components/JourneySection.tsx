@@ -70,7 +70,7 @@ export function JourneySection() {
               <h3 className="text-[clamp(1.25rem,1.7vw,1.5rem)] font-bold leading-tight text-white">
                 {card.title}
               </h3>
-              <p className="mt-1 text-[clamp(1.25rem,1.7vw,1.5rem)] font-bold leading-tight text-[#E2B5A5]">
+              <p className="mt-1 text-[clamp(1.25rem,1.7vw,1.5rem)] font-bold leading-[0.98] text-accent">
                 {card.subtitle}
               </p>
               <p className="mt-6 text-[15px] leading-relaxed text-white/60">{card.body}</p>
