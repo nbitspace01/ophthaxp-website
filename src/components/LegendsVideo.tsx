@@ -12,10 +12,12 @@ const FEATURED = {
 };
 
 /**
- * Section 3's video is fixed here on purpose: it is Dr. Srinivas K. Rao's
- * video and does not follow the course video set in the admin panel.
+ * Section 3's video comes from NEXT_PUBLIC_FEATURED_VIDEO_SRC, not from the
+ * course video set in the admin panel. NEXT_PUBLIC_ because this is a client
+ * component: Next inlines the value at build time, so a change needs a
+ * rebuild/redeploy. Without it the play button is left out.
  */
-const VIDEO_SRC = "https://res.cloudinary.com/gxylqfgq/video/upload/v1790403016/Dr_Srinivas_K_Rao.mp4";
+const VIDEO_SRC = process.env.NEXT_PUBLIC_FEATURED_VIDEO_SRC || "";
 
 export function LegendsVideo() {
   const [playing, setPlaying] = useState(false);
@@ -104,6 +106,7 @@ export function LegendsVideo() {
               <p className="mt-5 text-sm text-white/70">
                 with <span className="font-semibold text-white">{FEATURED.legend}</span>
               </p>
+              {VIDEO_SRC && (
               <button
                 ref={triggerRef}
                 type="button"
@@ -114,6 +117,7 @@ export function LegendsVideo() {
                 <Play className="h-4 w-4" aria-hidden />
                 {FEATURED.cta}
               </button>
+              )}
             </div>
           </>
         )}
