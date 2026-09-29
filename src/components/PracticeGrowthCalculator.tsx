@@ -1091,6 +1091,13 @@ export function PracticeGrowthCalculator({
   const canGenerate = missing.length === 0;
   /** The map only exists once there is a real catchment behind it. */
   const showMap = hasGenerated && result !== null;
+  /**
+   * The cards and the notes under them wait for the same thing, so the whole
+   * outlook arrives at once, fully filled in — rather than cards of dashes and
+   * half-known figures landing first with the map catching up after. A failed
+   * calculation still opens the panel, because that is where its error is said.
+   */
+  const showOutlook = showMap || (hasGenerated && !calcLoading && calcError !== null);
 
   const activeSpec = useMemo(
     () => specs.find((s) => s.slug === specSlug) ?? null,
@@ -1177,7 +1184,7 @@ export function PracticeGrowthCalculator({
    */
   const coverageRef = useRef<HTMLDetailsElement>(null);
   const hasCoveragePanel =
-    !compact && hasGenerated && (coverage.length > 0 || densityFallback);
+    !compact && showMap && (coverage.length > 0 || densityFallback);
 
   const revealCoverage = useCallback(() => {
     const el = coverageRef.current;
@@ -1766,7 +1773,7 @@ export function PracticeGrowthCalculator({
                   />
                 </span>
                 <span className="inline-flex items-center gap-2.5 text-[18px] font-medium tracking-tight text-white/85 sm:text-[22px]">
-                  {hasGenerated && calcLoading && (
+                  {hasGenerated && (calcLoading || pinLoading) && (
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                   )}
                   Your Future is here...
@@ -1781,33 +1788,37 @@ export function PracticeGrowthCalculator({
             )}
           </div>
 
-          {/* Clinical Impact Analysis — the cards exist only once the reader
-              has asked for an outlook. Before that they would be five headings
-              over five dashes, which reads as a panel that failed to load
-              rather than one waiting for an answer.
+          {/* Clinical Impact Analysis — the cards exist only once the outlook
+              the reader asked for has come back, and arrive with the map.
+              Before that they would be five headings over five dashes, which
+              reads as a panel that failed to load rather than one waiting for
+              an answer.
 
               Called "ROI Analysis" until it was pointed out that a doctor
               reading a panel about patients reached and disease burden is not
               being shown a return on investment. */}
-          {hasGenerated && (
+          {showOutlook && (
             <div className="relative border-t border-white/[0.07] p-3.5 sm:p-4">
               <span className="absolute -top-[17px] left-5 inline-flex items-center gap-2 rounded-t-lg bg-ink-800 px-4 py-2 text-[13px] text-white/85">
                 Clinical Impact Analysis
                 <ChevronDown className="h-3.5 w-3.5 text-white/50" aria-hidden />
               </span>
 
-              {/* Column widths and the 10px gutter are the Figma's. Two cards to
-                  a column across the first two so neither runs away from the
-                  other; the gauge keeps a column to itself because it is one
-                  dial and does not stack. */}
+              {/* Column widths and the 10px gutter are the Figma's. On wide
+                  screens the four cards sit two rows by two — area and
+                  population on top, revenue and burden beneath — and the gauge
+                  keeps the right-hand column to itself, across both rows,
+                  because it is one dial and does not stack. The two wrappers
+                  below dissolve into that grid there (lg:contents) and only
+                  stack their cards on narrower screens. */}
               <div className="grid gap-2.5 lg:grid-cols-[229fr_257fr_257fr]">
-                {/* Column 1 — the ground, and who is standing on it */}
-                <div className="flex flex-col gap-2.5">
+                {/* The ground, and who is standing on it */}
+                <div className="flex flex-col gap-2.5 lg:contents">
                   {/* The circle before any population is counted into it: how
                       much ground it covers, and how many pincodes that ground
                       is spread across. It leads the grid because it is the
                       premise every other card is measured over. */}
-                  <div className="relative flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5">
+                  <div className="relative flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-1">
                     {/* The Figma puts a heavily blurred shape behind this corner;
                         at that blur radius it reads as a wash, so it is one. It
                         belongs to the grid's top-left corner, so it travels with
@@ -1857,7 +1868,7 @@ export function PracticeGrowthCalculator({
                     )}
                   </div>
 
-                  <div className="flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5">
+                  <div className="flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-2 lg:row-start-1">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-[#A5A5A5]">
                       Catchment Population
                       <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
@@ -1876,9 +1887,9 @@ export function PracticeGrowthCalculator({
                   </div>
                 </div>
 
-                {/* Column 2 — the need, and what meeting it is worth */}
-                <div className="flex flex-col gap-2.5">
-                  <div className="flex-1 rounded-xl bg-accent p-3.5">
+                {/* The need, and what meeting it is worth */}
+                <div className="flex flex-col gap-2.5 lg:contents">
+                  <div className="flex-1 rounded-xl bg-accent p-3.5 lg:col-start-2 lg:row-start-2">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-white">
                       Disease Burden
                       <Info className="h-3 w-3 text-white" aria-hidden />
@@ -1895,7 +1906,7 @@ export function PracticeGrowthCalculator({
                   {/* flex-1 is the one departure from the original: this card
                       used to be the whole column, and now shares it with the
                       burden card above. */}
-                  <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-xl bg-ink-600 p-3.5">
+                  <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-2">
                     <div
                       aria-hidden
                       className="pointer-events-none absolute -top-28 left-0 right-0 h-56 rounded-[50%] bg-white/[0.06] blur-3xl"
@@ -1913,8 +1924,8 @@ export function PracticeGrowthCalculator({
                   </div>
                 </div>
 
-                {/* Column 3 — impact */}
-                <div className="flex flex-col rounded-xl bg-ink-600 p-3.5">
+                {/* Impact — the right-hand column, across both rows */}
+                <div className="flex flex-col rounded-xl bg-ink-600 p-3.5 lg:col-start-3 lg:row-span-2 lg:row-start-1">
                   <p className="inline-flex items-center gap-2 text-[13px] text-[#A5A5A5]">
                     Impact
                     <Info className="h-3.5 w-3.5 text-[#A5A5A5]" aria-hidden />
@@ -1981,7 +1992,7 @@ export function PracticeGrowthCalculator({
       {/* Both notes explain a population count, so they wait for one to exist —
           otherwise the resting panel carries a footer about numbers it is not
           showing, and pushes its own controls off the bottom of the screen. */}
-      {!compact && hasGenerated && (
+      {!compact && showMap && (
         <div className="border-t border-white/[0.07] p-4 sm:p-5">
           {(coverage.length > 0 || densityFallback) && (
             /* Collapsed like the method note under it. The table can run to

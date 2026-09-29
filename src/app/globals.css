@@ -893,6 +893,126 @@ body {
   }
 }
 
+/* ---------- Hero pre-title: chalkboard duster ----------
+   A change plays as one slow pass at a board with an unseen duster. Nothing
+   is drawn: the only thing on screen is the text going away. The duster is
+   rubbed up and down in a zig-zag as it works along the line, and the words
+   come off wherever it has passed — the top of a letter can be gone while its
+   foot is still there, waiting for the down-stroke. Its path is laid out by
+   HeroRotatingText as an SVG mask; here it is only set moving.
+
+   Once the line is completely gone there is a short beat of empty board, and
+   the next line comes back in, left to right, along a ragged edge. */
+
+/* The duster travelling its path: a stroke drawn out from start to end. */
+/* Each letter is wiped by the invisible duster: top-down, then bottom-up... */
+.letter-erase-down {
+  animation: letter-erase-down 700ms ease-in both;
+}
+.letter-erase-up {
+  animation: letter-erase-up 700ms ease-in both;
+}
+
+@keyframes letter-erase-down {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(100% 0 0 0); } /* top disappears first */
+}
+@keyframes letter-erase-up {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 100% 0); } /* bottom disappears first */
+}
+
+/* The mask does the erasing. This only makes sure nothing of the old line can
+   survive the pass, even where a browser cannot apply the mask. */
+.hero-chalk-erase {
+  animation: hero-chalk-gone 2200ms step-end both;
+}
+
+@keyframes hero-chalk-gone {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The next line comes in: a soft, zig-zag edge (a small inline SVG, roughened
+   with noise and feathered) carried across the text. The mask is two and a
+   half times as wide as the text so the edge travels fully across it; the
+   extra height is room for a little up-and-down drift. */
+
+@property --duster-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --duster-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.hero-chalk-write {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 140' preserveAspectRatio='none'%3E%3Cfilter id='r' filterUnits='userSpaceOnUse' x='-40' y='-60' width='340' height='260'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.3' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='12' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='3.5 1.5'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M130,-20 L123,-3 L137,14 L125,31 L138,48 L122,65 L135,82 L124,99 L137,116 L123,133 L134,150 L126,167 L-20,167 L-20,-20 Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 140' preserveAspectRatio='none'%3E%3Cfilter id='r' filterUnits='userSpaceOnUse' x='-40' y='-60' width='340' height='260'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.3' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='12' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='3.5 1.5'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M130,-20 L123,-3 L137,14 L125,31 L138,48 L122,65 L135,82 L124,99 L137,116 L123,133 L134,150 L126,167 L-20,167 L-20,-20 Z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 260% 140%;
+  mask-size: 260% 140%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: var(--duster-x) var(--duster-y);
+  mask-position: var(--duster-x) var(--duster-y);
+  animation:
+    hero-chalk-hold 3200ms step-end both,
+    hero-duster-across 3500ms cubic-bezier(0.4, 0, 0.3, 1) 3200ms both,
+    hero-duster-drift 3500ms ease-in-out 3200ms both;
+}
+
+/* the new line stays completely invisible until its write time */
+@keyframes hero-chalk-hold {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes hero-duster-across {
+  from {
+    --duster-x: 100%;
+  }
+  to {
+    --duster-x: 0%;
+  }
+}
+
+@keyframes hero-duster-drift {
+  0% {
+    --duster-y: 0%;
+  }
+  30% {
+    --duster-y: 100%;
+  }
+  65% {
+    --duster-y: 20%;
+  }
+  100% {
+    --duster-y: 50%;
+  }
+}
+
+/* ---------- Legends video: native controls ----------
+   The volume sits on the left with the playback controls, straight after the
+   elapsed time, rather than out on the right beside fullscreen. The controls
+   are the browser's own, so this reorders them rather than replacing them;
+   Chromium (Chrome, Edge) exposes them to styling, other browsers keep their
+   own order. The gap between the two groups is the browser's, and everything
+   given a lower order than it lands before it. */
+.legends-video::-webkit-media-controls-play-button,
+.legends-video::-webkit-media-controls-current-time-display,
+.legends-video::-webkit-media-controls-time-remaining-display,
+.legends-video::-webkit-media-controls-volume-control-container {
+  order: -1;
+}
+
 /* ---------- Dashboard ----------
    The signed-in shell. Almost all of it is Tailwind; what lives here is the one
    thing utilities cannot say — a surface lit from a point rather than filled

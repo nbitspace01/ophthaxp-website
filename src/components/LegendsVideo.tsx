@@ -23,15 +23,96 @@ export function LegendsVideo() {
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  /** When fullscreen was last left, so the Esc that left it is not reused. */
 
   useEffect(() => {
     if (!playing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+    const isFullscreen = () =>
+      Boolean(
+        document.fullscreenElement ||
+          (document as Document & { webkitFullscreenElement?: Element | null })
+            .webkitFullscreenElement ||
+          (videoRef.current as (HTMLVideoElement & { webkitDisplayingFullscreen?: boolean }) | null)
+            ?.webkitDisplayingFullscreen,
+      );
+
+    // downSeen: the current Esc press was seen going down, so its keyup is
+    // already accounted for.
+    // ignoreNextKeyUp: fullscreen was just left, so a keyup from the Esc that
+    // left it must not close the video. It expires after a short moment so it
+    // can never swallow the second Esc.
+    let downSeen = false;
+    let ignoreNextKeyUp = false;
+    let ignoreTimer: ReturnType<typeof setTimeout> | undefined;
+
+const onFullscreenChange = () => {
+  if (!isFullscreen()) {
+    ignoreNextKeyUp = true;
+
+    if (ignoreTimer) clearTimeout(ignoreTimer);
+
+    ignoreTimer = setTimeout(() => {
+      ignoreNextKeyUp = false;
+
+      // Remove focus from the native video control
+      // so the next Esc reaches the modal.
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 300);
+  }
+};
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (e.repeat) return;
+      downSeen = true;
+      ignoreNextKeyUp = false;
+      if (isFullscreen()) {
+        // Esc in fullscreen only leaves fullscreen.
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        return;
+      }
+      // Esc in the normal view closes the video, even if the native
+      // controls / fullscreen button currently hold focus.
+      e.preventDefault();
+      e.stopPropagation();
+      close();
     };
-    document.addEventListener("keydown", onKey);
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+
+      if (downSeen) {
+        downSeen = false;
+        return;
+      }
+
+      // Keyup with no keydown seen: the browser swallowed the keydown.
+      // If it belongs to the Esc that just left fullscreen, ignore it.
+      if (ignoreNextKeyUp) {
+        ignoreNextKeyUp = false;
+        return;
+      }
+      if (isFullscreen()) return;
+
+      close();
+    };
+
+    // On the window and in the capture phase, so the key is seen before
+    // anything inside the page (e.g. the video's own controls) can stop it.
+    window.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("keyup", onKeyUp, true);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
     videoRef.current?.play().catch(() => {});
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      if (ignoreTimer) clearTimeout(ignoreTimer);
+      window.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("keyup", onKeyUp, true);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+    };
   }, [playing]);
 
   const close = () => {
@@ -66,7 +147,7 @@ export function LegendsVideo() {
               controls
               playsInline
               autoPlay
-              className="h-full w-full bg-black object-contain"
+              className="legends-video h-full w-full bg-black object-contain"
             />
             <button
               type="button"
