@@ -21,7 +21,7 @@ export function HomeRoiSection() {
         Visualize your future practice
       </h2>
       <p className="mt-3 text-[15px] text-white/40">
-        Estimate your fellowship&apos;s real-world clinical impact.
+        Enter your sub-specialty ambition. See it take shape across your practice, patients and region.
       </p>
 
       <div className="mt-10 sm:mt-12">

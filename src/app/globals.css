@@ -1052,3 +1052,97 @@ body {
     scroll-margin-top: 104px;
   }
 }
+
+/* ---------- LoMa animated icon ----------
+   A doctor's coat that opens three times to reveal Answer, Guide and
+   Workflow, then loops.  5.4 s total, timing from the Gemini handoff.
+
+   Percentage keypoints (of 5.4 s):
+     0.25 s →  4.6 %     1.65 s → 30.6 %     3.05 s → 56.5 %
+     0.60 s → 11.1 %     2.00 s → 37.0 %     3.40 s → 63.0 %
+     1.35 s → 25.0 %     2.75 s → 50.9 %     4.15 s → 76.9 %
+                                                4.55 s → 84.3 %   */
+
+/* Base layer — closed coat, fades out while a reveal is visible */
+@keyframes loma-coat {
+  0%, 4.6%     { opacity: 1; }
+  11.1%        { opacity: 0; }
+  25%          { opacity: 0; }
+  30.6%        { opacity: 1; }
+  37%          { opacity: 0; }
+  50.9%        { opacity: 0; }
+  56.5%        { opacity: 1; }
+  63%          { opacity: 0; }
+  76.9%        { opacity: 0; }
+  84.3%, 100%  { opacity: 1; }
+}
+
+/* Reveal 1 — Answer globe */
+@keyframes loma-answer {
+  0%, 4.6%     { opacity: 0; transform: scale(1) rotateY(0deg); }
+  11.1%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  18%          { opacity: 1; transform: scale(1.04) rotateY(8deg); }
+  25%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  30.6%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Reveal 2 — Guide prism */
+@keyframes loma-guide {
+  0%, 30.6%    { opacity: 0; transform: scale(1) rotateY(0deg); }
+  37%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  44%          { opacity: 1; transform: scale(1.04) rotateY(-8deg); }
+  50.9%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  56.5%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Reveal 3 — Workflow quadrant */
+@keyframes loma-workflow {
+  0%, 56.5%    { opacity: 0; transform: scale(1) rotateY(0deg); }
+  63%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  70%          { opacity: 1; transform: scale(1.04) rotateY(8deg); }
+  76.9%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  84.3%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Subtle levitation bob */
+@keyframes loma-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1px); }
+}
+
+/* Glow intensifies during reveals */
+@keyframes loma-glow {
+  0%, 4.6%     { opacity: 0.15; transform: scale(1); }
+  11.1%        { opacity: 0.7;  transform: scale(1.25); }
+  25%          { opacity: 0.7;  transform: scale(1.25); }
+  30.6%        { opacity: 0.15; transform: scale(1); }
+  37%          { opacity: 0.7;  transform: scale(1.25); }
+  50.9%        { opacity: 0.7;  transform: scale(1.25); }
+  56.5%        { opacity: 0.15; transform: scale(1); }
+  63%          { opacity: 0.7;  transform: scale(1.25); }
+  76.9%        { opacity: 0.7;  transform: scale(1.25); }
+  84.3%, 100%  { opacity: 0.15; transform: scale(1); }
+}
+
+.loma-coat     { animation: loma-coat     5.4s ease-in-out infinite; }
+.loma-answer   { animation: loma-answer   5.4s ease-in-out infinite; }
+.loma-guide    { animation: loma-guide    5.4s ease-in-out infinite; }
+.loma-workflow { animation: loma-workflow 5.4s ease-in-out infinite; }
+.loma-float    { animation: loma-float    3s   ease-in-out infinite; }
+.loma-glow     { animation: loma-glow     5.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .loma-coat,
+  .loma-answer,
+  .loma-guide,
+  .loma-workflow,
+  .loma-float,
+  .loma-glow {
+    animation: none;
+  }
+  .loma-answer,
+  .loma-guide,
+  .loma-workflow {
+    opacity: 0;
+  }
+}
