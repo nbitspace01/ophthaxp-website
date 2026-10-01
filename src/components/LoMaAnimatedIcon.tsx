@@ -22,14 +22,7 @@ const layers = [
 
 export function LoMaAnimatedIcon() {
   return (
-    <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center loma-float">
-      {/* Cyan glow halo — intensifies during reveals */}
-      <span
-        aria-hidden
-        className="loma-glow absolute inset-0 rounded-full blur-[5px]"
-        style={{ background: "rgba(0, 192, 232, 0.35)" }}
-      />
-
+    <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center loma-float">
       {layers.map(({ src, cls }) => (
         <Image
           key={cls}

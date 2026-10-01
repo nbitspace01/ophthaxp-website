@@ -1828,7 +1828,7 @@ export function PracticeGrowthCalculator({
           {showOutlook && (
             <div className="relative border-t border-white/[0.07] p-3.5 sm:p-4">
               <span className="absolute -top-[17px] left-5 inline-flex items-center gap-2 rounded-t-lg bg-ink-800 px-4 py-2 text-[13px] text-white/85">
-                Clinical Impact Analysis
+                Your Practice Outlook
                 <ChevronDown className="h-3.5 w-3.5 text-white/50" aria-hidden />
               </span>
 
@@ -1846,25 +1846,28 @@ export function PracticeGrowthCalculator({
                       much ground it covers, and how many pincodes that ground
                       is spread across. It leads the grid because it is the
                       premise every other card is measured over. */}
-                  <div className="relative flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-1">
-                    {/* The Figma puts a heavily blurred shape behind this corner;
-                        at that blur radius it reads as a wash, so it is one. It
-                        belongs to the grid's top-left corner, so it travels with
-                        whichever card leads the column. */}
+                  <div className="relative flex-1 rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-1">
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -left-20 -top-10 h-40 w-52 rounded-full bg-white/[0.07] blur-3xl"
-                    />
+                      className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl"
+                    >
+                      <div className="absolute -left-20 -top-10 h-40 w-52 rounded-full bg-white/[0.07] blur-3xl" />
+                    </div>
                     <p className="relative inline-flex items-center gap-1.5 text-[13px] text-[#A5A5A5]">
-                      Serviceable Area
-                      <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                      Your Practice Geography
+                      <span className="group/info relative">
+                        <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                        <span className="pointer-events-none absolute left-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                          Based on the practice location and radius you set, the total practice area and number of pincodes within reach are shown here.
+                        </span>
+                      </span>
                     </p>
                     <p className="relative mt-1.5 flex flex-wrap items-baseline gap-x-2">
                       <span className="text-xl font-bold tabular-nums text-white">
                         {areaLabel ? <>{areaLabel} km&sup2;</> : "—"}
                       </span>
                       <span className="text-[11px] text-[#A5A5A5]">
-                        Within {radiusKm}km radius
+                        Serviceable area based on your selected practice radius
                       </span>
                     </p>
                     {/* Centre-aligned rather than baseline: a baseline row would
@@ -1896,10 +1899,15 @@ export function PracticeGrowthCalculator({
                     )}
                   </div>
 
-                  <div className="flex-1 overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-2 lg:row-start-1">
+                  <div className="flex-1 rounded-xl bg-ink-600 p-3.5 lg:col-start-2 lg:row-start-1">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-[#A5A5A5]">
                       Catchment Population
-                      <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                      <span className="group/info relative">
+                        <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-max max-w-[15rem] -translate-x-1/2 rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                          This shows the estimated number of people living within your practice radius.
+                        </span>
+                      </span>
                     </p>
                     <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
                       <span className="text-xl font-bold tabular-nums text-white">
@@ -1908,7 +1916,7 @@ export function PracticeGrowthCalculator({
                           : "—"}
                       </span>
                       <span className="text-[11px] text-[#A5A5A5]">
-                        People within {radiusKm}km radius
+                        People within your practice radius
                       </span>
                     </p>
                     <FigureRow filled={serviceablePopulation ? 10 : 0} tone="accent" />
@@ -1919,14 +1927,19 @@ export function PracticeGrowthCalculator({
                 <div className="flex flex-col gap-2.5 lg:contents">
                   <div className="flex-1 rounded-xl bg-accent p-3.5 lg:col-start-2 lg:row-start-2">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-white">
-                      Disease Burden
-                      <Info className="h-3 w-3 text-white" aria-hidden />
+                      Estimated Disease Burden
+                      <span className="group/info relative">
+                        <Info className="h-3 w-3 text-white" aria-hidden />
+                        <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                          Estimated from the population within your practice radius and the disease prevalence for the specialisation you selected.
+                        </span>
+                      </span>
                     </p>
                     <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
                       <span className="text-xl font-bold tabular-nums text-white">
                         {prevalenceCount ? `${formatPeopleShort(prevalenceCount)}+` : "—"}
                       </span>
-                      <span className="text-[11px] text-white">People needing Care</span>
+                      <span className="text-[11px] text-white">People who need care within your practice radius</span>
                     </p>
                     <FigureRow filled={burdenFigures} tone="white" />
                   </div>
@@ -1934,20 +1947,27 @@ export function PracticeGrowthCalculator({
                   {/* flex-1 is the one departure from the original: this card
                       used to be the whole column, and now shares it with the
                       burden card above. */}
-                  <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-2">
+                  <div className="relative flex flex-1 flex-col justify-center rounded-xl bg-ink-600 p-3.5 lg:col-start-1 lg:row-start-2">
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -top-28 left-0 right-0 h-56 rounded-[50%] bg-white/[0.06] blur-3xl"
-                    />
+                      className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl"
+                    >
+                      <div className="absolute -top-28 left-0 right-0 h-56 rounded-[50%] bg-white/[0.06] blur-3xl" />
+                    </div>
                     <p className="relative inline-flex items-center gap-1.5 text-[13px] text-[#A5A5A5]">
-                      Projected Revenue (Annual)
-                      <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                      Projected Practice Financials
+                      <span className="group/info relative">
+                        <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
+                        <span className="pointer-events-none absolute left-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                          This projects the annual gross fees from the outpatient and procedure volumes and average fees you set.
+                        </span>
+                      </span>
                     </p>
                     <p className="relative mt-2.5 text-[clamp(1.5rem,2.5vw,2.125rem)] font-bold leading-none tabular-nums text-white">
                       {hasGenerated ? formatINRShort(projectedRevenue) : "—"}
                     </p>
                     <p className="relative mt-3 text-[12px] leading-relaxed text-[#A5A5A5]">
-                      Estimated opportunity based on your location and practice profile.
+                      Estimated annually based on the volumes and fees you set.
                     </p>
                   </div>
                 </div>
@@ -1955,17 +1975,19 @@ export function PracticeGrowthCalculator({
                 {/* Impact — the right-hand column, across both rows */}
                 <div className="flex flex-col rounded-xl bg-ink-600 p-3.5 lg:col-start-3 lg:row-span-2 lg:row-start-1">
                   <p className="inline-flex items-center gap-2 text-[13px] text-[#A5A5A5]">
-                    Impact
-                    <Info className="h-3.5 w-3.5 text-[#A5A5A5]" aria-hidden />
+                    Your Clinical Impact
+                    <span className="group/info relative">
+                      <Info className="h-3.5 w-3.5 text-[#A5A5A5]" aria-hidden />
+                      <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                        This compares the estimated unique patients you could care for each year with the local disease burden, without counting the same patient twice across consultations and procedures.
+                      </span>
+                    </span>
                   </p>
-                  {/* The reading sits inside the arc, as on a real dial face — so it
-                      is positioned against the gauge itself rather than this card,
-                      whose height the two neighbouring columns decide. */}
                   <div className="flex flex-1 items-center">
                     <ImpactGauge pct={impactPct} />
                   </div>
                   <p className="mt-3 text-center text-[12px] text-[#A5A5A5]">
-                    Local Burden Addressed
+                    Of the local disease burden you could address annually
                   </p>
                 </div>
               </div>

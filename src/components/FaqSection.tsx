@@ -151,15 +151,20 @@ const CONTACT_PROMPT: FaqItem = {
   isPrompt: true,
 };
 
-const TABS = [
+const TABS_ROW1 = [
   "All",
   "Is This Right for Me?",
   "Can I Make It Work?",
   "What Will the Programme Be Like?",
   "How Do I Enter?",
+];
+
+const TABS_ROW2 = [
   "Programme Fee & Payment",
   "What Changes Afterwards?",
 ];
+
+const TABS = [...TABS_ROW1, ...TABS_ROW2];
 
 export function FaqSection() {
   const [tab, setTab] = useState(TABS[0]);
@@ -189,28 +194,52 @@ export function FaqSection() {
       <div
         role="tablist"
         aria-label="FAQ categories"
-        className="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3"
+        className="mt-8 flex flex-col items-center gap-2 sm:gap-3"
       >
-        {TABS.map((t) => {
-          const selected = t === tab;
-          return (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setTab(t)}
-              className={cn(
-                "rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
-                selected
-                  ? "bg-accent font-medium text-white"
-                  : "bg-ink-800 text-white/60 hover:bg-ink-700 hover:text-white",
-              )}
-            >
-              {t}
-            </button>
-          );
-        })}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+          {TABS_ROW1.map((t) => {
+            const selected = t === tab;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setTab(t)}
+                className={cn(
+                  "rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
+                  selected
+                    ? "bg-accent font-medium text-white"
+                    : "bg-ink-800 text-white/60 hover:bg-ink-700 hover:text-white",
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+          {TABS_ROW2.map((t) => {
+            const selected = t === tab;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setTab(t)}
+                className={cn(
+                  "rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
+                  selected
+                    ? "bg-accent font-medium text-white"
+                    : "bg-ink-800 text-white/60 hover:bg-ink-700 hover:text-white",
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-10 sm:mt-12">

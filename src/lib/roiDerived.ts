@@ -33,17 +33,20 @@ export function practiceRevenue(profile: PracticeProfile): number {
 /**
  * Share of the local disease burden this practice volume could reach.
  *
- * Everyone seen counts, outpatients included — reaching a patient is care,
- * whether or not they end up admitted. Capped at 100%: a practice cannot treat
- * more than all of them, and a burden of zero has no share to take.
+ * Uses max(outpatients, inpatients) rather than their sum: procedure patients
+ * are typically first seen as outpatients, so adding both would count the same
+ * person twice. Capped at 100%.
  */
 export function practiceImpactPct(
   profile: PracticeProfile,
   prevalenceCount: number,
 ): number {
   if (!prevalenceCount) return 0;
-  const treated = profile.annualOutpatients + profile.annualInpatients;
-  return Math.min(100, (treated / prevalenceCount) * 100);
+  const uniquePatients = Math.max(
+    profile.annualOutpatients,
+    profile.annualInpatients,
+  );
+  return Math.min(100, (uniquePatients / prevalenceCount) * 100);
 }
 
 /** The panel's own slider ceilings, which are also what the route will accept. */

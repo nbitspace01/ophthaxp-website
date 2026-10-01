@@ -53,7 +53,7 @@ export function JourneySection() {
         id="journey-title"
         className="mx-auto max-w-3xl text-center text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.3] tracking-[-0.01em] text-white"
       >
-        Making of a Legend.
+        Making of a Legend
       </h2>
 
       <ul className="mt-10 grid grid-cols-1 gap-3 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

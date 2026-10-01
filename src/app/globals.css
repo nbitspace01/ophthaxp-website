@@ -925,7 +925,7 @@ body {
 /* The mask does the erasing. This only makes sure nothing of the old line can
    survive the pass, even where a browser cannot apply the mask. */
 .hero-chalk-erase {
-  animation: hero-chalk-gone 2200ms step-end both;
+  animation: hero-chalk-gone 1600ms step-end both;
 }
 
 @keyframes hero-chalk-gone {
@@ -942,60 +942,90 @@ body {
    half times as wide as the text so the edge travels fully across it; the
    extra height is room for a little up-and-down drift. */
 
-@property --duster-x {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
+/* ---------- Hero rotating text: bottom → top slide ---------- */
+
+.hero-rotate-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-@property --duster-y {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 0%;
+.hero-rotate-enter {
+  animation: hero-slide-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-rotate-exit {
+  animation: hero-slide-out 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.hero-chalk-write {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 140' preserveAspectRatio='none'%3E%3Cfilter id='r' filterUnits='userSpaceOnUse' x='-40' y='-60' width='340' height='260'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.3' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='12' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='3.5 1.5'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M130,-20 L123,-3 L137,14 L125,31 L138,48 L122,65 L135,82 L124,99 L137,116 L123,133 L134,150 L126,167 L-20,167 L-20,-20 Z'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 140' preserveAspectRatio='none'%3E%3Cfilter id='r' filterUnits='userSpaceOnUse' x='-40' y='-60' width='340' height='260'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.07 0.3' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='12' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='3.5 1.5'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M130,-20 L123,-3 L137,14 L125,31 L138,48 L122,65 L135,82 L124,99 L137,116 L123,133 L134,150 L126,167 L-20,167 L-20,-20 Z'/%3E%3C/svg%3E");
-  -webkit-mask-size: 260% 140%;
-  mask-size: 260% 140%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: var(--duster-x) var(--duster-y);
-  mask-position: var(--duster-x) var(--duster-y);
-  animation:
-    hero-chalk-hold 3200ms step-end both,
-    hero-duster-across 3500ms cubic-bezier(0.4, 0, 0.3, 1) 3200ms both,
-    hero-duster-drift 3500ms ease-in-out 3200ms both;
+@keyframes hero-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* the new line stays completely invisible until its write time */
-@keyframes hero-chalk-hold {
+@keyframes hero-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* ---------- FAQ zoom popup ---------- */
+
+.faq-backdrop-in {
+  animation: faq-fade-in 400ms ease-out both;
+}
+.faq-backdrop-out {
+  animation: faq-fade-out 300ms ease-in both;
+}
+
+.faq-popup-in {
+  animation: faq-zoom-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: var(--faq-ox, 50%) var(--faq-oy, 50%);
+}
+.faq-popup-out {
+  animation: faq-zoom-out 300ms ease-in both;
+  transform-origin: var(--faq-ox, 50%) var(--faq-oy, 50%);
+}
+
+@keyframes faq-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-@keyframes hero-duster-across {
-  from {
-    --duster-x: 100%;
-  }
-  to {
-    --duster-x: 0%;
-  }
+@keyframes faq-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
-@keyframes hero-duster-drift {
+@keyframes faq-zoom-in {
   0% {
-    --duster-y: 0%;
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
   }
-  30% {
-    --duster-y: 100%;
-  }
-  65% {
-    --duster-y: 20%;
+  40% {
+    opacity: 1;
   }
   100% {
-    --duster-y: 50%;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes faq-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
   }
 }
 
@@ -1112,16 +1142,16 @@ body {
 
 /* Glow intensifies during reveals */
 @keyframes loma-glow {
-  0%, 4.6%     { opacity: 0.15; transform: scale(1); }
-  11.1%        { opacity: 0.7;  transform: scale(1.25); }
-  25%          { opacity: 0.7;  transform: scale(1.25); }
-  30.6%        { opacity: 0.15; transform: scale(1); }
-  37%          { opacity: 0.7;  transform: scale(1.25); }
-  50.9%        { opacity: 0.7;  transform: scale(1.25); }
-  56.5%        { opacity: 0.15; transform: scale(1); }
-  63%          { opacity: 0.7;  transform: scale(1.25); }
-  76.9%        { opacity: 0.7;  transform: scale(1.25); }
-  84.3%, 100%  { opacity: 0.15; transform: scale(1); }
+  0%, 4.6%     { opacity: 0.45; transform: scale(1); }
+  11.1%        { opacity: 0.85; transform: scale(1.35); }
+  25%          { opacity: 0.85; transform: scale(1.35); }
+  30.6%        { opacity: 0.45; transform: scale(1); }
+  37%          { opacity: 0.85; transform: scale(1.35); }
+  50.9%        { opacity: 0.85; transform: scale(1.35); }
+  56.5%        { opacity: 0.45; transform: scale(1); }
+  63%          { opacity: 0.85; transform: scale(1.35); }
+  76.9%        { opacity: 0.85; transform: scale(1.35); }
+  84.3%, 100%  { opacity: 0.45; transform: scale(1); }
 }
 
 .loma-coat     { animation: loma-coat     5.4s ease-in-out infinite; }

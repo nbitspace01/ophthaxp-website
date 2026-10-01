@@ -130,7 +130,7 @@ const onFullscreenChange = () => {
         id="legends-title"
         className="text-center text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.3] tracking-[-0.01em] text-white"
       >
-        Now, the Legends are closer than they appear.
+        Now, the Legends are closer than they appear
       </h2>
 
       <div
