@@ -893,6 +893,156 @@ body {
   }
 }
 
+/* ---------- Hero pre-title: chalkboard duster ----------
+   A change plays as one slow pass at a board with an unseen duster. Nothing
+   is drawn: the only thing on screen is the text going away. The duster is
+   rubbed up and down in a zig-zag as it works along the line, and the words
+   come off wherever it has passed — the top of a letter can be gone while its
+   foot is still there, waiting for the down-stroke. Its path is laid out by
+   HeroRotatingText as an SVG mask; here it is only set moving.
+
+   Once the line is completely gone there is a short beat of empty board, and
+   the next line comes back in, left to right, along a ragged edge. */
+
+/* The duster travelling its path: a stroke drawn out from start to end. */
+/* Each letter is wiped by the invisible duster: top-down, then bottom-up... */
+.letter-erase-down {
+  animation: letter-erase-down 700ms ease-in both;
+}
+.letter-erase-up {
+  animation: letter-erase-up 700ms ease-in both;
+}
+
+@keyframes letter-erase-down {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(100% 0 0 0); } /* top disappears first */
+}
+@keyframes letter-erase-up {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 100% 0); } /* bottom disappears first */
+}
+
+/* The mask does the erasing. This only makes sure nothing of the old line can
+   survive the pass, even where a browser cannot apply the mask. */
+.hero-chalk-erase {
+  animation: hero-chalk-gone 1600ms step-end both;
+}
+
+@keyframes hero-chalk-gone {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The next line comes in: a soft, zig-zag edge (a small inline SVG, roughened
+   with noise and feathered) carried across the text. The mask is two and a
+   half times as wide as the text so the edge travels fully across it; the
+   extra height is room for a little up-and-down drift. */
+
+/* ---------- Hero rotating text: bottom → top slide ---------- */
+
+.hero-rotate-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-rotate-enter {
+  animation: hero-slide-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-rotate-exit {
+  animation: hero-slide-out 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hero-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* ---------- FAQ zoom popup ---------- */
+
+.faq-backdrop-in {
+  animation: faq-fade-in 400ms ease-out both;
+}
+.faq-backdrop-out {
+  animation: faq-fade-out 300ms ease-in both;
+}
+
+.faq-popup-in {
+  animation: faq-zoom-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: var(--faq-ox, 50%) var(--faq-oy, 50%);
+}
+.faq-popup-out {
+  animation: faq-zoom-out 300ms ease-in both;
+  transform-origin: var(--faq-ox, 50%) var(--faq-oy, 50%);
+}
+
+@keyframes faq-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes faq-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes faq-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes faq-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+}
+
+/* ---------- Legends video: native controls ----------
+   The volume sits on the left with the playback controls, straight after the
+   elapsed time, rather than out on the right beside fullscreen. The controls
+   are the browser's own, so this reorders them rather than replacing them;
+   Chromium (Chrome, Edge) exposes them to styling, other browsers keep their
+   own order. The gap between the two groups is the browser's, and everything
+   given a lower order than it lands before it. */
+.legends-video::-webkit-media-controls-play-button,
+.legends-video::-webkit-media-controls-current-time-display,
+.legends-video::-webkit-media-controls-time-remaining-display,
+.legends-video::-webkit-media-controls-volume-control-container {
+  order: -1;
+}
+
 /* ---------- Dashboard ----------
    The signed-in shell. Almost all of it is Tailwind; what lives here is the one
    thing utilities cannot say — a surface lit from a point rather than filled
@@ -930,5 +1080,99 @@ body {
 @media (min-width: 768px) {
   .dash-section {
     scroll-margin-top: 104px;
+  }
+}
+
+/* ---------- LoMa animated icon ----------
+   A doctor's coat that opens three times to reveal Answer, Guide and
+   Workflow, then loops.  5.4 s total, timing from the Gemini handoff.
+
+   Percentage keypoints (of 5.4 s):
+     0.25 s →  4.6 %     1.65 s → 30.6 %     3.05 s → 56.5 %
+     0.60 s → 11.1 %     2.00 s → 37.0 %     3.40 s → 63.0 %
+     1.35 s → 25.0 %     2.75 s → 50.9 %     4.15 s → 76.9 %
+                                                4.55 s → 84.3 %   */
+
+/* Base layer — closed coat, fades out while a reveal is visible */
+@keyframes loma-coat {
+  0%, 4.6%     { opacity: 1; }
+  11.1%        { opacity: 0; }
+  25%          { opacity: 0; }
+  30.6%        { opacity: 1; }
+  37%          { opacity: 0; }
+  50.9%        { opacity: 0; }
+  56.5%        { opacity: 1; }
+  63%          { opacity: 0; }
+  76.9%        { opacity: 0; }
+  84.3%, 100%  { opacity: 1; }
+}
+
+/* Reveal 1 — Answer globe */
+@keyframes loma-answer {
+  0%, 4.6%     { opacity: 0; transform: scale(1) rotateY(0deg); }
+  11.1%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  18%          { opacity: 1; transform: scale(1.04) rotateY(8deg); }
+  25%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  30.6%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Reveal 2 — Guide prism */
+@keyframes loma-guide {
+  0%, 30.6%    { opacity: 0; transform: scale(1) rotateY(0deg); }
+  37%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  44%          { opacity: 1; transform: scale(1.04) rotateY(-8deg); }
+  50.9%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  56.5%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Reveal 3 — Workflow quadrant */
+@keyframes loma-workflow {
+  0%, 56.5%    { opacity: 0; transform: scale(1) rotateY(0deg); }
+  63%          { opacity: 1; transform: scale(1) rotateY(0deg); }
+  70%          { opacity: 1; transform: scale(1.04) rotateY(8deg); }
+  76.9%        { opacity: 1; transform: scale(1) rotateY(0deg); }
+  84.3%, 100%  { opacity: 0; transform: scale(1) rotateY(0deg); }
+}
+
+/* Subtle levitation bob */
+@keyframes loma-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1px); }
+}
+
+/* Glow intensifies during reveals */
+@keyframes loma-glow {
+  0%, 4.6%     { opacity: 0.45; transform: scale(1); }
+  11.1%        { opacity: 0.85; transform: scale(1.35); }
+  25%          { opacity: 0.85; transform: scale(1.35); }
+  30.6%        { opacity: 0.45; transform: scale(1); }
+  37%          { opacity: 0.85; transform: scale(1.35); }
+  50.9%        { opacity: 0.85; transform: scale(1.35); }
+  56.5%        { opacity: 0.45; transform: scale(1); }
+  63%          { opacity: 0.85; transform: scale(1.35); }
+  76.9%        { opacity: 0.85; transform: scale(1.35); }
+  84.3%, 100%  { opacity: 0.45; transform: scale(1); }
+}
+
+.loma-coat     { animation: loma-coat     5.4s ease-in-out infinite; }
+.loma-answer   { animation: loma-answer   5.4s ease-in-out infinite; }
+.loma-guide    { animation: loma-guide    5.4s ease-in-out infinite; }
+.loma-workflow { animation: loma-workflow 5.4s ease-in-out infinite; }
+.loma-float    { animation: loma-float    3s   ease-in-out infinite; }
+.loma-glow     { animation: loma-glow     5.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .loma-coat,
+  .loma-answer,
+  .loma-guide,
+  .loma-workflow,
+  .loma-float,
+  .loma-glow {
+    animation: none;
+  }
+  .loma-answer,
+  .loma-guide,
+  .loma-workflow {
+    opacity: 0;
   }
 }

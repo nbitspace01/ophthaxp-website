@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { ScanSearch } from "lucide-react";
-import { LoMaIcon } from "./LoMaIcon";
+import { LoMaAnimatedIcon } from "./LoMaAnimatedIcon";
 
 /**
  * The three tools, as icons in the marketing header.
@@ -66,16 +66,16 @@ const TOOLS: Tool[] = [
     // section: it is a tool a doctor uses, not a thing to read about, and the
     // login page carries them back here afterwards.
     key: "caseroom",
-    label: "Caseroom — practise on a live case",
+    label: "Caseroom — practise on a live case (Coming Soon)",
     href: "/account/caseroom",
     icon: (props) => <ScanSearch strokeWidth={1.6} {...props} />,
   },
   {
     key: "loma",
-    label: "LoMa — ask a medical question",
+    label: "LoMa — ask a medical question (Coming Soon)",
     href: "/#smart-assist",
     section: "smart-assist",
-    icon: (props) => <LoMaIcon {...props} />,
+    icon: () => <LoMaAnimatedIcon />,
   },
 ];
 

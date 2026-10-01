@@ -38,14 +38,14 @@ export function PageLoader({ label = "Preparing your experience" }: { label?: st
           <span className="absolute inset-3 animate-[loader-spin-reverse_3.2s_linear_infinite] rounded-full border border-transparent [border-bottom-color:theme(colors.accent.soft)] [border-left-color:rgba(167,139,250,0.25)]" />
           {/* Soft glow ring */}
           <span className="absolute inset-5 rounded-full bg-accent/15 blur-md" />
-          {/* Brand mark — the Legends of Medicine favicon */}
+          {/* Brand mark — the Legends of Medicine icon (transparent) */}
           <img
-            src="/brand/favicon-512.png"
+            src="/brand/lom-icon-loading.svg"
             alt=""
             aria-hidden
-            width={512}
-            height={512}
-            className="relative block h-14 w-14 rounded-full [animation:loader-pulse_2.4s_ease-in-out_infinite]"
+            width={400}
+            height={400}
+            className="relative block h-14 w-14 [animation:loader-pulse_2.4s_ease-in-out_infinite]"
           />
         </div>
 

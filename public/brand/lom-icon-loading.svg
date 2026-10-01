@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Legends of Medicine">
+  <defs>
+    <linearGradient id="barL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#BFB8B1"/><stop offset="1" stop-color="#BAB2A8"/>
+    </linearGradient>
+    <linearGradient id="barR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F9F0E6"/><stop offset="1" stop-color="#F4E7DA"/>
+    </linearGradient>
+  </defs>
+  <path d="M147 0 L89 58 L89 400 L147 342 Z" fill="url(#barL)"/>
+  <path d="M311 0 L253 58 L253 400 L311 342 Z" fill="url(#barR)"/>
+</svg>

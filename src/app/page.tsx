@@ -45,7 +45,7 @@ export default async function HomePage() {
         <HowItWorks />
         <HomeRoiSection />
         <CertificatesPromo />
-        <SmartAssist />
+        {/* <SmartAssist /> */}
         <FaqSection />
       </main>
       <Footer />
