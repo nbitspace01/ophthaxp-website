@@ -67,7 +67,7 @@ export function JourneySection() {
             <div className="mx-6 border-t border-white/10" />
 
             <div className="flex flex-1 flex-col px-6 pb-8 pt-7">
-<div className="h-[78px]">
+<div className="min-h-[120px]">
   <h3 className="text-[clamp(1.1rem,1.6vw,1.5rem)] font-semibold leading-tight text-white">
     {card.art === "clinic" ? (
       <>
@@ -80,11 +80,10 @@ export function JourneySection() {
     )}
   </h3>
 
-<p className="mt-1 whitespace-nowrap text-[clamp(1.05rem,1.3vw,1.25rem)] font-medium leading-tight text-accent">
-  {card.subtitle}
-</p>
+  <p className="mt-1 text-[clamp(1.1rem,1.6vw,1.5rem)] font-semibold leading-tight text-accent">
+    {card.subtitle}
+  </p>
 </div>
-
 <p className="mt-6 text-[15px] leading-relaxed text-white/60">
   {card.body}
 </p>

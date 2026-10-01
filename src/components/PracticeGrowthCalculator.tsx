@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
+  Check,
   ChevronDown,
   ChevronRight,
   Info,
@@ -229,7 +230,12 @@ function Field({
         className="inline-flex items-center gap-2 text-[14px] text-white"
       >
         {label}
-        <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+        <span className="group/info relative">
+          <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+          <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-max max-w-[15rem] -translate-x-1/2 rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+            {hint}
+          </span>
+        </span>
         <span className="sr-only">{hint}</span>
       </label>
       <span className="inline-flex h-6 items-center rounded-md bg-ink-600 px-2.5 text-[13px] font-semibold tabular-nums text-white focus-within:bg-ink-500">
@@ -1075,7 +1081,7 @@ export function PracticeGrowthCalculator({
       Nothing is pre-filled, so the button waits for all of it — a projection
       from half a practice profile would be a number the reader never gave. */
   const missing: string[] = [];
-  if (!specSlug) missing.push("a specialization");
+  if (!specSlug) missing.push("a specialisation");
   if (!/^\d{6}$/.test(pincode)) missing.push("a location");
   if (radiusKm === null) missing.push("a radius");
   if (
@@ -1287,8 +1293,14 @@ export function PracticeGrowthCalculator({
               htmlFor="growth-specialty"
               className="inline-flex items-center gap-2 text-[14px] text-white"
             >
-              Specialization
-              <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+              Specialisation
+              <span className="group/info relative">
+                <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+                <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-max max-w-[15rem] -translate-x-1/2 rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                  Begin with the specialisation you practise or intend to pursue.
+                </span>
+              </span>
+              <span className="sr-only">Begin with the specialisation you practise or intend to pursue.</span>
             </label>
             <div className="relative mt-2">
               <select
@@ -1304,7 +1316,7 @@ export function PracticeGrowthCalculator({
                 {/* Disabled so it shows while nothing is chosen but cannot be
                     chosen back into — there is no such thing as "no specialty". */}
                 <option value="" disabled className="bg-ink-800">
-                  Select a specialization
+                  Select a specialisation
                 </option>
                 {specs.map((s) => (
                   <option key={s.slug} value={s.slug} className="bg-ink-800">
@@ -1328,7 +1340,13 @@ export function PracticeGrowthCalculator({
               className="inline-flex items-center gap-2 text-[14px] text-white"
             >
               Practice Location
-              <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+              <span className="group/info relative">
+                <Info className="h-3.5 w-3.5 text-white" aria-hidden />
+                <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-max max-w-[15rem] -translate-x-1/2 rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
+                  Enter where you practise or intend to practise to map the population around it.
+                </span>
+              </span>
+              <span className="sr-only">Enter where you practise or intend to practise to map the population around it.</span>
             </label>
             <div ref={locationBoxRef} className="relative mt-2">
               <input
@@ -1426,7 +1444,7 @@ export function PracticeGrowthCalculator({
               hint={
                 areaLabel
                   ? `Covers about ${areaLabel} square kilometres`
-                  : "How far from your practice you expect to draw patients"
+                  : "Set how far patients are likely to travel to reach your practice."
               }
               value={
                 <ValueInput
@@ -1460,7 +1478,7 @@ export function PracticeGrowthCalculator({
             <Field
               htmlFor="growth-op"
               label="Annual Outpatients"
-              hint="Consultations you expect to see in a year"
+              hint="Set the number of outpatients you expect to care for each year."
               value={
                 <ValueInput
                   value={annualOutpatients}
@@ -1487,8 +1505,8 @@ export function PracticeGrowthCalculator({
           <div>
             <Field
               htmlFor="growth-op-fee"
-              label="Op Average Fee"
-              hint="Average consultation fee"
+              label="Average Consultation Fee"
+              hint="Set the average fee you intend to charge."
               value={
                 <ValueInput
                   value={opFeeInr}
@@ -1519,15 +1537,15 @@ export function PracticeGrowthCalculator({
           <div>
             <Field
               htmlFor="growth-ip"
-              label="Annual Inpatients"
-              hint="Admissions or procedures you expect in a year"
+              label="Annual Procedures"
+              hint="Set the number of procedures you expect to perform each year."
               value={
                 <ValueInput
                   value={annualInpatients}
                   min={0}
                   max={20000}
                   onChange={setAnnualInpatients}
-                  ariaLabel="Annual inpatients"
+                  ariaLabel="Annual procedures"
                   suffix={<PeopleUnit />}
                 />
               }
@@ -1540,22 +1558,22 @@ export function PracticeGrowthCalculator({
               value={annualInpatients}
               onChange={setAnnualInpatients}
               fill="rgba(183,90,68,0.8)"
-              valueText={`${formatNumber(annualInpatients ?? 0)} inpatients a year`}
+              valueText={`${formatNumber(annualInpatients ?? 0)} procedures a year`}
             />
           </div>
 
           <div>
             <Field
               htmlFor="growth-ip-fee"
-              label="Ip Average Fee"
-              hint="Average realisation per admission or procedure"
+              label="Average Procedure Fee"
+              hint="Set the average fee you intend to charge."
               value={
                 <ValueInput
                   value={ipFeeInr}
                   min={0}
                   max={200000}
                   onChange={setIpFeeInr}
-                  ariaLabel="Average realisation per admission in rupees"
+                  ariaLabel="Average procedure fee in rupees"
                   prefix={<Unit side="left">₹</Unit>}
                 />
               }
@@ -1568,7 +1586,7 @@ export function PracticeGrowthCalculator({
               value={ipFeeInr}
               onChange={setIpFeeInr}
               fill="rgba(183,90,68,0.8)"
-              valueText={`${formatNumber(ipFeeInr ?? 0)} rupees per admission`}
+              valueText={`${formatNumber(ipFeeInr ?? 0)} rupees per procedure`}
             />
           </div>
 
@@ -1589,11 +1607,21 @@ export function PracticeGrowthCalculator({
             className="mt-0.5 inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-xl bg-accent px-6 text-[14px] font-semibold text-white transition hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-40"
           >
             {calcLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+                Generating Your Outlook...
+              </>
+            ) : hasGenerated && result ? (
+              <>
+                <p className="h-5 w-5" aria-hidden>✓</p>
+                Your Outlook Is Ready 
+              </>
             ) : (
-              <Sparkles className="h-5 w-5" aria-hidden />
+              <>
+                <Sparkles className="h-5 w-5" aria-hidden />
+                Generate Your Outlook
+              </>
             )}
-            Generate The Outlook
           </button>
           {!canGenerate && (
             <p className="text-center text-[12px] text-white/35">
@@ -1776,12 +1804,12 @@ export function PracticeGrowthCalculator({
                   {hasGenerated && (calcLoading || pinLoading) && (
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                   )}
-                  Your Future is here...
+                  Your Future Takes Shape Here
                 </span>
                 {!hasGenerated && (
                   <p className="max-w-[20rem] text-[13px] leading-relaxed text-white/35">
-                    Choose a specialization and a location, then generate the
-                    outlook to see your catchment.
+                    Choose your specialisation, set your practice location and
+                    numbers to map your patient reach and clinical impact.
                   </p>
                 )}
               </div>
