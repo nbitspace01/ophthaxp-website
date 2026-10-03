@@ -1167,8 +1167,8 @@ export function PracticeGrowthCalculator({
       ? null
       : coverageOthers === 0
         ? `Stays inside ${result?.pincode} — no neighbouring pincode is touched`
-        : `Reaches ${coverageOthers} other pincode${coverageOthers === 1 ? "" : "s"} ` +
-          `beyond ${result?.pincode}`;
+        : `Your selected radius covers parts of ${coverageOthers} additional ` +
+          `pincode${coverageOthers === 1 ? "" : "s"} beyond ${result?.pincode}`;
 
   /**
    * Pincodes the circle touches. The backend counts them directly on
@@ -1226,6 +1226,24 @@ export function PracticeGrowthCalculator({
     const chosen = COVERAGE_SORTS.find((s) => s.key === coverageSort) ?? COVERAGE_SORTS[0];
     return [...coverage].sort(chosen.compare);
   }, [coverage, coverageSort]);
+
+  const reconciledPrevalence = useMemo(() => {
+    const pct = result?.prevalencePct ?? 0;
+    if (!coverage.length || !pct) return new Map<string, number>();
+    const raw = coverage.map((c) => c.inCirclePop * pct / 100);
+    const floored = raw.map(Math.floor);
+    let remainder = prevalenceCount - floored.reduce((a, b) => a + b, 0);
+    const indices = raw.map((v, i) => ({ i, frac: v - floored[i] }));
+    indices.sort((a, b) => b.frac - a.frac);
+    for (const { i } of indices) {
+      if (remainder <= 0) break;
+      floored[i]++;
+      remainder--;
+    }
+    const m = new Map<string, number>();
+    coverage.forEach((c, i) => m.set(c.pincode, floored[i]));
+    return m;
+  }, [coverage, prevalenceCount, result?.prevalencePct]);
 
   /**
    * Where the map draws the circle. The backend's own centre when it sends one —
@@ -1979,7 +1997,7 @@ export function PracticeGrowthCalculator({
                     <span className="group/info relative">
                       <Info className="h-3.5 w-3.5 text-[#A5A5A5]" aria-hidden />
                       <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
-                        This compares the estimated unique patients you could care for each year with the local disease burden, without counting the same patient twice across consultations and procedures.
+                        This compares the number of patients you expect to care for each year with the estimated disease burden within your practice radius.
                       </span>
                     </span>
                   </p>
@@ -2081,11 +2099,11 @@ export function PracticeGrowthCalculator({
                 ) : (
                   <>
                     <p className="mt-1 text-xs leading-relaxed text-white/45">
-                      Coverage is the share of each pincode&apos;s people inside your{" "}
-                      {radiusKm} km radius — counted cell by cell from a 200 m population
-                      grid, not by area. Distance runs from the centre of your radius to
-                      the centre of that pincode, so a large pincode can sit further away
-                      than {radiusKm} km and still reach into the circle.
+                      The model centres your selected radius on the mapped centre point
+                      of your practice pincode and accounts for every surrounding pincode
+                      that overlaps it. Use the coverage and care-need estimates to
+                      identify where the opportunity to extend care lies and decide where
+                      awareness, referral and access efforts should focus.
                     </p>
 
                     {/* One control, on the right, above the column headers it reorders.
@@ -2124,7 +2142,7 @@ export function PracticeGrowthCalculator({
                             </th>
                             <th scope="col" className="px-3 py-2 font-medium">Coverage</th>
                             <th scope="col" className="px-3 py-2 text-right font-medium">
-                              People in radius
+                              People Who Need Care
                             </th>
                           </tr>
                         </thead>
@@ -2184,7 +2202,7 @@ export function PracticeGrowthCalculator({
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-white">
-                                  {formatNumber(Math.round(c.inCirclePop))}
+                                  {formatNumber(reconciledPrevalence.get(c.pincode) ?? 0)}
                                 </td>
                               </tr>
                             );
@@ -2197,9 +2215,9 @@ export function PracticeGrowthCalculator({
                       {formatNumber(coverage.length)} pincode
                       {coverage.length === 1 ? "" : "s"} ·{" "}
                       <span className="font-semibold text-white/80">
-                        {formatNumber(serviceablePopulation)}
+                        {formatNumber(prevalenceCount)}
                       </span>{" "}
-                      people in radius
+                      people estimated to need care within your practice radius
                     </p>
                   </>
                 )}
@@ -2221,7 +2239,7 @@ export function PracticeGrowthCalculator({
                   pair, and one of them dimmed looks disabled rather than
                   secondary. */}
               <span className="text-sm font-semibold text-white">
-                How we count the population
+                How the Intelligence Layer Is Built
               </span>
               <ChevronDown
                 aria-hidden
@@ -2229,16 +2247,14 @@ export function PracticeGrowthCalculator({
               />
             </summary>
             <p className="px-5 pb-4 text-xs leading-relaxed text-white/55">
-              India is mapped as a grid of ~200 m cells, each with its own headcount, and
-              your radius sums the real cells inside it — never radius &times; average
-              density. Cells come from{" "}
-              <span className="text-white/75">Google Open Buildings</span> footprints scaled
-              by <span className="text-white/75">GHSL</span> height, carrying{" "}
-              <span className="text-white/75">WorldPop</span> totals blended with Meta&apos;s{" "}
-              <span className="text-white/75">HRSL</span> at a ratio tuned per density band,
-              then tagged to 2025 pincode boundaries (localities from the{" "}
-              <span className="text-white/75">India Post</span> directory). Calibrated
-              against ground-truth data for hundreds of pincodes — estimates, not a census.
+              India is mapped into approximately 200 m population cells, allowing the
+              model to estimate the people within your selected radius cell by
+              cell&mdash;not by multiplying area by average density. It combines Google
+              Open Buildings, GHSL, WorldPop and Meta HRSL, maps the results to 2025
+              pincode boundaries and calibrates them against ground-truth data from
+              hundreds of pincodes. The resulting population is then combined with
+              prevalence data for the selected specialisation to estimate how many people
+              may need care. These are modelled estimates, not census counts.
             </p>
           </details>
         </div>

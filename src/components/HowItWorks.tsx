@@ -15,40 +15,36 @@ const STEPS: {
   n: number;
   label: string;
   title: string;
+  description: string;
   src: string;
-  /* Step 1's photo is the only landscape shot, so it needs the Figma's crop —
-     56% across, 53% down — to keep the laptop in frame rather than centring on
-     the sofa. The portrait shots crop to the middle happily. */
   position?: string;
 }[] = [
   {
     n: 1,
-    label: "Explore",
-    title: "Explore the Possibilities.",
-    src: "/how-it-works/step-1-explore.png",
-    position: "56% 53%",
+    label: "Apply",
+    title: "The Pursuit Starts Here.",
+    description:
+      "Share your clinical background and what draws you to the programme. Schedule your Dialogue with the Legend.",
+    src: "/your-path/apply.png",
+    position: "50% 45%",
   },
   {
     n: 2,
-    label: "Apply",
-    title: "Apply with Conviction.",
-    src: "/how-it-works/step-2-apply.png",
+    label: "Dialogue",
+    title: "Where the Fit Becomes Clear.",
+    description:
+      "Discuss your goals directly with the Legend, understand the programme’s expectations and see whether it is right for you.",
+    src: "/your-path/dialogue.png",
+    position: "50% 42%",
   },
   {
     n: 3,
-    label: "Discovery Call",
-    title: "Discovery Call with the Legend.",
-    src: "/how-it-works/step-3-discovery-call.png",
-  },
-  {
-    n: 4,
-    label: "Transformation",
-    title: "Your Transformation Begins.",
-    src: "/how-it-works/step-4-transformation.png",
-    /* This shot is a two-up: the mentoring room over the video call. Its seam
-       sits at 49.6% of the source, and fitting the source (0.666) into the card
-       (0.560) with cover crops width only — so the split lands dead centre in
-       the card with no adjustment at all. */
+    label: "Journey",
+    title: "The Making Begins.",
+    description:
+      "From here, the programme’s structured journey unfolds, guided throughout by the Legend.",
+    src: "/your-path/journey-roundtable.png",
+    position: "50% 48%",
   },
 ];
 
@@ -251,34 +247,33 @@ export function HowItWorks() {
       aria-labelledby="how-title"
       className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
     >
+      <p className="mb-2 text-center text-[0.72rem] font-bold uppercase tracking-[0.22em] text-accent">
+        The Way In
+      </p>
       <h2
         id="how-title"
         className="mx-auto max-w-2xl text-center text-[clamp(1.75rem,3.1vw,2.6rem)] font-extrabold leading-[1.3] tracking-[-0.015em] text-white"
       >
-        Every Step Towards
-        <br className="hidden sm:block" /> Becoming Legendary
+        Your Path into LoM
       </h2>
 
-      <ol className="mt-12 grid grid-cols-1 gap-3.5 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-12 grid grid-cols-1 gap-3.5 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
         {STEPS.map((step, i) => {
           return (
             <li
               key={step.n}
-              className="relative isolate aspect-[291/520] overflow-hidden rounded-[10px] border border-[#4A4A4A] bg-ink-850"
+              className="group/card relative isolate aspect-[4/3] overflow-hidden rounded-[10px] border border-[#4A4A4A] bg-ink-850 transition-[border-color,transform,box-shadow] duration-500 hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-[0_30px_84px_rgba(0,0,0,.34)]"
             >
               <Image
                 src={step.src}
                 alt=""
                 fill
                 priority={i === 0}
-                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"
                 style={{ objectPosition: step.position ?? "center" }}
-                className="object-cover"
+                className="object-cover transition-[filter,transform] duration-[1.2s] ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:scale-[1.026]"
               />
 
-              {/* Figma stacks three darkeners over the photo: a flat 25% wash,
-                  a soft black bloom under the step badge, and a bottom ramp
-                  that only starts at 44% so the middle of the shot stays open. */}
               <div aria-hidden className="absolute inset-0 bg-black/25" />
               <div
                 aria-hidden
@@ -289,57 +284,20 @@ export function HowItWorks() {
                 className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(44,44,44,0)_44%,rgba(0,0,0,0.87)_100%)]"
               />
 
-              {/* Step badge */}
-              <div className="absolute left-4 top-4 z-10 flex items-center gap-2.5">
+              {/* Step label — left, badge — right */}
+              <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">{step.label}</span>
                 <StepBadge n={step.n} total={STEPS.length} />
-                <span className="text-[15px] text-white">{step.label}</span>
               </div>
 
-              {/* Per-step decoration */}
-              {i === 0 && (
-                /* Icon-only chips, each a shortcut to the section it names:
-                   both LOMA marks go to the assistant panel and the orb to the
-                   ROI calculator. Without labels the Figma's staircase goes
-                   too — the chips are equal squares now — so they read as a
-                   column of marks and leave the photo open behind. */
-                <div className="absolute right-[5%] top-[12%] z-10 flex flex-col items-end gap-2">
-                  <Chip label="Meet LOMA" href="#smart-assist">
-                    <LomaMark className="h-6 w-6 shrink-0" />
-                  </Chip>
-                  <Chip label="Access LOMA Cases" href="#smart-assist">
-                    <LomaCasesMark className="h-6 w-6 shrink-0" />
-                  </Chip>
-                  <Chip label="Visualize your Future" href="#roi">
-                    <VisualizeOrb />
-                  </Chip>
-                </div>
-              )}
-
-              {i === 3 && (
-                /* Its own card in the Figma, not one of the step-1 chips: a
-                   176x69 panel on a flat 10% white wash with no border, dead
-                   centre in the card as the Figma places it. That puts it
-                   across the seam of the two-up photo, bridging the mentoring
-                   room and the video call — which is the point of the label.
-                   The heavy backdrop blur is what makes that work: it softens
-                   the brightness step between the two frames enough that the
-                   panel reads as one piece of glass over both.
-
-                   The blur is not in the SVG export, which carries only the
-                   white fill — Figma's own background blur does not survive the
-                   export — but at 10% white alone the photo reads straight
-                   through and the panel looks like a smear. */
-                <div className="absolute left-1/2 top-1/2 z-10 flex h-[69px] w-[176px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 rounded-lg bg-white/10 backdrop-blur-[16px]">
-                  <HybridIcon />
-                  <span className="whitespace-nowrap text-sm text-white">
-                    Hybrid Immersions
-                  </span>
-                </div>
-              )}
-
-              <p className="absolute inset-x-0 bottom-[6%] z-10 px-5 text-center text-[22px] font-bold leading-[1.25] text-white">
-                {step.title}
-              </p>
+              <div className="absolute inset-x-0 bottom-[6%] z-10 px-5 text-center">
+                <p className="text-[22px] font-bold leading-[1.25] text-white">
+                  {step.title}
+                </p>
+                <p className="mt-0 max-h-0 overflow-hidden text-[13px] leading-relaxed text-white/70 opacity-0 transition-[max-height,opacity,margin] duration-500 ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:mt-2.5 group-hover/card:max-h-28 group-hover/card:opacity-100">
+                  {step.description}
+                </p>
+              </div>
             </li>
           );
         })}

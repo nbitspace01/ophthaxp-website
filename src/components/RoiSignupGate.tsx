@@ -37,8 +37,8 @@ export function RoiSignupGate({
   const isControls = reason === "controlChanges";
 
   const heading = isControls
-    ? "Keep refining your outlook"
-    : "Visualize your practice anywhere";
+    ? "Keep Shaping Your Future"
+    : "Keep Shaping Your Future";
 
   /**
    * Only name a number when this visitor really reached it.
@@ -56,13 +56,11 @@ export function RoiSignupGate({
   /** What they have used. Stated plainly, without reproach. */
   const used = isControls
     ? quota && reachedOwnLimit
-      ? `You have refined this outlook ${quota.freeControlChanges} times.`
-      : "You have reached the free limit for refining this outlook."
+      ? "You have used your two free outlooks."
+      : "You have used your two free outlooks."
     : quota && reachedOwnLimit
-      ? `You have explored your ${quota.freePincodes} free ${
-          quota.freePincodes === 1 ? "location" : "locations"
-        }.`
-      : "You have reached the free limit for exploring locations.";
+      ? "You have used your two free outlooks."
+      : "You have used your two free outlooks.";
 
   /**
    * What an account opens up, in the panel's own terms. Deliberately does NOT
@@ -70,8 +68,8 @@ export function RoiSignupGate({
    * that, and hearing it twice in three lines reads as a pitch.
    */
   const offer = isControls
-    ? "An account lets you keep adjusting your volumes, fees and catchment."
-    : "An account opens up every pincode in India.";
+    ? "Create a free account or log in to generate more."
+    : "Create a free account or log in to generate more.";
 
   return (
     <div className="absolute inset-0 z-[1200] flex items-center justify-center p-5">
@@ -111,7 +109,7 @@ export function RoiSignupGate({
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-[14px] font-semibold text-white transition hover:bg-accent-deep"
           >
             <UserPlus className="h-4 w-4" aria-hidden />
-            Create a free account
+            Create a Free Account
           </Link>
 
           <Link
@@ -119,7 +117,7 @@ export function RoiSignupGate({
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-[14px] font-medium text-white/70 ring-1 ring-white/15 transition hover:bg-white/5 hover:text-white"
           >
             <LogIn className="h-4 w-4" aria-hidden />
-            I already have an account
+            I Already Have an Account
           </Link>
         </div>
 
