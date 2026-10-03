@@ -206,7 +206,7 @@ export function FaqGrid({ items, label }: { items: FaqItem[]; label: string }) {
                 {card.q}
               </h3>
 
-              <p className="mt-2.5 text-[14.5px] leading-[25px] text-white/75 sm:text-[15px] sm:leading-[26px]">
+              <p className="mt-2.5 text-justify text-[14.5px] leading-[25px] text-white/75 sm:text-[15px] sm:leading-[26px]">
                 {card.a}
               </p>
 
