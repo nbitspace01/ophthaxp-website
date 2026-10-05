@@ -110,7 +110,7 @@ function LogbookRow({ entry }: { entry: HistoryEntry }) {
         </button>
 
         <Link
-          href={`/account/caseroom/history/${entry.id}`}
+          href={`/account/caseroom/case?history=${entry.id}`}
           aria-label={`View history for ${entry.title}`}
           title="View the conversation from this case"
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/55 ring-1 ring-white/10 transition hover:text-accent hover:ring-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
