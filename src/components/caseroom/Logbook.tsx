@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, History } from "lucide-react";
 import { Eyebrow, Panel, ScoreRow, XpDelta } from "./atoms";
 import { TIER_COLOR, gradedMetrics, relativeDay, xpSeries } from "./scoring";
 import type { HistoryEntry } from "./types";
@@ -54,56 +55,70 @@ function LogbookRow({ entry }: { entry: HistoryEntry }) {
 
   return (
     <div className="border-b border-white/[0.06] last:border-b-0">
-      <button
-        type="button"
-        onClick={() => hasDetail && setOpen((o) => !o)}
-        aria-expanded={hasDetail ? open : undefined}
-        disabled={!hasDetail}
-        className="group/row flex w-full items-center gap-3.5 py-4 text-left transition disabled:cursor-default sm:gap-4"
-      >
-        <span
-          aria-hidden
-          className="h-2 w-2 shrink-0 rounded-full transition duration-300 group-hover/row:scale-125"
-          style={{ background: verdictColor(entry.correct) }}
-        />
-
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] font-medium text-white/90">{entry.title}</span>
-
-          <span className="mt-1 flex flex-wrap items-center gap-x-2 text-[12px] text-white/40">
-            <span style={{ color: verdictColor(entry.correct) }}>
-              {entry.correct ? "Correct" : "Incorrect"}
-            </span>
-            <Sep />
-            <span>{relativeDay(entry.date)}</span>
-            {entry.reasoning_quality ? (
-              <>
-                <Sep />
-                <span className="capitalize">{entry.reasoning_quality} reasoning</span>
-              </>
-            ) : null}
-            {typeof entry.overall === "number" ? (
-              <>
-                <Sep />
-                <span className="tabular-nums">{entry.overall}/10</span>
-              </>
-            ) : null}
-          </span>
-        </span>
-
-        <XpDelta delta={delta} className="shrink-0 text-right text-[13px]" />
-
-        {hasDetail ? (
-          <ChevronDown
-            className={`h-4 w-4 shrink-0 text-white/30 transition duration-200 group-hover/row:text-accent ${
-              open ? "rotate-180" : ""
-            }`}
+      {/* The history link sits beside the row rather than in it: the row is
+          itself a button, and a button cannot hold a link. */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => hasDetail && setOpen((o) => !o)}
+          aria-expanded={hasDetail ? open : undefined}
+          disabled={!hasDetail}
+          className="group/row flex min-w-0 flex-1 items-center gap-3.5 py-4 text-left transition disabled:cursor-default sm:gap-4"
+        >
+          <span
             aria-hidden
+            className="h-2 w-2 shrink-0 rounded-full transition duration-300 group-hover/row:scale-125"
+            style={{ background: verdictColor(entry.correct) }}
           />
-        ) : (
-          <span className="w-4 shrink-0" />
-        )}
-      </button>
+
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-medium text-white/90">{entry.title}</span>
+
+            <span className="mt-1 flex flex-wrap items-center gap-x-2 text-[12px] text-white/40">
+              <span style={{ color: verdictColor(entry.correct) }}>
+                {entry.correct ? "Correct" : "Incorrect"}
+              </span>
+              <Sep />
+              <span>{relativeDay(entry.date)}</span>
+              {entry.reasoning_quality ? (
+                <>
+                  <Sep />
+                  <span className="capitalize">{entry.reasoning_quality} reasoning</span>
+                </>
+              ) : null}
+              {typeof entry.overall === "number" ? (
+                <>
+                  <Sep />
+                  <span className="tabular-nums">{entry.overall}/10</span>
+                </>
+              ) : null}
+            </span>
+          </span>
+
+          <XpDelta delta={delta} className="shrink-0 text-right text-[13px]" />
+
+          {hasDetail ? (
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-white/30 transition duration-200 group-hover/row:text-accent ${
+                open ? "rotate-180" : ""
+              }`}
+              aria-hidden
+            />
+          ) : (
+            <span className="w-4 shrink-0" />
+          )}
+        </button>
+
+        <Link
+          href={`/account/caseroom/history/${entry.id}`}
+          aria-label={`View history for ${entry.title}`}
+          title="View the conversation from this case"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/55 ring-1 ring-white/10 transition hover:text-accent hover:ring-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+        >
+          <History className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden />
+          <span className="hidden sm:inline">View history</span>
+        </Link>
+      </div>
 
       {open ? (
         <div className="animate-fadeIn grid gap-5 pb-6 pl-[1.375rem] pr-1">
