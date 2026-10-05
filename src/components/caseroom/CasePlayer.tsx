@@ -8,7 +8,14 @@ import { ErrorNote, Eyebrow, Panel, TypingDots } from "./atoms";
 import { LockInModal, ResultCard } from "./CaseDebrief";
 import { formatTime, prettyKey } from "./scoring";
 import { Caret, useMotionAllowed, useTypewriter } from "./typing";
-import type { CaseResult, CaseSession, CaseTurn, RevealedFinding } from "./types";
+import type {
+  CaseResult,
+  CaseSession,
+  CaseTurn,
+  HistoryEntry,
+  LomaProfile,
+  RevealedFinding,
+} from "./types";
 
 /**
  * Working a case.
@@ -31,6 +38,74 @@ import type { CaseResult, CaseSession, CaseTurn, RevealedFinding } from "./types
  */
 
 type Pane = "brief" | "evidence";
+
+/**
+ * A finished case, kept so it can be read back.
+ *
+ * The platform saves every turn, but the only route that hands them out is the
+ * mentor's — a doctor asking for their own gets a 403. So the case is also kept
+ * here, in the browser it was worked in, at the moment it is locked in. That
+ * makes the read-back exactly the screen the doctor worked on, and it means a
+ * case worked on another device, or before this existed, has no conversation
+ * to show.
+ */
+interface SavedCase {
+  session: CaseSession;
+  thread: CaseTurn[];
+  revealed: RevealedFinding[];
+  result: Pick<
+    CaseResult,
+    "before" | "after" | "duration_sec" | "final_diagnosis" | "final_reasoning"
+  >;
+}
+
+const SAVED_CASES_KEY = "caseroom:finished-cases:v1";
+/** Enough to cover a logbook; old ones fall off the end. */
+const SAVED_CASES_MAX = 60;
+
+function readSavedCases(): SavedCase[] {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(SAVED_CASES_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/* Never allowed to throw: this runs right after a case is graded, and a full
+   or blocked store must not come between a doctor and their result. */
+function saveFinishedCase(saved: SavedCase): void {
+  try {
+    const next = [saved, ...readSavedCases()].slice(0, SAVED_CASES_MAX);
+    window.localStorage.setItem(SAVED_CASES_KEY, JSON.stringify(next));
+  } catch {
+    /* Nothing to do. The case is graded and logged either way. */
+  }
+}
+
+/**
+ * The saved case behind a logbook row.
+ *
+ * Grading does not return the attempt's id, so the two are matched on what the
+ * platform sent back at lock-in and then stored on the row: the XP either side,
+ * the time taken and the answer given. Newest first, so the first match wins.
+ */
+function findSavedCase(entry: HistoryEntry): SavedCase | null {
+  const same = (a: unknown, b: unknown) => String(a ?? "").trim() === String(b ?? "").trim();
+
+  return (
+    readSavedCases().find(
+      (saved) =>
+        saved?.session &&
+        Array.isArray(saved.thread) &&
+        Number(saved.result?.before) === Number(entry.before) &&
+        Number(saved.result?.after) === Number(entry.after) &&
+        Number(saved.result?.duration_sec) === Number(entry.duration_sec) &&
+        same(saved.result?.final_diagnosis, entry.final_diagnosis) &&
+        same(saved.result?.final_reasoning, entry.final_reasoning),
+    ) ?? null
+  );
+}
 
 /** A reply is a couple of sentences, so it gets a shorter run than Iris's whole
  *  analysis — long enough to read as speech, short enough not to be a wait. */
@@ -137,8 +212,15 @@ function Turn({
   );
 }
 
-export function CasePlayer() {
+/**
+ * `reviewId` turns this into the read-back of a finished case: the same three
+ * columns, with nothing that can be typed into, sent or locked in.
+ */
+export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
   const router = useRouter();
+  const review = typeof reviewId === "number";
+  /* Said in the conversation column when a finished case has nothing to replay. */
+  const [reviewNote, setReviewNote] = useState<string | null>(null);
 
   const [session, setSession] = useState<CaseSession | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
@@ -173,6 +255,56 @@ export function CasePlayer() {
   useEffect(() => {
     let cancelled = false;
 
+    /* Reading a finished case back: nothing is generated and nothing is sent.
+       The logbook row comes from the profile, the conversation from this
+       browser's own copy. */
+    if (review) {
+      loma
+        .getProfile()
+        .then((profile: LomaProfile) => {
+          if (cancelled) return;
+
+          const entry = (profile.history ?? []).find((h) => h.id === reviewId);
+          if (!entry) {
+            setStartError("That case is not in your logbook.");
+            return;
+          }
+
+          const saved = findSavedCase(entry);
+          setElapsed(entry.duration_sec ?? 0);
+
+          if (saved) {
+            setSession(saved.session);
+            setThread(saved.thread);
+            setRevealed(Array.isArray(saved.revealed) ? saved.revealed : []);
+            setReviewNote("No questions were asked in this case.");
+            return;
+          }
+
+          setSession({
+            session_id: "",
+            title: entry.title,
+            blurb: entry.title,
+            source: "",
+            brief: { presenting_complaint: entry.presenting_complaint, history: "", exam_visible: "" },
+            withheld_keys: [],
+            objectives: [],
+          });
+          setReviewNote(
+            "The conversation for this case is not saved on this device. Cases you finish here from now on can be read back in full.",
+          );
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          console.error("Caseroom: the finished case could not be opened", err);
+          setStartError("This case could not be opened. Please try again.");
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
     loma
       .startCase()
       .then((data: CaseSession) => !cancelled && setSession(data))
@@ -189,11 +321,11 @@ export function CasePlayer() {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [attempt, review, reviewId]);
 
   // The session clock. Shown to the doctor, never used in scoring.
   useEffect(() => {
-    if (!session || result) return;
+    if (!session || result || review) return;
     if (startedAt.current === null) startedAt.current = Date.now();
 
     const tick = setInterval(
@@ -263,8 +395,10 @@ export function CasePlayer() {
      nothing else — the default walks every scrollable ancestor, which now
      includes the page itself. */
   useEffect(() => {
+    // A finished case is read from the top, not from where it ended.
+    if (review) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [thread, waiting]);
+  }, [thread, waiting, review]);
 
   /* Put a question to the attending. Separate from `send` below so a retry can
      ask the same question again without writing it into the case a second
@@ -314,6 +448,18 @@ export function CasePlayer() {
       const data = await loma.lockIn(session.session_id, diagnosis, reasoning, seconds);
       setResult(data);
       setLockInOpen(false);
+      saveFinishedCase({
+        session,
+        thread,
+        revealed,
+        result: {
+          before: data.before,
+          after: data.after,
+          duration_sec: data.duration_sec,
+          final_diagnosis: data.final_diagnosis,
+          final_reasoning: data.final_reasoning,
+        },
+      });
     } catch (err) {
       /* Same rule as a failed question: the provider's words go to the console,
          and the doctor is told what is true and what to do about it. Their
@@ -347,7 +493,9 @@ export function CasePlayer() {
   if (startError) {
     return (
       <div className="mx-auto grid max-w-md gap-5 py-24 text-center">
-        <p className="font-serif text-lg text-white">Could not start the case</p>
+        <p className="font-serif text-lg text-white">
+          {review ? "Could not open the case" : "Could not start the case"}
+        </p>
         <ErrorNote>{startError}</ErrorNote>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -373,6 +521,15 @@ export function CasePlayer() {
     );
   }
 
+  if (!session && review) {
+    return (
+      <div className="grid place-items-center py-32 text-center">
+        <TypingDots label="Opening the case" />
+        <p className="mt-5 font-serif text-lg text-white">Opening the case…</p>
+      </div>
+    );
+  }
+
   if (!session) {
     return (
       <div className="grid place-items-center py-32 text-center">
@@ -393,7 +550,7 @@ export function CasePlayer() {
     thread.some((m) => m.role === "trainee"),
     revealedKeys.length >= 3,
     foundCritical,
-    Boolean(result),
+    Boolean(result) || review,
   ];
 
   const brief = (
@@ -408,14 +565,17 @@ export function CasePlayer() {
           { title: "Presenting complaint", body: session.brief.presenting_complaint },
           { title: "History", body: session.brief.history },
           { title: "Examination", body: session.brief.exam_visible },
-        ].map((block) => (
-          <section key={block.title}>
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
-              {block.title}
-            </h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-white/70">{block.body}</p>
-          </section>
-        ))}
+        ]
+          // Only a read-back can be missing a block; a live case has all three.
+          .filter((block) => !review || Boolean(block.body))
+          .map((block) => (
+            <section key={block.title}>
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                {block.title}
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-white/70">{block.body}</p>
+            </section>
+          ))}
       </div>
 
       <p className="mt-6 border-t border-white/[0.06] pt-4 text-[11px] uppercase tracking-[0.14em] text-white/30">
@@ -448,7 +608,7 @@ export function CasePlayer() {
           Objectives
         </h2>
 
-        {showObjectives ? (
+        {showObjectives || review ? (
           <ul className="mt-3 grid gap-2">
             {session.objectives.map((label, i) => (
               <li
@@ -571,8 +731,9 @@ export function CasePlayer() {
             <div className="grid gap-4">
               {thread.length === 0 ? (
                 <p className="max-w-md rounded-2xl bg-white/[0.04] px-4 py-3 text-sm leading-relaxed text-white/60 ring-1 ring-white/[0.06]">
-                  Go ahead — ask about the history, request an examination or a test, or reason out
-                  loud. Lock in your diagnosis whenever you are ready.
+                  {review
+                    ? reviewNote
+                    : "Go ahead — ask about the history, request an examination or a test, or reason out loud. Lock in your diagnosis whenever you are ready."}
                 </p>
               ) : null}
 
@@ -611,7 +772,9 @@ export function CasePlayer() {
             </div>
           </div>
 
-          <div className="border-t border-white/[0.06] p-4 sm:p-5">
+          {/* A finished case has no reply box at all — not a disabled one. There
+              is nothing left to ask, and a dead field invites trying. */}
+          <div className={review ? "hidden" : "border-t border-white/[0.06] p-4 sm:p-5"}>
             <div className="flex items-end gap-3">
               {/* Never disabled. Disabling a field the doctor is typing in
                   hands focus back to the page, and they have to click into it
@@ -675,13 +838,20 @@ export function CasePlayer() {
                 {formatTime(elapsed)}
               </span>
 
-              <button
-                type="button"
-                onClick={() => setLockInOpen(true)}
-                className="rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-              >
-                Lock in diagnosis
-              </button>
+              {review ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-4 py-2 text-[13px] font-medium text-white/50 ring-1 ring-white/10">
+                  <Lock className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden />
+                  Read-only
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setLockInOpen(true)}
+                  className="rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                >
+                  Lock in diagnosis
+                </button>
+              )}
             </div>
           </div>
         </Panel>
