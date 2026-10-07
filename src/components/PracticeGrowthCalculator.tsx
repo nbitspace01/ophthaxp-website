@@ -1880,13 +1880,11 @@ export function PracticeGrowthCalculator({
                         </span>
                       </span>
                     </p>
-                    <p className="relative mt-1.5 flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-xl font-bold tabular-nums text-white">
-                        {areaLabel ? <>{areaLabel} km&sup2;</> : "—"}
-                      </span>
-                      <span className="text-[11px] text-[#A5A5A5]">
-                        Serviceable area based on your selected practice radius
-                      </span>
+                    <p className="relative mt-1.5 text-xl font-bold tabular-nums text-white">
+                      {areaLabel ? <>{areaLabel} km&sup2;</> : "—"}
+                    </p>
+                    <p className="relative text-[11px] text-[#A5A5A5]">
+                      Serviceable area based on your selected practice radius
                     </p>
                     {/* Centre-aligned rather than baseline: a baseline row would
                         hang the pin below the digits it sits beside.
@@ -1927,15 +1925,13 @@ export function PracticeGrowthCalculator({
                         </span>
                       </span>
                     </p>
-                    <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-xl font-bold tabular-nums text-white">
-                        {serviceablePopulation
-                          ? `${formatPeopleShort(serviceablePopulation)}+`
-                          : "—"}
-                      </span>
-                      <span className="text-[11px] text-[#A5A5A5]">
-                        People within your practice radius
-                      </span>
+                    <p className="mt-1.5 text-xl font-bold tabular-nums text-white">
+                      {serviceablePopulation
+                        ? `${formatPeopleShort(serviceablePopulation)}+`
+                        : "—"}
+                    </p>
+                    <p className="text-[11px] text-[#A5A5A5]">
+                      People within your practice radius
                     </p>
                     <FigureRow filled={serviceablePopulation ? 10 : 0} tone="accent" />
                   </div>
@@ -1953,11 +1949,11 @@ export function PracticeGrowthCalculator({
                         </span>
                       </span>
                     </p>
-                    <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-xl font-bold tabular-nums text-white">
-                        {prevalenceCount ? `${formatPeopleShort(prevalenceCount)}+` : "—"}
-                      </span>
-                      <span className="text-[11px] text-white">People who need care within your practice radius</span>
+                    <p className="mt-1.5 text-xl font-bold tabular-nums text-white">
+                      {prevalenceCount ? `${formatPeopleShort(prevalenceCount)}+` : "—"}
+                    </p>
+                    <p className="text-[11px] text-white">
+                      People who need care within your practice radius
                     </p>
                     <FigureRow filled={burdenFigures} tone="white" />
                   </div>
