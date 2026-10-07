@@ -571,8 +571,9 @@ body {
   }
 }
 
+.roi-map.leaflet-container .leaflet-control-attribution,
 .roi-map .leaflet-control-attribution {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.6) !important;
   color: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(4px);
   font-size: 10px;
