@@ -149,7 +149,7 @@ const CONTACT_PROMPT: FaqItem = {
   q: "Still have questions?",
   popupTitle: "Register your question",
   a: "Contact our support team and we will make sure everything is clear and intuitive for you!",
-  cta: { label: "Contact Support", href: "/contact" },
+  // cta: { label: "Contact Support", href: "/contact" },
   isPrompt: true,
 };
 
