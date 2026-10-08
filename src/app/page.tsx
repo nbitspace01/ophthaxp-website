@@ -8,6 +8,7 @@ import { HomeRoiSection } from "@/components/HomeRoiSection";
 import { CertificatesPromo } from "@/components/CertificatesPromo";
 import { SmartAssist } from "@/components/SmartAssist";
 import { FaqSection } from "@/components/FaqSection";
+import { LEGAL } from "@/lib/legal";
 import { Footer } from "@/components/Footer";
 import { courseListJsonLd } from "@/lib/seo";
 import {
@@ -46,7 +47,7 @@ export default async function HomePage() {
         <HomeRoiSection />
         <CertificatesPromo />
         {/* <SmartAssist /> */}
-        <FaqSection />
+        <FaqSection support={{ email: LEGAL.supportEmail, phone: LEGAL.supportPhone }} />
       </main>
       <Footer />
     </>

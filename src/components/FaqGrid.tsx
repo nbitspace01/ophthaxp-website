@@ -2,18 +2,64 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Mail, MessageCircle, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type FaqItem = {
   q: string;
+  /** Heading shown inside the popup, when it should differ from the card. */
+  popupTitle?: string;
   a: string;
   cta?: { label: string; href: string };
   tag?: string;
   isPrompt?: boolean;
 };
 
-export function FaqGrid({ items, label }: { items: FaqItem[]; label: string }) {
+/** Read from the LEGAL_SUPPORT_* env keys on the server and passed down, so
+ *  the popup never carries its own copy of the address or number. */
+export type SupportContact = { email: string; phone: string };
+
+const SUPPORT_HOURS = "Monday–Saturday, 9:00 AM–5:00 PM";
+
+const SUPPORT_LINK =
+  "flex items-center gap-2.5 rounded-[10px] border border-white/10 bg-ink-800 px-3.5 py-2.5 text-[14px] font-medium text-white transition hover:border-white/25 hover:bg-ink-700";
+
+/** The body of the "Still have questions?" popup: two ways to reach us. */
+function SupportPanel({ contact }: { contact: SupportContact }) {
+  // wa.me wants digits only, country code included.
+  const whatsappHref = `https://wa.me/${contact.phone.replace(/\D/g, "")}`;
+  // Opens a blank Gmail compose window addressed to support, so the customer
+  // writes and sends the question themselves.
+  const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    contact.email,
+  )}&su=${encodeURIComponent("Question about Legends of Medicine")}`;
+
+  return (
+    <div className="mt-4">
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={SUPPORT_LINK}>
+          <MessageCircle aria-hidden className="h-4 w-4 text-accent-soft" />
+          WhatsApp
+        </a>
+        <a href={gmailHref} target="_blank" rel="noopener noreferrer" className={SUPPORT_LINK}>
+          <Mail aria-hidden className="h-4 w-4 text-accent-soft" />
+          Email us
+        </a>
+      </div>
+      <p className="mt-2 text-[12px] text-white/45">Support hours: {SUPPORT_HOURS}</p>
+    </div>
+  );
+}
+
+export function FaqGrid({
+  items,
+  label,
+  support,
+}: {
+  items: FaqItem[];
+  label: string;
+  support?: SupportContact;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
 
@@ -164,7 +210,7 @@ export function FaqGrid({ items, label }: { items: FaqItem[]; label: string }) {
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            aria-label={card.q}
+            aria-label={card.popupTitle ?? card.q}
             className={cn(
               "relative w-full max-w-lg overflow-hidden rounded-[18px] border border-accent/30 bg-gradient-to-b from-[#221C1A] via-[#171514] to-[#121111] shadow-2xl ring-1 ring-accent/15 focus:outline-none",
               closing ? "faq-popup-out" : "faq-popup-in",
@@ -203,12 +249,14 @@ export function FaqGrid({ items, label }: { items: FaqItem[]; label: string }) {
               </div>
 
               <h3 className="mt-3.5 text-[17px] font-bold leading-[26px] text-white sm:text-[19px] sm:leading-[28px]">
-                {card.q}
+                {card.popupTitle ?? card.q}
               </h3>
 
               <p className="mt-2.5 text-justify text-[14.5px] leading-[25px] text-white/75 sm:text-[15px] sm:leading-[26px]">
                 {card.a}
               </p>
+
+              {card.isPrompt && support && <SupportPanel contact={support} />}
 
               {card.cta && (
                 <Link

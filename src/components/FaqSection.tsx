@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { FaqGrid, type FaqItem } from "@/components/FaqGrid";
+import { FaqGrid, type FaqItem, type SupportContact } from "@/components/FaqGrid";
+
 
 const FAQS: FaqItem[] = [
   // Category 01: Is This Right for Me? (5)
-  {
-    tag: "Is This Right for Me?",
-    q: "I already have years of experience in this sub-specialty. Will the programme still challenge me?",
-    a: "Yes. The programme is built to pursue breakthroughs in judgement and practice - not merely to transfer knowledge. Its curriculum works through the decisions, exceptions and patterns that emerge only after years in practice. The Dialogue with the Legend establishes whether the programme can genuinely take your work further. If it cannot, we will say so.",
-  },
   {
     tag: "Is This Right for Me?",
     q: "I am interested in a sub-specialty but do not yet practise it extensively. Can I still apply?",
@@ -30,6 +26,11 @@ const FAQS: FaqItem[] = [
     tag: "Is This Right for Me?",
     q: "My clinic does not have all the equipment. Can I still participate?",
     a: "A complete setup is not assumed. The programme helps you distinguish what needs to be available within your practice, what can be accessed through referral or partnership, and what should wait until the clinical need justifies it. Any non-negotiable equipment requirements will be made clear before admission.",
+  },
+  {
+    tag: "Is This Right for Me?",
+    q: "I already have years of experience in this sub-specialty. Will the programme still challenge me?",
+    a: "Yes. The programme is built to pursue breakthroughs in judgement and practice - not merely to transfer knowledge. Its curriculum works through the decisions, exceptions and patterns that emerge only after years in practice. The Dialogue with the Legend establishes whether the programme can genuinely take your work further. If it cannot, we will say so.",
   },
 
   // Category 02: Can I Make It Work? (3)
@@ -146,6 +147,7 @@ const FAQS: FaqItem[] = [
 const CONTACT_PROMPT: FaqItem = {
   tag: "Support",
   q: "Still have questions?",
+  popupTitle: "Register your question",
   a: "Contact our support team and we will make sure everything is clear and intuitive for you!",
   cta: { label: "Contact Support", href: "/contact" },
   isPrompt: true,
@@ -166,8 +168,8 @@ const TABS_ROW2 = [
 
 const TABS = [...TABS_ROW1, ...TABS_ROW2];
 
-export function FaqSection() {
-  const [tab, setTab] = useState(TABS[0]);
+export function FaqSection({ support }: { support?: SupportContact }) {
+  const [tab, setTab] = useState(TABS_ROW1[1]);
 
   const shown =
     tab === "All" ? FAQS : FAQS.filter((f) => f.tag === tab);
@@ -247,6 +249,7 @@ export function FaqSection() {
           key={tab}
           items={[...shown, CONTACT_PROMPT]}
           label="Legends of Medicine"
+          support={support}
         />
       </div>
     </section>

@@ -1304,7 +1304,7 @@ export function PracticeGrowthCalculator({
 
       <div className="grid lg:grid-cols-[372px_minmax(0,1fr)]">
         {/* ─────────── LEFT: practice profile ─────────── */}
-        <div className="space-y-2.5 border-b border-white/[0.07] px-5 py-3.5 lg:border-b-0 lg:border-r">
+        <div className={`space-y-2.5 border-b border-white/[0.07] px-5 py-3.5 lg:flex lg:flex-col lg:border-b-0 lg:border-r ${showOutlook ? "lg:pb-[46px]" : ""}`}>
           {/* Specialization */}
           <div>
             <label
@@ -1622,7 +1622,7 @@ export function PracticeGrowthCalculator({
               else void computeRoi();
             }}
             disabled={calcLoading || !canGenerate}
-            className="mt-0.5 inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-xl bg-accent px-6 text-[14px] font-semibold text-white transition hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-40"
+            className={`mt-0.5 inline-flex h-10 w-full shrink-0 items-center ${showOutlook ? "lg:!mt-auto" : ""} justify-center gap-2.5 rounded-xl bg-accent px-6 text-[14px] font-semibold text-white transition hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-40`}
           >
             {calcLoading ? (
               <>
@@ -1900,7 +1900,7 @@ export function PracticeGrowthCalculator({
                         onClick={revealCoverage}
                         aria-controls="coverage-breakdown"
                         aria-label={`${pincodesCovered ?? "No"} pincodes covered — show the coverage breakdown`}
-                        className="group/pin relative mt-2.5 flex w-full flex-wrap items-center gap-x-2 rounded-sm border-t border-white/[0.07] pt-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-600"
+                        className="group/pin relative mt-2.5 flex w-full flex-wrap items-center gap-x-2 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-600"
                       >
                         {pincodesCoveredRow}
                         <ChevronRight
@@ -1909,13 +1909,13 @@ export function PracticeGrowthCalculator({
                         />
                       </button>
                     ) : (
-                      <p className="relative mt-2.5 flex flex-wrap items-center gap-x-2 border-t border-white/[0.07] pt-2.5">
+                      <p className="relative mt-2.5 flex flex-wrap items-center gap-x-2">
                         {pincodesCoveredRow}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex-1 rounded-xl bg-ink-600 p-3.5 lg:col-start-2 lg:row-start-1">
+                  <div className="flex flex-1 flex-col rounded-xl bg-ink-600 p-3.5 lg:col-start-2 lg:row-start-1">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-[#A5A5A5]">
                       Catchment Population
                       <span className="group/info relative">
@@ -1933,7 +1933,7 @@ export function PracticeGrowthCalculator({
                     <p className="text-[11px] text-[#A5A5A5]">
                       People within your practice radius
                     </p>
-                    <FigureRow filled={serviceablePopulation ? 10 : 0} tone="accent" />
+                    <div className="mt-auto"><FigureRow filled={serviceablePopulation ? 10 : 0} tone="accent" /></div>
                   </div>
                 </div>
 
@@ -1977,7 +1977,7 @@ export function PracticeGrowthCalculator({
                         </span>
                       </span>
                     </p>
-                    <p className="relative mt-2.5 text-[clamp(1.5rem,2.5vw,2.125rem)] font-bold leading-none tabular-nums text-white">
+                    <p className="relative mt-2.5 text-3xl font-bold leading-none tabular-nums text-white">
                       {hasGenerated ? formatINRShort(projectedRevenue) : "—"}
                     </p>
                     <p className="relative mt-3 text-[12px] leading-relaxed text-[#A5A5A5]">
