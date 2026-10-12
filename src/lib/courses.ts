@@ -705,6 +705,7 @@ async function attachFaculty(program: Program): Promise<Program> {
     ...program,
     faculty: doctorToFaculty(doctor),
     mentorEmail: program.mentorEmail || doctor.email || undefined,
+    mentorName: program.mentorName || doctor.name || undefined,
     // Use doctor's portrait as the course hero when the course didn't supply one
     heroImage: program.heroImage || doctor.imageUrl,
     doctorImage: program.doctorImage || doctor.imageUrl,
