@@ -107,6 +107,72 @@ function findSavedCase(entry: HistoryEntry): SavedCase | null {
   );
 }
 
+/**
+ * The case being worked, kept so a refresh does not throw it away.
+ *
+ * Without this, reloading the page asked the platform for a new patient while
+ * the one being worked was still open there — the conversation gone from the
+ * screen, and a second model call for a case nobody asked for.
+ *
+ * `sessionStorage`, not `localStorage`: the case belongs to the tab it is open
+ * in. It survives a reload and a trip through the login page, and it is dropped
+ * on leaving the case screen, so "Back to Caseroom" still means a new patient
+ * next time.
+ */
+interface OpenCase {
+  session: CaseSession;
+  thread: CaseTurn[];
+  revealed: RevealedFinding[];
+  showObjectives: boolean;
+  /** When the clock started, so it carries on rather than starting over. */
+  startedAt: number;
+  savedAt: number;
+}
+
+const OPEN_CASE_KEY = "caseroom:open-case:v1";
+/** As long as the platform keeps an untouched case. Older than this, it is gone. */
+const OPEN_CASE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+function readOpenCase(): OpenCase | null {
+  try {
+    const saved = JSON.parse(window.sessionStorage.getItem(OPEN_CASE_KEY) ?? "null");
+    if (
+      !saved?.session?.session_id ||
+      !saved.session.brief ||
+      !Array.isArray(saved.session.withheld_keys) ||
+      !Array.isArray(saved.session.objectives) ||
+      !Array.isArray(saved.thread) ||
+      !Array.isArray(saved.revealed) ||
+      typeof saved.startedAt !== "number" ||
+      typeof saved.savedAt !== "number" ||
+      Date.now() - saved.savedAt > OPEN_CASE_MAX_AGE_MS
+    ) {
+      return null;
+    }
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
+/* Neither of these may throw: a blocked or full store must cost the doctor a
+   resumed case at worst, never the case they are working. */
+function saveOpenCase(open: OpenCase): void {
+  try {
+    window.sessionStorage.setItem(OPEN_CASE_KEY, JSON.stringify(open));
+  } catch {
+    /* Nothing to do. The case carries on; it just will not survive a refresh. */
+  }
+}
+
+function clearOpenCase(): void {
+  try {
+    window.sessionStorage.removeItem(OPEN_CASE_KEY);
+  } catch {
+    /* Nothing to do. */
+  }
+}
+
 /** A reply is a couple of sentences, so it gets a shorter run than Iris's whole
  *  analysis — long enough to read as speech, short enough not to be a wait. */
 const REPLY_TYPING_MS = 1800;
@@ -117,6 +183,121 @@ const BOTTOM_GAP = 24;
 /** Below this there is not enough screen to work a case in three columns, and
  *  pinning the page would do more harm than the scrolling it prevents. */
 const MIN_COLUMN_HEIGHT = 480;
+
+/**
+ * How many times a question is quietly asked again before the doctor is told.
+ *
+ * The platform answers a turn the model provider dropped with a 502, and the
+ * same question asked a moment later almost always comes back. So the second
+ * and third go are made here, behind the typing dots, rather than by a doctor
+ * pressing "Ask again" on an error they should never have seen.
+ */
+const ASK_RETRIES = 2;
+const ASK_RETRY_DELAY_MS = 800;
+
+/** The model provider failed the turn — the one failure worth asking again. */
+function providerFailed(err: unknown): boolean {
+  return err instanceof LomaError && err.status === 502;
+}
+
+/** The platform no longer holds this case. Asking again cannot bring it back. */
+function caseExpired(err: unknown): boolean {
+  return err instanceof LomaError && err.status === 404;
+}
+
+async function sendWithRetry(sessionId: string, text: string) {
+  for (let tries = 0; ; tries += 1) {
+    try {
+      return await loma.sendMessage(sessionId, text);
+    } catch (err) {
+      if (!providerFailed(err) || tries >= ASK_RETRIES) throw err;
+      console.warn(`Caseroom: the attending did not answer, asking again (${tries + 1})`, err);
+      await new Promise((resolve) => setTimeout(resolve, ASK_RETRY_DELAY_MS));
+    }
+  }
+}
+
+/** The site stopped waiting. The platform may well still be working on it. */
+function gaveUpWaiting(err: unknown): boolean {
+  return err instanceof LomaError && err.status === 504;
+}
+
+async function lockInWithRetry(
+  sessionId: string,
+  diagnosis: string,
+  reasoning: string,
+  seconds: number,
+): Promise<CaseResult> {
+  for (let tries = 0; ; tries += 1) {
+    try {
+      return await loma.lockIn(sessionId, diagnosis, reasoning, seconds);
+    } catch (err) {
+      if (!providerFailed(err) || tries >= ASK_RETRIES) throw err;
+      console.warn(`Caseroom: the grader did not answer, submitting again (${tries + 1})`, err);
+      await new Promise((resolve) => setTimeout(resolve, ASK_RETRY_DELAY_MS));
+    }
+  }
+}
+
+/**
+ * How long to keep looking for a grade the site gave up waiting for.
+ *
+ * Grading that outlasts the site's own timeout is not a failed grading — the
+ * platform finishes it, saves it to the logbook and closes the case. Submitting
+ * again at that point can only be told "this case has expired", or worse, land
+ * while the first is still running and grade the case twice. So the logbook is
+ * watched for the result instead.
+ */
+const GRADE_POLLS = 12;
+const GRADE_POLL_DELAY_MS = 5000;
+
+/**
+ * The grade for this answer, if the platform has logged one.
+ *
+ * Matched on the answer itself: grading does not hand back an id to look for,
+ * and nobody types the same diagnosis and the same paragraph of reasoning twice.
+ * The logbook row carries everything the debrief shows except the two lists of
+ * what went well and what was missed.
+ */
+async function findLoggedResult(diagnosis: string, reasoning: string): Promise<CaseResult | null> {
+  const same = (a: unknown, b: string) => String(a ?? "").trim() === b.trim();
+
+  const profile: LomaProfile = await loma.getProfile();
+  const entry = (profile.history ?? []).find(
+    (h) => same(h.final_diagnosis, diagnosis) && same(h.final_reasoning, reasoning),
+  );
+  if (!entry) return null;
+
+  return {
+    correct: entry.correct,
+    reasoning_quality: entry.reasoning_quality,
+    headline: entry.headline ?? "",
+    overall: entry.overall,
+    graded: entry.graded,
+    metrics: entry.metrics,
+    before: entry.before,
+    after: entry.after,
+    xp_reason: entry.xp_reason,
+    final_diagnosis: entry.final_diagnosis,
+    final_reasoning: entry.final_reasoning,
+    correct_diagnosis: entry.correct_diagnosis,
+    note: entry.note,
+    duration_sec: entry.duration_sec,
+  };
+}
+
+async function waitForLoggedResult(diagnosis: string, reasoning: string): Promise<CaseResult | null> {
+  for (let poll = 0; poll < GRADE_POLLS; poll += 1) {
+    try {
+      const found = await findLoggedResult(diagnosis, reasoning);
+      if (found) return found;
+    } catch (err) {
+      console.warn("Caseroom: the logbook could not be read while waiting for a grade", err);
+    }
+    await new Promise((resolve) => setTimeout(resolve, GRADE_POLL_DELAY_MS));
+  }
+  return null;
+}
 
 /**
  * What to say when a question does not come back.
@@ -133,6 +314,10 @@ const MIN_COLUMN_HEIGHT = 480;
  * as JSON almost always succeeds on the next attempt.
  */
 function askFailureMessage(err: unknown): string {
+  if (caseExpired(err)) {
+    return "This case is no longer open, so it cannot answer. Start a new case to carry on.";
+  }
+
   if (err instanceof LomaError && err.status === 429) {
     return "That was a lot of questions in a row. Give it a few seconds and ask again.";
   }
@@ -234,7 +419,12 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
   /* A question that did not come back, and what to say about it. Kept apart
      from `error` above, which is for the lock-in — one belongs in the
      conversation, the other does not. */
-  const [askFailure, setAskFailure] = useState<{ message: string; question: string } | null>(null);
+  const [askFailure, setAskFailure] = useState<{
+    message: string;
+    question: string;
+    /** The case is gone from the platform, so the way on is a new one. */
+    expired: boolean;
+  } | null>(null);
   const [revealed, setRevealed] = useState<RevealedFinding[]>([]);
   const [showObjectives, setShowObjectives] = useState(false);
   const [lockInOpen, setLockInOpen] = useState(false);
@@ -242,6 +432,11 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
   const [result, setResult] = useState<CaseResult | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [pane, setPane] = useState<Pane>("brief");
+
+  /* The platform has let go of the case, found out at lock-in. */
+  const [lockInExpired, setLockInExpired] = useState(false);
+  /* A lock-in the site gave up waiting for, which the platform may yet finish. */
+  const gradingOutstanding = useRef(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const startedAt = useRef<number | null>(null);
@@ -305,6 +500,33 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
       };
     }
 
+    /* A case already open in this tab — the page was refreshed mid-case. Put it
+       back as it was rather than asking for another patient. */
+    const open = readOpenCase();
+    if (open) {
+      startedAt.current = open.startedAt;
+      setSession(open.session);
+      setThread(open.thread);
+      setRevealed(open.revealed);
+      setShowObjectives(Boolean(open.showObjectives));
+
+      /* A question that was still waiting for its answer when the page went.
+         Whether the platform answered it is unknowable from here, so it is
+         offered again rather than left hanging with nothing under it. */
+      const last = open.thread[open.thread.length - 1];
+      if (last?.role === "trainee") {
+        setAskFailure({
+          message: "The page was refreshed before this question was answered. Ask it again.",
+          question: last.content,
+          expired: false,
+        });
+      }
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
     loma
       .startCase()
       .then((data: CaseSession) => !cancelled && setSession(data))
@@ -334,6 +556,44 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
     );
     return () => clearInterval(tick);
   }, [session, result]);
+
+  /* Keep the open case up to date in this tab, for a refresh to find. Below the
+     clock on purpose: that effect is what sets `startedAt` for a new case. Once
+     the case is graded there is nothing left to resume. */
+  useEffect(() => {
+    if (review || !session) return;
+
+    if (result) {
+      clearOpenCase();
+      return;
+    }
+
+    saveOpenCase({
+      session,
+      thread,
+      revealed,
+      showObjectives,
+      startedAt: startedAt.current ?? Date.now(),
+      savedAt: Date.now(),
+    });
+  }, [session, thread, revealed, showObjectives, result, review]);
+
+  /* Leaving the case screen lets go of the case; a refresh does not, because a
+     page being torn down never runs this. The drop is deferred a tick so that
+     React's development strict mode — which unmounts and remounts at once —
+     cancels it instead of wiping the case it is about to restore. */
+  const leaveTimer = useRef<number | null>(null);
+  useEffect(() => {
+    if (review) return;
+
+    if (leaveTimer.current !== null) {
+      window.clearTimeout(leaveTimer.current);
+      leaveTimer.current = null;
+    }
+    return () => {
+      leaveTimer.current = window.setTimeout(clearOpenCase, 0);
+    };
+  }, [review]);
 
   /**
    * Give this screen the window, the way the standalone app had it.
@@ -411,14 +671,18 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
       setWaiting(true);
 
       try {
-        const data = await loma.sendMessage(session.session_id, text);
+        const data = await sendWithRetry(session.session_id, text);
         setThread((t) => [...t, { role: "attending", content: data.reply }]);
         setTypingLast(true);
         setRevealed(data.revealed);
       } catch (err) {
         // The real error, for whoever is debugging this rather than using it.
         console.error("Caseroom: the attending could not answer", err);
-        setAskFailure({ message: askFailureMessage(err), question: text });
+        setAskFailure({
+          message: askFailureMessage(err),
+          question: text,
+          expired: caseExpired(err),
+        });
       } finally {
         setWaiting(false);
       }
@@ -441,11 +705,7 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
     setEvaluating(true);
     setError(null);
 
-    try {
-      const seconds = startedAt.current
-        ? Math.floor((Date.now() - startedAt.current) / 1000)
-        : 0;
-      const data = await loma.lockIn(session.session_id, diagnosis, reasoning, seconds);
+    const finish = (data: CaseResult) => {
       setResult(data);
       setLockInOpen(false);
       saveFinishedCase({
@@ -460,19 +720,71 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
           final_reasoning: data.final_reasoning,
         },
       });
+    };
+
+    try {
+      const seconds = startedAt.current
+        ? Math.floor((Date.now() - startedAt.current) / 1000)
+        : 0;
+      finish(await lockInWithRetry(session.session_id, diagnosis, reasoning, seconds));
     } catch (err) {
       /* Same rule as a failed question: the provider's words go to the console,
          and the doctor is told what is true and what to do about it. Their
          diagnosis and reasoning are still in the fields behind this. */
       console.error("Caseroom: the case could not be graded", err);
+
+      /* The site stopped waiting, or an earlier go did and this one found the
+         case closed. Either way the grade may be sitting in the logbook. */
+      if (gaveUpWaiting(err) || (caseExpired(err) && gradingOutstanding.current)) {
+        gradingOutstanding.current = true;
+        const logged = gaveUpWaiting(err)
+          ? await waitForLoggedResult(diagnosis, reasoning)
+          : await findLoggedResult(diagnosis, reasoning).catch(() => null);
+        if (logged) {
+          finish(logged);
+          return;
+        }
+      }
+
+      if (caseExpired(err)) {
+        setLockInExpired(true);
+        setError(
+          "This case is no longer open, so it cannot be graded. Start a new case to carry on.",
+        );
+        return;
+      }
+
       setError(
         err instanceof LomaError && err.status === 429
           ? "The grader is busy right now. Give it a few seconds and submit again."
-          : "That did not go through. Your answer is still here — submit it again.",
+          : gaveUpWaiting(err)
+            ? "Grading is taking much longer than usual. Your answer is still here — submit it again in a minute."
+            : "That did not go through. Your answer is still here — submit it again.",
       );
     } finally {
       setEvaluating(false);
     }
+  }
+
+  /* Clear the desk and ask for another patient. For a case the platform has let
+     go of — nothing on this screen can be sent to it any more. */
+  function startNewCase() {
+    // First, or the start effect would find the dead case and put it back.
+    clearOpenCase();
+    setSession(null);
+    setThread([]);
+    setRevealed([]);
+    setInput("");
+    setAskFailure(null);
+    setError(null);
+    setTypingLast(false);
+    setShowObjectives(false);
+    setLockInOpen(false);
+    setLockInExpired(false);
+    gradingOutstanding.current = false;
+    setElapsed(0);
+    startedAt.current = null;
+    setAttempt((n) => n + 1);
   }
 
   const replyFinished = useCallback(() => setTypingLast(false), []);
@@ -760,10 +1072,12 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
                   <p className="text-sm leading-relaxed text-[#E0A49D]">{askFailure.message}</p>
                   <button
                     type="button"
-                    onClick={() => void ask(askFailure.question)}
+                    onClick={() =>
+                      askFailure.expired ? startNewCase() : void ask(askFailure.question)
+                    }
                     className="mt-2 text-[13px] font-semibold text-accent transition hover:text-accent-soft"
                   >
-                    Ask again
+                    {askFailure.expired ? "Start a new case" : "Ask again"}
                   </button>
                 </div>
               ) : null}
@@ -869,6 +1183,7 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
             setLockInOpen(false);
           }}
           onSubmit={submitDiagnosis}
+          onStartNew={lockInExpired ? startNewCase : undefined}
           submitting={evaluating}
         />
       ) : null}

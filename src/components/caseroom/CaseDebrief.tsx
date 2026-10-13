@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
-import { Eyebrow, QualityTag, ScoreRow, VerdictTag, XpDelta } from "./atoms";
+import { Eyebrow, QualityTag, ScoreRow, TypingDots, VerdictTag, XpDelta } from "./atoms";
 import { formatTime, gradedMetrics, levelFromXp, levelName } from "./scoring";
 import type { CaseResult } from "./types";
 
@@ -24,9 +24,13 @@ export function LockInModal({
   onSubmit,
   submitting,
   failure,
+  onStartNew,
 }: {
   onCancel: () => void;
   onSubmit: (diagnosis: string, reasoning: string) => void;
+  /** Set when the case can no longer be graded: submitting again cannot work,
+   *  so the button offers the one thing that can. */
+  onStartNew?: () => void;
   submitting: boolean;
   /** Said inside the modal, because that is where the doctor is standing. A
    *  grading failure reported on the screen behind this one is not reported. */
@@ -114,6 +118,8 @@ export function LockInModal({
           </p>
         ) : null}
 
+        {submitting ? <GradingProgress /> : null}
+
         <div className="mt-7 flex flex-wrap justify-end gap-3">
           <button
             type="button"
@@ -123,16 +129,67 @@ export function LockInModal({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            onClick={() => onSubmit(diagnosis.trim(), reasoning.trim())}
-            disabled={submitting || !ready}
-            className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:bg-white/[0.06] disabled:text-white/35"
-          >
-            {submitting ? "Evaluating…" : "Submit diagnosis"}
-          </button>
+          {onStartNew ? (
+            <button
+              type="button"
+              onClick={onStartNew}
+              className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-soft"
+            >
+              Start a new case
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onSubmit(diagnosis.trim(), reasoning.trim())}
+              disabled={submitting || !ready}
+              className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:bg-white/[0.06] disabled:text-white/35"
+            >
+              {submitting ? "Evaluating…" : "Submit diagnosis"}
+            </button>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * What grading is doing, while it does it.
+ *
+ * Grading is one long model call — half a minute is ordinary — and a button
+ * that says "Evaluating…" for that long reads as a page that has hung. Nothing
+ * comes back until the whole grade does, so these are not real stages: they are
+ * what the grader works through, said at about the pace it works through them.
+ * The last one is the honest one, for when it runs long.
+ */
+const GRADING_STEPS: { from: number; label: string }[] = [
+  { from: 0, label: "Reading your diagnosis and reasoning" },
+  { from: 6, label: "Checking it against the findings you uncovered" },
+  { from: 14, label: "Scoring each category" },
+  { from: 22, label: "Writing your debrief" },
+  { from: 35, label: "Still grading — this one is taking longer than usual. Please keep this page open" },
+];
+
+function GradingProgress() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const started = Date.now();
+    const tick = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const step = [...GRADING_STEPS].reverse().find((s) => seconds >= s.from) ?? GRADING_STEPS[0];
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-5 flex items-center gap-3 rounded-2xl bg-white/[0.04] px-4 py-3 ring-1 ring-white/[0.06]"
+    >
+      <TypingDots label="Grading your case" />
+      <p className="flex-1 text-sm leading-relaxed text-white/70">{step.label}…</p>
+      <span className="text-[13px] tabular-nums text-white/35">{formatTime(seconds)}</span>
     </div>
   );
 }
