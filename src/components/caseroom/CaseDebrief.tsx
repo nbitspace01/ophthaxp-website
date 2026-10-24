@@ -337,3 +337,4 @@ export function ResultCard({ result, onClose }: { result: CaseResult; onClose: (
     </div>
   );
 }
+

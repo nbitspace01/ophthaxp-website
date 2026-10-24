@@ -42,7 +42,7 @@ export function YourSpace({
       if (!THREAD.some((item) => item.key === key)) return;
       setActive(key);
       window.requestAnimationFrame(() => {
-        document.getElementById("your-space")?.scrollIntoView();
+        document.getElementById("growth-lab")?.scrollIntoView();
       });
     };
 
