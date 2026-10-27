@@ -20,7 +20,27 @@ export interface PracticeProfile {
   opFeeInr: number;
   annualInpatients: number;
   ipFeeInr: number;
+  /**
+   * Running costs as a share of what the practice bills, 0–90.
+   *
+   * A share rather than a rupee figure because it is the only one of the five a
+   * reader can answer about a practice they have not opened yet. Costs scale
+   * with volume — more clinics means more consumables, more staff hours, more
+   * chair time — so a percentage survives moving the volume sliders, where a
+   * fixed annual figure would quietly become wrong the moment they did.
+   */
+  operatingCostPct: number;
 }
+
+/**
+ * What an ophthalmology practice keeps, before tax, as a share of billings.
+ *
+ * Doctors told us a gross figure on its own was misleading, and they were
+ * right — but the honest fix is not to invent a cost model for a practice we
+ * know nothing about. This is a starting position the reader is expected to
+ * move, and the panel says as much next to it.
+ */
+export const DEFAULT_OPERATING_COST_PCT = 60;
 
 /** What the practice bills in a year: consultations plus admissions. */
 export function practiceRevenue(profile: PracticeProfile): number {
@@ -28,6 +48,23 @@ export function practiceRevenue(profile: PracticeProfile): number {
     profile.annualOutpatients * profile.opFeeInr +
     profile.annualInpatients * profile.ipFeeInr
   );
+}
+
+/**
+ * What running the practice costs in a year — staff, rent, consumables,
+ * equipment upkeep, utilities, administration.
+ *
+ * Not the full picture of what a doctor takes home, and the panel labels it so:
+ * tax, depreciation, loan interest and the doctor's own drawings all sit below
+ * this line.
+ */
+export function practiceOperatingExpenses(profile: PracticeProfile): number {
+  return practiceRevenue(profile) * (profile.operatingCostPct / 100);
+}
+
+/** Billings less running costs. Still before tax, interest and depreciation. */
+export function practiceOperatingProfit(profile: PracticeProfile): number {
+  return practiceRevenue(profile) - practiceOperatingExpenses(profile);
 }
 
 /**
@@ -55,6 +92,9 @@ const LIMITS: Record<keyof PracticeProfile, number> = {
   opFeeInr: 5_000,
   annualInpatients: 20_000,
   ipFeeInr: 200_000,
+  /** A practice spending every rupee it bills is not a projection worth
+      drawing, so the slider stops short of 100 and so does this. */
+  operatingCostPct: 90,
 };
 
 function clamp(value: unknown, max: number): number | null {
@@ -90,5 +130,22 @@ export function parsePracticeProfile(value: unknown): PracticeProfile | null {
     return null;
   }
 
-  return { annualOutpatients, opFeeInr, annualInpatients, ipFeeInr };
+  // Absent rather than invalid, for a client from before the cost slider
+  // existed. Those four above are the profile; this one has a defensible
+  // default, so a missing value falls back instead of voiding the whole
+  // profile and sending the dashboard back to the backend's figures.
+  const operatingCostPct =
+    raw.operatingCostPct === undefined || raw.operatingCostPct === null
+      ? DEFAULT_OPERATING_COST_PCT
+      : clamp(raw.operatingCostPct, LIMITS.operatingCostPct);
+
+  if (operatingCostPct === null) return null;
+
+  return {
+    annualOutpatients,
+    opFeeInr,
+    annualInpatients,
+    ipFeeInr,
+    operatingCostPct,
+  };
 }

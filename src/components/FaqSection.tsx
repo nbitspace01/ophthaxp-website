@@ -180,7 +180,7 @@ export function FaqSection({ support }: { support?: SupportContact }) {
   return (
     <section
       aria-labelledby="faq-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="faq-title"
@@ -193,12 +193,15 @@ export function FaqSection({ support }: { support?: SupportContact }) {
         Pick a question to see its answer.
       </p>
 
+      {/* These labels are sentences, so wrapped they cost five rows on a phone.
+          There the two design rows collapse (`contents`) into one scrolling
+          row; from sm up they are the two centred rows again. */}
       <div
         role="tablist"
         aria-label="FAQ categories"
-        className="mt-8 flex flex-col items-center gap-2 sm:gap-3"
+        className="no-scrollbar -mx-5 mt-8 flex gap-2.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-col sm:items-center sm:gap-3 sm:overflow-x-visible sm:px-0 sm:pb-0"
       >
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+        <div className="contents sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           {TABS_ROW1.map((t) => {
             const selected = t === tab;
             return (
@@ -209,7 +212,7 @@ export function FaqSection({ support }: { support?: SupportContact }) {
                 aria-selected={selected}
                 onClick={() => setTab(t)}
                 className={cn(
-                  "rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
+                  "shrink-0 whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
                   selected
                     ? "bg-accent font-medium text-white"
                     : "bg-ink-800 text-white/60 hover:bg-ink-700 hover:text-white",
@@ -220,7 +223,7 @@ export function FaqSection({ support }: { support?: SupportContact }) {
             );
           })}
         </div>
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+        <div className="contents sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           {TABS_ROW2.map((t) => {
             const selected = t === tab;
             return (
@@ -231,7 +234,7 @@ export function FaqSection({ support }: { support?: SupportContact }) {
                 aria-selected={selected}
                 onClick={() => setTab(t)}
                 className={cn(
-                  "rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
+                  "shrink-0 whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[13px] transition sm:px-6 sm:py-3 sm:text-[15px]",
                   selected
                     ? "bg-accent font-medium text-white"
                     : "bg-ink-800 text-white/60 hover:bg-ink-700 hover:text-white",

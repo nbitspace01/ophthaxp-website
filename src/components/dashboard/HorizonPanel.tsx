@@ -73,7 +73,18 @@ function Filled({ outlook }: { outlook: OutlookSnapshot }) {
   const stats = [
     { label: "Catchment population", value: formatPeopleShort(outlook.serviceablePopulation) },
     { label: "Disease burden", value: formatPeopleShort(outlook.prevalenceCount) },
-    { label: "Economic potential", value: formatINRShort(outlook.projectedRevenue) },
+    { label: "Gross revenue", value: formatINRShort(outlook.projectedRevenue) },
+    // Only where the outlook actually carries it. A snapshot saved before the
+    // cost slider existed has no answer to this, and a row reading ₹0 would be
+    // a worse lie than a row that is not there.
+    ...(outlook.operatingProfit > 0
+      ? [
+          {
+            label: "Operating profit",
+            value: formatINRShort(outlook.operatingProfit),
+          },
+        ]
+      : []),
     { label: "Clinical impact", value: `${outlook.impactPct.toFixed(2)}%` },
   ];
 

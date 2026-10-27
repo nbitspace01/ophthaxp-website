@@ -113,7 +113,7 @@ export function StudentDashboard({
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-6 sm:gap-8">
       <PageHeading
         eyebrow={hello ?? "Caseroom"}
         level={1}
@@ -147,11 +147,11 @@ export function StudentDashboard({
         </ErrorNote>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="grid content-start gap-6">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid content-start gap-4 sm:gap-6">
           <LevelMeter xp={xpOf(profile)} />
 
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3 sm:gap-6">
             <StatCard label="Cases completed" value={stats.total_cases} />
             <StatCard label="Accuracy" value={`${Math.round(stats.accuracy)}%`} />
             <StatCard label="Best streak" value={stats.best_streak} />
@@ -160,7 +160,7 @@ export function StudentDashboard({
           <Logbook history={history} />
         </div>
 
-        <aside className="grid content-start gap-6">
+        <aside className="grid content-start gap-4 sm:gap-6">
           {/* One card per programme once there are several to choose between —
               which programme a case comes from is a real choice, and a single
               button would make it silently for them. */}

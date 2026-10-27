@@ -20,6 +20,8 @@
 
 import {
   practiceImpactPct,
+  practiceOperatingExpenses,
+  practiceOperatingProfit,
   practiceRevenue,
   type PracticeProfile,
 } from "./roiDerived";
@@ -46,7 +48,17 @@ export interface OutlookSnapshot {
   radiusKm: number;
   serviceablePopulation: number;
   prevalenceCount: number;
+  /** Top line: what the practice bills in a year, before any cost. */
   projectedRevenue: number;
+  /**
+   * The two figures that keep the top line from being read as take-home.
+   *
+   * Zero on a snapshot written before the cost slider existed — the reader was
+   * never asked the question, so there is no answer to show, and the pane draws
+   * the gross figure alone rather than a profit of ₹0.
+   */
+  operatingExpenses: number;
+  operatingProfit: number;
   impactPct: number;
   pincodesInRadius: number;
   points: OutlookPoint[];
@@ -140,6 +152,12 @@ export function toSnapshot(
     serviceablePopulation: result.serviceablePopulation,
     prevalenceCount: result.prevalenceCount,
     projectedRevenue: practice ? practiceRevenue(practice) : result.projectedRevenue,
+    // Only where the reader actually answered the cost question. Without a
+    // profile there is no cost ratio to apply, and applying a default to the
+    // backend's own revenue figure would be this file inventing an operating
+    // economics the doctor never saw.
+    operatingExpenses: practice ? practiceOperatingExpenses(practice) : 0,
+    operatingProfit: practice ? practiceOperatingProfit(practice) : 0,
     impactPct: practice
       ? practiceImpactPct(practice, result.prevalenceCount)
       : result.impactPct,
@@ -193,6 +211,8 @@ export function parseOutlook(value: unknown): OutlookSnapshot | null {
       serviceablePopulation: parsed.serviceablePopulation,
       prevalenceCount: Number(parsed.prevalenceCount) || 0,
       projectedRevenue: Number(parsed.projectedRevenue) || 0,
+      operatingExpenses: Number(parsed.operatingExpenses) || 0,
+      operatingProfit: Number(parsed.operatingProfit) || 0,
       impactPct: Number(parsed.impactPct) || 0,
       pincodesInRadius: Number(parsed.pincodesInRadius) || 0,
       points: Array.isArray(parsed.points) ? parsed.points : [],

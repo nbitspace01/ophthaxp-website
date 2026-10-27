@@ -67,9 +67,26 @@ export function Panel({
   as?: "div" | "section" | "aside";
   hover?: keyof typeof PANEL_HOVER;
 }) {
+  /**
+   * A caller that sets its own unprefixed padding gets it, and the default is
+   * left off entirely.
+   *
+   * Appending `className` after `p-6` does not override it: both land on the
+   * element with the same specificity, so the winner is whichever Tailwind
+   * emits later — and Tailwind orders the padding scale upward, so `p-6` beat
+   * the `p-0` the chat column has always asked for. The column has carried 24px
+   * it did not want ever since, which on a phone is 48px of width spent on
+   * nothing and full-bleed dividers that stop short of the edge.
+   *
+   * Only bare `p-*` counts. A variant like `sm:p-8` is a caller refining the
+   * default at one breakpoint, not replacing it, and must leave the base alone
+   * or the panel loses its padding on phones.
+   */
+  const ownsPadding = className.split(/\s+/).some((c) => /^p-/.test(c));
+
   return (
     <Tag
-      className={`rounded-[22px] bg-ink-900/70 p-6 ring-1 ring-white/[0.08] ${PANEL_HOVER[hover]} ${className}`}
+      className={`rounded-[22px] bg-ink-900/70 ${ownsPadding ? "" : "p-5 sm:p-6"} ring-1 ring-white/[0.08] ${PANEL_HOVER[hover]} ${className}`}
     >
       {hover === "none" ? null : <PointerGlow />}
       {children}
@@ -275,14 +292,26 @@ export function LevelMeter({ xp }: { xp: number }) {
   );
 }
 
-/** One number and what it counts. */
+/**
+ * One number and what it counts.
+ *
+ * A single row on a phone — the figure at one end, what it counts at the other
+ * — and the stacked tile it has always been from sm up. Stacked in one column,
+ * three of these were a third of a phone screen spent on three numbers; side by
+ * side they are a line each, and the column reads as a set.
+ */
 export function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <Panel hover="lift" className="flex flex-col justify-between">
+    <Panel
+      hover="lift"
+      /* gap-0 from sm up: the stacked tile spaces itself with the label's own
+         mt-3, and a gap on top of that would be double the designed step. */
+      className="flex items-baseline justify-between gap-3 p-4 sm:flex-col sm:items-stretch sm:gap-0 sm:p-6"
+    >
       <p className="relative font-serif text-[clamp(1.5rem,2.6vw,2rem)] leading-none tabular-nums text-white">
         {value}
       </p>
-      <p className="relative mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45 transition duration-300 group-hover:text-white/65">
+      <p className="relative text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45 transition duration-300 group-hover:text-white/65 sm:mt-3 sm:text-left">
         {label}
       </p>
     </Panel>
