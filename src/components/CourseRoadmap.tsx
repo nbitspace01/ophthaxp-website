@@ -61,7 +61,7 @@ function BlueCubeDecor() {
   );
 }
 
-function OrangeHexDecor() {
+function OrangeLayersDecor() {
   // Stacked floating layer planes (isometric)
   const layers = [
     { y: 95, opacity: 1 },
@@ -73,19 +73,13 @@ function OrangeHexDecor() {
   return (
     <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
       {layers.map((l, i) => {
-        const x = ox;
-        const y = l.y;
-        // Isometric flat plane: top-left, top-right, bottom-right, bottom-left
-        const tl = `${x},${y - h/2}`;
-        const tr = `${x + w},${y - h/2 + h * 0.3}`;
-        const br = `${x + w},${y + h/2 + h * 0.3}`;
-        const bl = `${x},${y + h/2}`;
+        const x = ox; const y = l.y;
+        const tl = `${x},${y - h/2}`; const tr = `${x + w},${y - h/2 + h * 0.3}`;
+        const br = `${x + w},${y + h/2 + h * 0.3}`; const bl = `${x},${y + h/2}`;
         return (
           <g key={i} opacity={l.opacity}>
             <polygon points={`${tl} ${tr} ${br} ${bl}`} stroke="#C65F49" strokeWidth="0.8" fill="none"/>
-            {/* Inner grid lines horizontal */}
             <line x1={x} y1={y} x2={x+w} y2={y + h*0.3} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
-            {/* Inner grid lines vertical */}
             <line x1={x + w*0.33} y1={y - h/2 + h*0.1} x2={x + w*0.33} y2={y + h/2 + h*0.1} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
             <line x1={x + w*0.66} y1={y - h/2 + h*0.2} x2={x + w*0.66} y2={y + h/2 + h*0.2} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
           </g>
@@ -95,19 +89,66 @@ function OrangeHexDecor() {
   );
 }
 
+function OrangePrismDecor() {
+  // 3D triangular prism / crystal
+  return (
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
+      {/* Front face */}
+      <polygon points="65,18 110,85 20,85" stroke="#C65F49" strokeWidth="0.9" fill="none"/>
+      {/* Inner triangles */}
+      <polygon points="65,35 97,85 33,85" stroke="#C65F49" strokeWidth="0.6" fill="none" opacity="0.6"/>
+      <polygon points="65,52 84,85 46,85" stroke="#C65F49" strokeWidth="0.5" fill="none" opacity="0.4"/>
+      {/* Center line */}
+      <line x1="65" y1="18" x2="65" y2="85" stroke="#C65F49" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.5"/>
+      {/* Horizontal lines */}
+      <line x1="47" y1="52" x2="83" y2="52" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
+      <line x1="35" y1="68" x2="95" y2="68" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
+      {/* Glow dot at apex */}
+      <circle cx="65" cy="18" r="2.5" fill="#C65F49" opacity="0.8"/>
+      <circle cx="65" cy="18" r="5" fill="none" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
+    </svg>
+  );
+}
+
+function BlueWaveDecor() {
+  // Flowing wave / signal lines
+  return (
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
+      <path d="M10,30 C30,10 50,50 70,30 C90,10 110,50 130,30" stroke="#6EA8D8" strokeWidth="1" fill="none"/>
+      <path d="M10,48 C30,28 50,68 70,48 C90,28 110,68 130,48" stroke="#6EA8D8" strokeWidth="0.9" fill="none" opacity="0.8"/>
+      <path d="M10,66 C30,46 50,86 70,66 C90,46 110,86 130,66" stroke="#6EA8D8" strokeWidth="0.8" fill="none" opacity="0.6"/>
+      <path d="M10,84 C30,64 50,104 70,84 C90,64 110,104 130,84" stroke="#6EA8D8" strokeWidth="0.7" fill="none" opacity="0.4"/>
+      <path d="M10,100 C30,80 50,120 70,100 C90,80 110,120 130,100" stroke="#6EA8D8" strokeWidth="0.6" fill="none" opacity="0.25"/>
+      {/* Vertical tick marks */}
+      {[20, 50, 80, 110].map(x => (
+        <line key={x} x1={x} y1="20" x2={x} y2="105" stroke="#6EA8D8" strokeWidth="0.3" strokeDasharray="2 8" opacity="0.3"/>
+      ))}
+    </svg>
+  );
+}
+
+const decorMap = {
+  judgement: <BlueCubeDecor />,
+  insideTheWork: <OrangeLayersDecor />,
+  appliedInPractice: <OrangePrismDecor />,
+  whatChanges: <BlueWaveDecor />,
+};
+
 function ArcCard({
   heading,
   body,
   accent,
+  variant,
 }: {
   heading: string;
   body?: string;
   accent: "blue" | "orange";
+  variant: keyof typeof decorMap;
 }) {
   const headColor = accent === "blue" ? "text-[#6EA8D8]" : "text-accent";
   return (
     <div className="group relative flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px] overflow-hidden hover:border-[#3A3A3A] transition-colors duration-300">
-      {accent === "blue" ? <BlueCubeDecor /> : <OrangeHexDecor />}
+      {decorMap[variant]}
       <p className={`relative z-10 text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
       {body && <p className="relative z-10 mt-2 text-[11px] leading-[1.65] text-[#e0e0e0] font-light">{body}</p>}
     </div>
@@ -149,8 +190,8 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
       <div className="mt-5">
         <RowDivider left="With the Legend" right="The Experience" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <ArcCard heading="The Judgement" body={item.judgement} accent="blue" />
-          <ArcCard heading="Inside the Work" body={item.insideTheWork} accent="blue" />
+          <ArcCard heading="The Judgement" body={item.judgement} accent="blue" variant="judgement" />
+          <ArcCard heading="Inside the Work" body={item.insideTheWork} accent="orange" variant="insideTheWork" />
         </div>
       </div>
 
@@ -158,8 +199,8 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
       <div className="mt-4">
         <RowDivider left="In Your Practice" right="The Transformation" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <ArcCard heading="Applied in Your Practice" body={item.appliedInPractice} accent="orange" />
-          <ArcCard heading="What Changes" body={item.whatChanges} accent="orange" />
+          <ArcCard heading="Applied in Your Practice" body={item.appliedInPractice} accent="orange" variant="appliedInPractice" />
+          <ArcCard heading="What Changes" body={item.whatChanges} accent="blue" variant="whatChanges" />
         </div>
       </div>
 
