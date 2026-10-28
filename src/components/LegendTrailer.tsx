@@ -117,7 +117,8 @@ export function LegendTrailer({
   }, [speedOpen]);
 
   const frame =
-    "relative aspect-[16/7] w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black";
+    "relative w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black" +
+    " aspect-[16/7] max-h-[55vh]";
 
   const badge = null;
 
