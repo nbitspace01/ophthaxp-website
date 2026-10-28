@@ -489,10 +489,10 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   Programme Fee
                 </p>
                 <div className="flex flex-1 flex-col justify-center">
-                  <p className="mt-3 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
+                  <p className="mt-2 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
                     ₹{priceText}
                   </p>
-                  <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
+                  <p className="mt-3 text-[13px] leading-[1.6] text-[#888]">
                     Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
                   </p>
                 </div>
@@ -501,7 +501,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {/* Inset vertical divider — hidden on mobile, doesn't touch card top/bottom */}
               <div className="hidden lg:block w-px self-stretch my-8 bg-[#2A2A2A]" />
               {/* Right — stats grid + buttons */}
-              <div className="flex flex-col justify-between p-6 sm:p-8 lg:w-[48%]">
+              <div className="flex flex-col justify-between p-5 sm:p-7 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
                     <div className="py-5 pr-8">
