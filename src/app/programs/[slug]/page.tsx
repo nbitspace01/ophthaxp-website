@@ -577,7 +577,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             width, so a 280px thumbnail printed it at about eight pixels tall. */}
         <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
           {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#E5DDD2] px-8 py-12 sm:px-16 sm:py-14 lg:flex lg:items-center lg:gap-2">
+          <div className="rounded-[20px] bg-[#E5DDD2] px-8 py-12 sm:px-10 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:px-20">
             {/* Left — text */}
             <div className="lg:w-[45%]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B05A3A]">
@@ -592,7 +592,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               </p>
             </div>
             {/* Right — dark certificate card (flat card design, floating) */}
-            <div className="mt-10 flex justify-center lg:mt-0 lg:w-[55%] lg:justify-end lg:pr-6">
+            <div className="mt-10 flex justify-center lg:mt-0 lg:w-[55%] lg:justify-end lg:pr-4">
               {/* cert-float applies the continuous floating animation */}
               <div
                 className="cert-float relative w-[300px] sm:w-[380px]"
