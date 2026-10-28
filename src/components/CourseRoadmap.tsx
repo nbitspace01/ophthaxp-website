@@ -217,7 +217,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                     className={`block text-[13.5px] leading-snug transition-colors ${
                       isActive
                         ? "font-semibold text-white"
-                        : "font-normal text-[#5A5A5A]"
+                        : "font-normal text-[#999]"
                     }`}
                   >
                     {item.title}
@@ -225,7 +225,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                   {item.subtitle && (
                     <span
                       className={`block text-[12px] mt-[3px] leading-snug transition-colors ${
-                        isActive ? "text-[#888]" : "text-[#3A3A3A]"
+                        isActive ? "text-[#888]" : "text-[#666]"
                       }`}
                     >
                       {item.subtitle}
