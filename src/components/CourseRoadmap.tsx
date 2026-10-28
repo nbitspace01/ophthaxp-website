@@ -31,38 +31,38 @@ function RowDivider({ left, right }: { left: string; right: string }) {
 }
 
 function BlueCubeDecor() {
-  // Perspective grid: vanishing point left, grid plane right
   const vx = 10, vy = 60;
   const cols = [70, 82, 94, 106, 118];
   const rows = [20, 33, 46, 60, 73, 86, 100];
   return (
-    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
-      {/* Converging lines from vanishing point to each row on right edge */}
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
+      <style>{`
+        @keyframes grid-scan { 0%{opacity:0.2} 50%{opacity:1} 100%{opacity:0.2} }
+        @keyframes vp-pulse { 0%,100%{r:2;opacity:0.8} 50%{r:5;opacity:1} }
+        .grid-scan { animation: grid-scan 2.5s ease-in-out infinite; animation-play-state: paused; }
+        .vp-pulse { animation: vp-pulse 2s ease-in-out infinite; animation-play-state: paused; }
+        .group:hover .grid-scan, .group:hover .vp-pulse { animation-play-state: running; }
+      `}</style>
       {rows.map((y, i) => (
-        <line key={`r${i}`} x1={vx} y1={vy} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.5" opacity="0.6"/>
+        <line key={`r${i}`} className="grid-scan" style={{ animationDelay: `${i * 0.12}s` }} x1={vx} y1={vy} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.5"/>
       ))}
-      {/* Converging lines from vanishing point to each col top/bottom */}
       {cols.map((x, i) => (
-        <line key={`c${i}`} x1={vx} y1={vy} x2={x} y2={rows[0]} stroke="#6EA8D8" strokeWidth="0.4" opacity="0.4"/>
+        <line key={`c${i}`} className="grid-scan" style={{ animationDelay: `${i * 0.15}s` }} x1={vx} y1={vy} x2={x} y2={rows[0]} stroke="#6EA8D8" strokeWidth="0.4"/>
       ))}
-      {/* Vertical grid lines on the plane */}
       {cols.map((x, i) => {
         const topY = vy + (rows[0] - vy) * (x - vx) / (118 - vx);
         const botY = vy + (rows[rows.length-1] - vy) * (x - vx) / (118 - vx);
-        return <line key={`v${i}`} x1={x} y1={topY} x2={x} y2={botY} stroke="#6EA8D8" strokeWidth="0.6"/>;
+        return <line key={`v${i}`} className="grid-scan" style={{ animationDelay: `${i * 0.1}s` }} x1={x} y1={topY} x2={x} y2={botY} stroke="#6EA8D8" strokeWidth="0.6"/>;
       })}
-      {/* Horizontal grid lines (perspective) */}
       {rows.map((y, i) => (
-        <line key={`h${i}`} x1={cols[0]} y1={vy + (y - vy) * (cols[0]-vx)/(118-vx)} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.6"/>
+        <line key={`h${i}`} className="grid-scan" style={{ animationDelay: `${i * 0.08}s` }} x1={cols[0]} y1={vy + (y - vy) * (cols[0]-vx)/(118-vx)} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.6"/>
       ))}
-      {/* Vanishing point dot */}
-      <circle cx={vx} cy={vy} r="2" fill="#6EA8D8" opacity="0.8"/>
+      <circle className="vp-pulse" cx={vx} cy={vy} r="2" fill="#6EA8D8" opacity="0.8"/>
     </svg>
   );
 }
 
 function OrangeRadialDecor() {
-  // Radial burst — eye/iris with rays emanating from centre, arcs connecting them
   const cx = 65, cy = 60, rays = 16;
   const lines = Array.from({ length: rays }, (_, i) => {
     const angle = (i / rays) * Math.PI * 2;
@@ -75,40 +75,49 @@ function OrangeRadialDecor() {
   });
   return (
     <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
-      {/* Arcs */}
-      <circle cx={cx} cy={cy} r="52" stroke="#C65F49" strokeWidth="0.5" opacity="0.35"/>
-      <circle cx={cx} cy={cy} r="38" stroke="#C65F49" strokeWidth="0.5" opacity="0.4"/>
-      <circle cx={cx} cy={cy} r="26" stroke="#C65F49" strokeWidth="0.6" opacity="0.5"/>
-      <circle cx={cx} cy={cy} r="14" stroke="#C65F49" strokeWidth="0.7" opacity="0.6"/>
-      {/* Rays */}
-      {lines.map((l, i) => (
-        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#C65F49" strokeWidth="0.6" opacity={l.op}/>
-      ))}
-      {/* Core glow */}
-      <circle cx={cx} cy={cy} r="5" stroke="#C65F49" strokeWidth="1" opacity="0.9"/>
-      <circle cx={cx} cy={cy} r="2" fill="#C65F49" opacity="1"/>
+      <style>{`
+        @keyframes radial-spin { to { transform: rotate(360deg); } }
+        @keyframes core-beat { 0%,100%{opacity:0.9} 50%{opacity:1;r:8} }
+        .radial-spin { transform-origin: 65px 60px; transform-box: fill-box; animation: radial-spin 10s linear infinite; animation-play-state: paused; }
+        .core-beat { animation: core-beat 1.8s ease-in-out infinite; animation-play-state: paused; }
+        .group:hover .radial-spin, .group:hover .core-beat { animation-play-state: running; }
+      `}</style>
+      <g className="radial-spin">
+        <circle cx={cx} cy={cy} r="52" stroke="#C65F49" strokeWidth="0.5" opacity="0.35"/>
+        <circle cx={cx} cy={cy} r="38" stroke="#C65F49" strokeWidth="0.5" opacity="0.4"/>
+        <circle cx={cx} cy={cy} r="26" stroke="#C65F49" strokeWidth="0.6" opacity="0.5"/>
+        <circle cx={cx} cy={cy} r="14" stroke="#C65F49" strokeWidth="0.7" opacity="0.6"/>
+        {lines.map((l, i) => (
+          <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#C65F49" strokeWidth="0.6" opacity={l.op}/>
+        ))}
+      </g>
+      <circle className="core-beat" cx={cx} cy={cy} r="5" stroke="#C65F49" strokeWidth="1" opacity="0.9"/>
+      <circle cx={cx} cy={cy} r="2" fill="#C65F49"/>
     </svg>
   );
 }
 
 function OrangeCircuitDecor() {
-  // Circuit board / PCB trace pattern
   return (
     <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
-      {/* Horizontal traces */}
-      <path d="M10,30 L50,30 L60,20 L120,20" stroke="#C65F49" strokeWidth="0.8"/>
-      <path d="M10,55 L40,55 L50,45 L80,45 L90,55 L120,55" stroke="#C65F49" strokeWidth="0.8"/>
-      <path d="M10,80 L35,80 L45,70 L65,70 L75,80 L120,80" stroke="#C65F49" strokeWidth="0.8"/>
-      <path d="M10,100 L30,100 L40,90 L120,90" stroke="#C65F49" strokeWidth="0.6" opacity="0.6"/>
-      {/* Vertical connectors */}
-      <line x1="50" y1="20" x2="50" y2="45" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
-      <line x1="80" y1="45" x2="80" y2="80" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
-      <line x1="35" y1="55" x2="35" y2="80" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
-      <line x1="100" y1="20" x2="100" y2="55" stroke="#C65F49" strokeWidth="0.5" opacity="0.5"/>
-      {/* Nodes / solder pads */}
-      {[[60,20],[90,55],[75,80],[50,45],[35,80],[80,45],[100,20],[40,90]].map(([x,y],i)=>(
+      <style>{`
+        @keyframes trace-in { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
+        @keyframes node-ping { 0%,100%{r:3.5;opacity:1} 50%{r:6;opacity:0.4} }
+        .circuit-trace { stroke-dasharray: 300; stroke-dashoffset: 300; animation: trace-in 1.4s ease forwards; animation-play-state: paused; }
+        .node-ping { animation: node-ping 2s ease-in-out infinite; animation-play-state: paused; }
+        .group:hover .circuit-trace, .group:hover .node-ping { animation-play-state: running; }
+      `}</style>
+      <path className="circuit-trace" d="M10,30 L50,30 L60,20 L120,20" stroke="#C65F49" strokeWidth="0.8" style={{ animationDelay: '0s' }}/>
+      <path className="circuit-trace" d="M10,55 L40,55 L50,45 L80,45 L90,55 L120,55" stroke="#C65F49" strokeWidth="0.8" style={{ animationDelay: '0.2s' }}/>
+      <path className="circuit-trace" d="M10,80 L35,80 L45,70 L65,70 L75,80 L120,80" stroke="#C65F49" strokeWidth="0.8" style={{ animationDelay: '0.4s' }}/>
+      <path className="circuit-trace" d="M10,100 L30,100 L40,90 L120,90" stroke="#C65F49" strokeWidth="0.6" style={{ animationDelay: '0.6s' }}/>
+      <line className="circuit-trace" x1="50" y1="20" x2="50" y2="45" stroke="#C65F49" strokeWidth="0.7" style={{ animationDelay: '0.3s' }}/>
+      <line className="circuit-trace" x1="80" y1="45" x2="80" y2="80" stroke="#C65F49" strokeWidth="0.7" style={{ animationDelay: '0.5s' }}/>
+      <line className="circuit-trace" x1="35" y1="55" x2="35" y2="80" stroke="#C65F49" strokeWidth="0.7" style={{ animationDelay: '0.4s' }}/>
+      <line className="circuit-trace" x1="100" y1="20" x2="100" y2="55" stroke="#C65F49" strokeWidth="0.5" style={{ animationDelay: '0.2s' }}/>
+      {[[60,20],[90,55],[75,80],[50,45],[35,80],[80,45],[100,20],[40,90]].map(([x,y],i) => (
         <g key={i}>
-          <circle cx={x} cy={y} r="3.5" stroke="#C65F49" strokeWidth="0.8" fill="none"/>
+          <circle className="node-ping" cx={x} cy={y} r="3.5" stroke="#C65F49" strokeWidth="0.8" fill="none" style={{ animationDelay: `${i * 0.2}s` }}/>
           <circle cx={x} cy={y} r="1.2" fill="#C65F49"/>
         </g>
       ))}
@@ -117,18 +126,26 @@ function OrangeCircuitDecor() {
 }
 
 function BlueConstellationDecor() {
-  // Constellation — scattered nodes connected by thin lines
   const nodes = [[105,18],[85,35],[115,50],[70,22],[95,65],[118,80],[75,55],[60,75],[110,95],[80,90]];
   const edges = [[0,1],[0,3],[1,2],[1,6],[2,4],[3,6],[4,5],[4,6],[5,8],[6,7],[7,9],[8,9],[2,5]];
   return (
     <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
+      <style>{`
+        @keyframes edge-flash { 0%{opacity:0.1} 50%{opacity:0.9} 100%{opacity:0.1} }
+        @keyframes star-twinkle { 0%,100%{opacity:0.6} 50%{opacity:1;r:4} }
+        @keyframes ripple { 0%{r:6;opacity:0.5} 100%{r:14;opacity:0} }
+        .edge-flash { animation: edge-flash 2.5s ease-in-out infinite; animation-play-state: paused; }
+        .star-twinkle { animation: star-twinkle 2s ease-in-out infinite; animation-play-state: paused; }
+        .ripple { animation: ripple 1.8s ease-out infinite; animation-play-state: paused; }
+        .group:hover .edge-flash, .group:hover .star-twinkle, .group:hover .ripple { animation-play-state: running; }
+      `}</style>
       {edges.map(([a,b],i) => (
-        <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#6EA8D8" strokeWidth="0.5" opacity="0.5"/>
+        <line key={i} className="edge-flash" style={{ animationDelay: `${i * 0.15}s` }} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#6EA8D8" strokeWidth="0.5"/>
       ))}
       {nodes.map(([x,y],i) => (
         <g key={i}>
-          <circle cx={x} cy={y} r={i < 3 ? 3 : 1.8} fill="#6EA8D8" opacity={i < 3 ? 0.9 : 0.6}/>
-          {i < 3 && <circle cx={x} cy={y} r="6" stroke="#6EA8D8" strokeWidth="0.4" opacity="0.3"/>}
+          {i < 3 && <circle className="ripple" style={{ animationDelay: `${i * 0.5}s` }} cx={x} cy={y} r="6" stroke="#6EA8D8" strokeWidth="0.6" fill="none"/>}
+          <circle className="star-twinkle" style={{ animationDelay: `${i * 0.2}s` }} cx={x} cy={y} r={i < 3 ? 3 : 1.8} fill="#6EA8D8" opacity={i < 3 ? 0.9 : 0.6}/>
         </g>
       ))}
     </svg>
