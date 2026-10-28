@@ -291,8 +291,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 <img
                   src={heroImage}
                   alt={legendName}
-                  className="h-[140%] w-[140%] max-w-none object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
-                  style={{ objectPosition: "center center" }}
+                  className="h-full w-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
