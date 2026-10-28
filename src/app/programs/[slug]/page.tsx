@@ -320,7 +320,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:px-10">
               <div className="w-full max-w-none lg:max-w-[520px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                {p.specialty ? `${specialtyLabel(p.specialty)} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
+                {p.specialty ? `PROGRAMME / ${specialtyLabel(p.specialty)}` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
