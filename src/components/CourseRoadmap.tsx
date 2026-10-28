@@ -62,18 +62,35 @@ function BlueCubeDecor() {
 }
 
 function OrangeHexDecor() {
+  // Stacked floating layer planes (isometric)
+  const layers = [
+    { y: 95, opacity: 1 },
+    { y: 78, opacity: 0.85 },
+    { y: 61, opacity: 0.65 },
+    { y: 44, opacity: 0.45 },
+  ];
+  const w = 60, h = 18, ox = 30;
   return (
-    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[110px] h-[110px] opacity-[0.12] group-hover:opacity-[0.28] transition-opacity duration-500 pointer-events-none">
-      <path d="M60 15 L90 32 L90 68 L60 85 L30 68 L30 32 Z" stroke="#C65F49" strokeWidth="1" fill="none"/>
-      <path d="M60 32 L80 43 L80 65 L60 76 L40 65 L40 43 Z" stroke="#C65F49" strokeWidth="0.8" fill="none" opacity="0.6"/>
-      <path d="M60 49 L70 55 L70 66 L60 72 L50 66 L50 55 Z" stroke="#C65F49" strokeWidth="0.7" fill="none" opacity="0.4"/>
-      <path d="M60 15 L60 32 M90 32 L80 43 M90 68 L80 65 M60 85 L60 76 M30 68 L40 65 M30 32 L40 43" stroke="#C65F49" strokeWidth="0.5" strokeDasharray="2 2" opacity="0.5"/>
-      <circle cx="60" cy="15" r="1.5" fill="#C65F49"/>
-      <circle cx="90" cy="32" r="1.5" fill="#C65F49"/>
-      <circle cx="90" cy="68" r="1.5" fill="#C65F49"/>
-      <circle cx="60" cy="85" r="1.5" fill="#C65F49"/>
-      <circle cx="30" cy="68" r="1.5" fill="#C65F49"/>
-      <circle cx="30" cy="32" r="1.5" fill="#C65F49"/>
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
+      {layers.map((l, i) => {
+        const x = ox;
+        const y = l.y;
+        // Isometric flat plane: top-left, top-right, bottom-right, bottom-left
+        const tl = `${x},${y - h/2}`;
+        const tr = `${x + w},${y - h/2 + h * 0.3}`;
+        const br = `${x + w},${y + h/2 + h * 0.3}`;
+        const bl = `${x},${y + h/2}`;
+        return (
+          <g key={i} opacity={l.opacity}>
+            <polygon points={`${tl} ${tr} ${br} ${bl}`} stroke="#C65F49" strokeWidth="0.8" fill="none"/>
+            {/* Inner grid lines horizontal */}
+            <line x1={x} y1={y} x2={x+w} y2={y + h*0.3} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
+            {/* Inner grid lines vertical */}
+            <line x1={x + w*0.33} y1={y - h/2 + h*0.1} x2={x + w*0.33} y2={y + h/2 + h*0.1} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
+            <line x1={x + w*0.66} y1={y - h/2 + h*0.2} x2={x + w*0.66} y2={y + h/2 + h*0.2} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
+          </g>
+        );
+      })}
     </svg>
   );
 }
