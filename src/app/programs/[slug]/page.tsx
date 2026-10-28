@@ -479,6 +479,86 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
         <HowItWorks heading="Your Path into the Programme" align="left" />
 
+        {/* The plate is ours and it is drawn live, so it carries the reader's
+            own name and this programme's mentor. It replaces the flat
+            `sampleCertificateImage` the course row used to supply: one picture
+            for everybody, soft wherever it was scaled, and made out to nobody.
+            The column it sits in is the wider of the two because the name has
+            to be legible - the frame is under a third of the photograph's
+            width, so a 280px thumbnail printed it at about eight pixels tall. */}
+        <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
+          {/* Beige recognition card */}
+          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
+            {/* Left — text */}
+            <div className="px-8 sm:px-0 lg:w-[42%]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
+                The Recognition
+              </p>
+              <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
+                Among the{" "}
+                <em className="font-normal not-italic" style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic" }}>Few</em>
+              </h2>
+              <p className="mt-4 text-[17px] leading-[1.8] text-[#4A3F35]">
+                Take your place among a select group of ophthalmologists from around the world, guided directly by {signatory.name} and carry his depth of judgement and clinical standards into your own practice.
+              </p>
+            </div>
+            {/* Right — dark certificate card (flat card design, floating) */}
+            <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
+              {/* cert-float applies the continuous floating animation — straight, no rotation */}
+              <div
+                className="cert-float relative w-[340px] sm:w-[500px]"
+                style={{ filter: "none" }}
+              >
+                {/* Second card behind (stacked depth) */}
+                <div
+                  className="absolute inset-0 rounded-[16px] bg-black"
+                  style={{ transform: "translate(14px, 14px)", opacity: 1 }}
+                />
+                {/* Main dark card */}
+                <div
+                  className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center"
+                  style={{ border: "1.5px solid #FF6B2B" }}
+                >
+                  {/* Inner border inset */}
+                  <div
+                    className="pointer-events-none absolute inset-[10px] rounded-[10px]"
+                    style={{ border: "1px solid #FF6B2B", opacity: 0.4 }}
+                  />
+                  {/* LOM mark — two vertical bars */}
+                  <div className="mb-5 flex justify-center gap-[7px]">
+                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
+                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
+                  </div>
+                  {/* "LEGENDS OF MEDICINE" */}
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#C97B50]">
+                    Legends of Medicine
+                  </p>
+                  {/* Recipient name — white, bold */}
+                  <p className="mt-6 text-[1.05rem] font-bold uppercase tracking-[0.08em] text-white sm:text-[1.25rem]">
+                    {recipientName}
+                  </p>
+                  {/* Programme name — light white */}
+                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.name}</p>
+                  <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
+                  {/* Signature in script — copper */}
+                  <p
+                    className="mt-6 text-[1.35rem] leading-none text-[#C97B50]"
+                    style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}
+                  >
+                    {signatory.name}
+                  </p>
+                  {/* Cohort year */}
+                  {(p.launchYear || p.startDate) && (
+                    <p className="mt-4 text-[8px] font-semibold uppercase tracking-[0.26em] text-white/30">
+                      Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ══════════════════════════════════════════════════════════════
             § 7 — INVESTMENT
         ══════════════════════════════════════════════════════════════ */}
@@ -570,86 +650,6 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             </div>
           </section>
         )}
-
-        {/* The plate is ours and it is drawn live, so it carries the reader's
-            own name and this programme's mentor. It replaces the flat
-            `sampleCertificateImage` the course row used to supply: one picture
-            for everybody, soft wherever it was scaled, and made out to nobody.
-            The column it sits in is the wider of the two because the name has
-            to be legible - the frame is under a third of the photograph's
-            width, so a 280px thumbnail printed it at about eight pixels tall. */}
-        <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
-          {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
-            {/* Left — text */}
-            <div className="px-8 sm:px-0 lg:w-[42%]">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
-                The Recognition
-              </p>
-              <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
-                Among the{" "}
-                <em className="font-normal not-italic" style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic" }}>Few</em>
-              </h2>
-              <p className="mt-4 text-[17px] leading-[1.8] text-[#4A3F35]">
-                Take your place among a select group of ophthalmologists from around the world, guided directly by {signatory.name} and carry his depth of judgement and clinical standards into your own practice.
-              </p>
-            </div>
-            {/* Right — dark certificate card (flat card design, floating) */}
-            <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
-              {/* cert-float applies the continuous floating animation — straight, no rotation */}
-              <div
-                className="cert-float relative w-[340px] sm:w-[500px]"
-                style={{ filter: "none" }}
-              >
-                {/* Second card behind (stacked depth) */}
-                <div
-                  className="absolute inset-0 rounded-[16px] bg-black"
-                  style={{ transform: "translate(14px, 14px)", opacity: 1 }}
-                />
-                {/* Main dark card */}
-                <div
-                  className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center"
-                  style={{ border: "1.5px solid #FF6B2B" }}
-                >
-                  {/* Inner border inset */}
-                  <div
-                    className="pointer-events-none absolute inset-[10px] rounded-[10px]"
-                    style={{ border: "1px solid #FF6B2B", opacity: 0.4 }}
-                  />
-                  {/* LOM mark — two vertical bars */}
-                  <div className="mb-5 flex justify-center gap-[7px]">
-                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                  </div>
-                  {/* "LEGENDS OF MEDICINE" */}
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#C97B50]">
-                    Legends of Medicine
-                  </p>
-                  {/* Recipient name — white, bold */}
-                  <p className="mt-6 text-[1.05rem] font-bold uppercase tracking-[0.08em] text-white sm:text-[1.25rem]">
-                    {recipientName}
-                  </p>
-                  {/* Programme name — light white */}
-                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.name}</p>
-                  <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
-                  {/* Signature in script — copper */}
-                  <p
-                    className="mt-6 text-[1.35rem] leading-none text-[#C97B50]"
-                    style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}
-                  >
-                    {signatory.name}
-                  </p>
-                  {/* Cohort year */}
-                  {(p.launchYear || p.startDate) && (
-                    <p className="mt-4 text-[8px] font-semibold uppercase tracking-[0.26em] text-white/30">
-                      Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {related.length > 0 && (
           <section aria-labelledby="related-title" className={SECTION}>
