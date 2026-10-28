@@ -155,7 +155,7 @@ export function LegendTrailer({
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onDurationChange={(e) => setDuration(e.currentTarget.duration)}
         onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
-        className="absolute inset-0 h-full w-full cursor-pointer object-cover object-top"
+        className="absolute inset-0 h-full w-full cursor-pointer object-cover object-center"
       />
 
       {badge}

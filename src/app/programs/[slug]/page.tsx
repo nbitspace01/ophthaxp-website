@@ -427,7 +427,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <section
             id="legend-video"
             aria-labelledby="legend-title"
-            className={`scroll-mt-24 ${SECTION}`}
+            className={`scroll-mt-24 ${SHELL} py-8 sm:py-10`}
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
               The Programme Film
@@ -435,7 +435,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <h2 id="legend-title" className={`mt-3 ${HEADING}`}>
               What Becomes Possible
             </h2>
-            <div className="mt-10 sm:mt-14">
+            <div className="mt-5 sm:mt-7">
               <LegendTrailer
                 src={p.trailerVideoUrl}
                 poster={p.filmThumbnailUrl || heroImage}
