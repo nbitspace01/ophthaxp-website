@@ -560,7 +560,7 @@ export function CourseRoadmap({
   items,
   durationMonths,
   title = "The Programme Arc",
-  subtitle = "A 12-Month journey that transforms how you observe, decide, operate and build a cornea practice.",
+  subtitle,
 }: {
   items: Item[];
   durationMonths?: number;
@@ -595,5 +595,8 @@ export function CourseRoadmap({
 
   if (resolved.length === 0) return null;
 
-  return <ArcRoadmap items={resolved} title={title} subtitle={subtitle} />;
+  const months = durationMonths ?? resolved.length;
+  const computedSubtitle = subtitle || `A ${months}-Month journey that transforms how you observe, decide, operate and build a cornea practice.`;
+
+  return <ArcRoadmap items={resolved} title={title} subtitle={computedSubtitle} />;
 }
