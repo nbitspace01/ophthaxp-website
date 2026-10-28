@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Award, Check } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LegendTrailer } from "@/components/LegendTrailer";
@@ -576,43 +576,34 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             The column it sits in is the wider of the two because the name has
             to be legible - the frame is under a third of the photograph's
             width, so a 280px thumbnail printed it at about eight pixels tall. */}
-        <section aria-labelledby="cert-title" className={SECTION}>
-          <h2 id="cert-title" className={HEADING}>
-            Certificate
-          </h2>
-          <div className="mt-10 grid items-center gap-8 rounded-[12px] border-[1.5px] border-ink-700 bg-ink-800 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent-soft">
-                <Award className="h-3.5 w-3.5" /> Verifiable
-              </span>
-              <p className="mt-4 text-[15px] leading-relaxed text-[#A5A5A5] sm:text-base">
-                {p.certificateNote ||
-                  "Candidates will be awarded a certificate of completion on fulfilling the mentioned minimum criteria."}
+        <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
+          {/* Beige recognition card */}
+          <div className="rounded-[20px] bg-[#E8E0D4] px-8 py-12 sm:px-14 sm:py-16 lg:flex lg:items-center lg:gap-12">
+            {/* Left — text */}
+            <div className="lg:w-1/2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B05A3A]">
+                The Recognition
               </p>
-              {/* Says whose name is on it. Without this the personalisation
-                  reads as a promise that the certificate is already earned. */}
-              <p className="mt-4 text-[13px] text-white/45">
-                {viewer
-                  ? "Shown made out to you — a sample, not an award."
-                  : "A sample. Log in and it is made out in your name."}
+              <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
+                Among the <em className="font-normal italic" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>Few</em>
+              </h2>
+              <p className="mt-5 text-[14px] leading-[1.75] text-[#4A3F35]">
+                {p.certificateNote ||
+                  "Take your place among a select group of ophthalmologists from around the world, guided directly by the Legend—and carry his depth of judgement and clinical standards into your own practice."}
               </p>
             </div>
-            {/* Cropped in on the plate. Uncropped, the frame is 30% of the
-                photograph and the printed name lands about twelve pixels tall in
-                this column - present, but not something anybody reads. The crop
-                is arithmetic rather than object-fit, because the overlay has to
-                follow it: a percentage inside the inner box is a percentage of
-                the photograph, which is how the drawn text stays on the frame.
-                At 135% the plate carries its name at about fifteen pixels,
-                with the sideboard and the vase still in shot on the right so it
-                reads as a photograph and not as a scan. */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-[#4A4A4A]">
-              <div className="absolute left-[-32%] top-[-16%] aspect-[3/2] w-[135%]">
-                <CertificatePlate
-                  name={recipientName}
-                  signatory={signatory}
-                  alt={`A ${p.name} certificate of completion made out to ${recipientName}, framed and standing on a sideboard`}
-                />
+            {/* Right — certificate card */}
+            <div className="mt-10 flex justify-center lg:mt-0 lg:w-1/2 lg:justify-end">
+              <div className="relative w-[300px] sm:w-[340px]">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[10px] shadow-2xl">
+                  <div className="absolute left-[-32%] top-[-16%] aspect-[3/2] w-[135%]">
+                    <CertificatePlate
+                      name={recipientName}
+                      signatory={signatory}
+                      alt={`A ${p.name} certificate of completion made out to ${recipientName}, framed and standing on a sideboard`}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
