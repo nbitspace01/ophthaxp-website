@@ -153,10 +153,10 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
           <p className="max-w-[340px] text-[14px] leading-[1.6] text-[#888]">{subtitle}</p>
           <div className="flex items-center gap-4 mt-1">
             <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#4A90D9]" /> The Legend&apos;s Edge
+              <span className="h-2.5 w-2.5 rounded-full bg-[#4A90D9]" style={{ boxShadow: "0 0 6px 2px rgba(74,144,217,0.55)" }} /> The Legend&apos;s Edge
             </span>
             <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
-              <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Technical Core
+              <span className="h-2.5 w-2.5 rounded-full bg-accent" style={{ boxShadow: "0 0 6px 2px rgba(183,90,68,0.6)" }} /> Technical Core
             </span>
           </div>
         </div>
@@ -361,7 +361,7 @@ function AccordionRoadmap({ items, title, subtitle }: { items: Item[]; title: st
 export function CourseRoadmap({
   items,
   title = "The Programme Arc",
-  subtitle = "A structured journey from foundational knowledge to surgical confidence.",
+  subtitle = "A 12-Month journey that transforms how you observe, decide, operate and build a cornea practice.",
 }: {
   items: Item[];
   title?: string;

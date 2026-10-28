@@ -470,10 +470,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* § 5 — THE ROADMAP */}
         <CourseRoadmap
           items={roadmapItems}
-          subtitle={
-            p.eligibility ||
-            "A structured journey from foundational knowledge to surgical confidence."
-          }
+          subtitle={p.eligibility || undefined}
         />
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
