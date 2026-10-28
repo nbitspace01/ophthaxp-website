@@ -283,7 +283,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-[55%_45%] lg:h-[680px]">
+          <div className="lg:grid lg:grid-cols-[46%_54%] lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
             {/* Image column — desktop only, hover zoom */}
             <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
               {heroImage ? (
@@ -304,7 +304,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
             {/* Content column */}
             <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-10 lg:pr-8">
-              <div className="w-full max-w-none lg:max-w-[420px] text-left">
+              <div className="w-full max-w-none lg:max-w-[520px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
@@ -342,7 +342,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {p.trailerVideoUrl && (
                 <a
                   href="#legend-video"
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/50 underline-offset-[6px] transition hover:decoration-white"
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white no-underline transition hover:opacity-80"
                 >
                   <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/30">
                     <svg className="h-2.5 w-2.5 translate-x-[1px]" viewBox="0 0 8 10" fill="currentColor" aria-hidden>
