@@ -584,9 +584,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 The Recognition
               </p>
               <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
-                Among the <em className="font-normal italic" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>Few</em>
+                Among the <em className="font-normal italic">Few</em>
               </h2>
-              <p className="mt-4 text-[14px] leading-[1.75] text-[#4A3F35]">
+              <p className="mt-4 text-[16px] leading-[1.8] text-[#4A3F35]">
                 Take your place among a select group of ophthalmologists from around the world, guided directly by Dr. Srinivas K. Rao—and carry his depth of judgement and clinical standards into your own practice.
               </p>
             </div>
