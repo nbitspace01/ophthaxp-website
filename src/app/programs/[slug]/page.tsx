@@ -42,7 +42,7 @@ const HEADING =
    then easing back to a 40% wash, which holds the whole photograph in the same
    low key as the copy beside it. */
 const HERO_SCRIM =
-  "linear-gradient(to left, #000 0%, #000 38%, rgba(0,0,0,0.66) 62%, rgba(0,0,0,0.4) 100%)";
+  "linear-gradient(to left, #000 0%, #000 38%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0.08) 100%)";
 
 /* Shown when the course row carries no highlights of its own. */
 const DEFAULT_INCLUSIONS = [
@@ -158,7 +158,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
     : p.durationWeeks
       ? `${p.durationWeeks} ${p.durationWeeks === 1 ? "Week" : "Weeks"}`
       : durationLabel;
-  const enrollLabel = p.ctaLabel || "Reserve your Seat";
+  const enrollLabel = p.ctaLabel || "Begin your application";
   const heroImage = p.doctorImage || p.heroImage;
   // Fallback mentor name for the hero credit line when no faculty record could
   // be resolved. Skip it if it just duplicates the course title/headline.
@@ -331,11 +331,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           >
             <div className="w-full max-w-[420px] text-left lg:max-w-[560px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                LEGACY TRANSFER PROGRAMME
+                {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
-                className="mt-3 font-serif text-[clamp(2.25rem,3.8vw,3.25rem)] leading-[1.08] text-white"
+                className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.75rem)] font-light leading-[1.1] text-white"
               >
                 {p.headline || p.name}
               </h1>
@@ -349,7 +349,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   <span className="font-semibold text-white">
                     Dr. {faculty.name.replace(/^Dr\.?\s+/i, "")}
                   </span>
-                  <span className="text-[10px] text-[#A5A5A5]" aria-hidden>↗</span>
+                  <span className="text-[10px] text-accent" aria-hidden>↗</span>
                 </Link>
               ) : mentorName ? (
                 <p className="mt-4 text-sm text-[#A5A5A5]">
@@ -374,13 +374,13 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                       <path d="M0 0l8 5-8 5V0z" />
                     </svg>
                   </span>
-                  What Becomes Possible
+                  Watch Programme Film
                 </a>
               )}
 
               {/* Stat strip — duration · cohort · launch */}
               {(heroDuration || p.cohortSize || launchLabel) && (
-                <div className="mt-8 flex items-stretch justify-start divide-x divide-white/15 text-left">
+                <div className="mt-8 border-t border-b border-white/10 py-6 flex items-stretch justify-start divide-x divide-white/15 text-left">
                   {[
                     heroDuration && { value: heroDuration, label: "Duration" },
                     p.cohortSize
@@ -409,7 +409,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Enrollment card */}
-              <div className="mt-8 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] p-6">
+              <div className="mt-6 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] px-6 py-5">
                 <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
                   Programme Enrolment
                 </p>
