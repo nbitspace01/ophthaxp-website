@@ -577,7 +577,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             width, so a 280px thumbnail printed it at about eight pixels tall. */}
         <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
           {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#E5DDD2] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-24 lg:pr-20">
+          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-24 lg:pr-20">
             {/* Left — text */}
             <div className="px-8 sm:px-0 lg:w-[42%]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B05A3A]">
@@ -587,8 +587,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 Among the <em className="font-normal italic" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>Few</em>
               </h2>
               <p className="mt-4 text-[14px] leading-[1.75] text-[#4A3F35]">
-                {p.certificateNote ||
-                  "Take your place among a select group of ophthalmologists from around the world, guided directly by the Legend—and carry his depth of judgement and clinical standards into your own practice."}
+                Take your place among a select group of ophthalmologists from around the world, guided directly by Dr. Srinivas K. Rao—and carry his depth of judgement and clinical standards into your own practice.
               </p>
             </div>
             {/* Right — dark certificate card (flat card design, floating) */}
