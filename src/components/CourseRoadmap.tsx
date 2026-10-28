@@ -435,7 +435,7 @@ export function CourseRoadmap({
     (m) => m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges,
   );
   const filteredItems = anyArcContent
-    ? items.filter((m) => m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges || m.description)
+    ? items.filter((m) => m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges)
     : items;
 
   const resolved: Item[] = hasRealModules
