@@ -408,6 +408,8 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     modules: pickModules(rec),
     faqs: pickObjectArray<CourseFaq>(rec, "faqs", "faq"),
     certificateNote: pickString(rec, "certificateNote", "certificate_note"),
+    format: pickString(rec, "format"),
+    admissionText: pickString(rec, "admissionText", "admission_text"),
     sampleCertificateImage: absoluteUrl(
       pickString(
         rec,
