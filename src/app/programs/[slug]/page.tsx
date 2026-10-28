@@ -443,9 +443,6 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           </section>
         )}
 
-        {/* § 3 — WHAT YOU'LL MASTER */}
-        <CourseMastery />
-
         {/* § 4 — THE ROADMAP */}
         <CourseRoadmap
           items={roadmapItems}
@@ -485,61 +482,78 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         ══════════════════════════════════════════════════════════════ */}
         {priceText && (
           <section aria-labelledby="investment-title" className={SECTION}>
-            <h2 id="investment-title" className={`text-center ${HEADING}`}>
-              One Fellowship,
-              <br />A Lifetime of Clinical Impact
-            </h2>
-
-            <div className="mt-10 rounded-[12px] border-[1.5px] border-[#4A4A4A] bg-ink-800 p-7 sm:mt-16 sm:p-12">
-              <div className="grid gap-10 lg:grid-cols-2">
+            <div className="rounded-[16px] border border-[#2E2E2E] bg-[#111111] p-8 sm:p-10 lg:grid lg:grid-cols-2 lg:gap-12">
+              {/* Left — fee + description */}
+              <div className="flex flex-col justify-between">
                 <div>
-                  <p className="text-[17px] text-[#A5A5A5]">Course Investment</p>
-                  <p className="mt-3 flex flex-wrap items-baseline gap-x-3 text-white">
-                    <span className="text-[clamp(1.75rem,3.2vw,2.75rem)] font-bold leading-none">
-                      ₹ {priceText}
-                    </span>
-                    <span className="text-lg font-bold text-[#A5A5A5]">+ GST</span>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                    Programme Fee
                   </p>
-                  <p className="mt-4 text-[15px] text-[#A5A5A5]">
-                    More than a fellowship — an investment in mastery.
+                  <p className="mt-3 text-[clamp(2rem,4vw,3.25rem)] font-bold leading-none text-white">
+                    ₹{priceText}
+                  </p>
+                  <p className="mt-4 text-[14px] leading-[1.65] text-[#A5A5A5]">
+                    Covers the complete programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
                   </p>
                   {p.moneyBackDays ? (
-                    <p className="mt-2 text-sm text-[#A5A5A5]">
+                    <p className="mt-2 text-[12px] text-[#717171]">
                       {p.moneyBackDays}-day refund window. See our{" "}
                       <Link href="/refunds" className="underline underline-offset-4 hover:text-white">
                         refund policy
-                      </Link>
-                      .
+                      </Link>.
                     </p>
                   ) : null}
                 </div>
-
-                <ul className="flex flex-col gap-[13px] lg:justify-self-end">
-                  {inclusions.map((item) => (
-                    <li key={item} className="flex items-start gap-3.5 text-white">
-                      <Check aria-hidden className="mt-0.5 h-[18px] w-[18px] shrink-0" />
-                      <span className="text-[15px] leading-snug sm:text-base">{item}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
 
-              <div className="mt-10 flex flex-col items-stretch gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-center">
-                <Link
-                  href="/contact"
-                  className="inline-flex h-12 items-center justify-center rounded-[12px] border-[1.5px] border-[#4A4A4A] bg-[#1A1A1A] px-7 text-sm font-medium text-[#A0A0A0] transition hover:border-white/25 hover:text-white"
-                >
-                  Speak To Concierge
-                </Link>
-                <CourseApplyButton
-                  courseId={p.id}
-                  courseSlug={p.slug}
-                  courseName={p.name}
-                  mentorName={faculty?.name}
-                  brochureUrl={p.brochureUrl}
-                  label="Apply for Programme"
-                  variant="accent"
-                />
+              {/* Right — stats grid + buttons */}
+              <div className="mt-8 flex flex-col justify-between lg:mt-0">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-5 border-b border-[#2E2E2E] pb-7">
+                  {heroDuration && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Duration</p>
+                      <p className="mt-1 text-[15px] font-semibold text-white">{heroDuration}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Format</p>
+                    <p className="mt-1 text-[15px] font-semibold text-white">Hybrid · Live virtual &amp; in-person</p>
+                  </div>
+                  {p.cohortSize && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Cohort</p>
+                      <p className="mt-1 text-[15px] font-semibold text-white">{p.cohortSize} doctors</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Admission</p>
+                    <p className="mt-1 text-[15px] font-semibold text-white">Following a Dialogue with the Legend</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <CourseApplyButton
+                    courseId={p.id}
+                    courseSlug={p.slug}
+                    courseName={p.name}
+                    mentorName={faculty?.name}
+                    brochureUrl={p.brochureUrl}
+                    label="Begin your application"
+                    variant="accent"
+                    block
+                  />
+                  <Link
+                    href="/contact"
+                    className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[12px] border border-[#4A4A4A] bg-transparent px-7 text-sm font-semibold text-white transition hover:border-white/40"
+                  >
+                    Speak to Concierge
+                  </Link>
+                </div>
+                {p.moneyBackDays ? null : (
+                  <p className="mt-4 text-[11px] text-[#555]">
+                    Any Dialogue fee already paid will be adjusted in full against the programme fee upon joining the cohort.
+                  </p>
+                )}
               </div>
             </div>
           </section>
