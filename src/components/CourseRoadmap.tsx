@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Check, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react";
 import type { CourseModule } from "@/types";
 
@@ -130,7 +130,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
   const panelRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const sync = () => {
       if (panelRef.current && sidebarRef.current) {
         sidebarRef.current.style.maxHeight = `${panelRef.current.offsetHeight}px`;
@@ -176,7 +176,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col lg:flex-row border border-[#1C1C1C] rounded-[4px] overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:items-start border border-[#1C1C1C] rounded-[4px] overflow-hidden">
         {/* Left sidebar — timeline list, scrollable when many items */}
         <div ref={sidebarRef} className="lg:w-[33%] flex flex-col bg-[#050505] border-r border-[#1C1C1C] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item, i) => {
