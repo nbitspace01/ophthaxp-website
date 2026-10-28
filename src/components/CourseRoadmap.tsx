@@ -422,17 +422,23 @@ export function CourseRoadmap({
   title?: string;
   subtitle?: string;
 }) {
-  // If no modules data, auto-generate one tab per month from durationMonths
-  const resolved: Item[] =
-    items.length > 0
-      ? items
-      : durationMonths && durationMonths > 0
-      ? Array.from({ length: durationMonths }, (_, i) => ({
-          title: `Month ${i + 1}`,
-          description: "",
-          outcomes: [],
-        }))
-      : [];
+  // "Real" modules = at least one item has a description, subtitle, or quadrant content.
+  // Titles-only leftover records don't count — fall through to duration-based generation.
+  const hasRealModules =
+    items.length > 0 &&
+    items.some(
+      (m) => m.description || m.subtitle || m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges,
+    );
+
+  const resolved: Item[] = hasRealModules
+    ? items
+    : durationMonths && durationMonths > 0
+    ? Array.from({ length: durationMonths }, (_, i) => ({
+        title: `Month ${i + 1}`,
+        description: "",
+        outcomes: [],
+      }))
+    : [];
 
   if (resolved.length === 0) return null;
 
