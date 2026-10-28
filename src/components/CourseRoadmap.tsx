@@ -61,67 +61,75 @@ function BlueCubeDecor() {
   );
 }
 
-function OrangeLayersDecor() {
-  // Stacked floating layer planes (isometric)
-  const layers = [
-    { y: 95, opacity: 1 },
-    { y: 78, opacity: 0.85 },
-    { y: 61, opacity: 0.65 },
-    { y: 44, opacity: 0.45 },
-  ];
-  const w = 60, h = 18, ox = 30;
+function OrangeRadialDecor() {
+  // Radial burst — eye/iris with rays emanating from centre, arcs connecting them
+  const cx = 65, cy = 60, rays = 16;
+  const lines = Array.from({ length: rays }, (_, i) => {
+    const angle = (i / rays) * Math.PI * 2;
+    const r1 = 18, r2 = i % 2 === 0 ? 52 : 40;
+    return {
+      x1: cx + Math.cos(angle) * r1, y1: cy + Math.sin(angle) * r1,
+      x2: cx + Math.cos(angle) * r2, y2: cy + Math.sin(angle) * r2,
+      op: i % 2 === 0 ? 1 : 0.5,
+    };
+  });
   return (
-    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
-      {layers.map((l, i) => {
-        const x = ox; const y = l.y;
-        const tl = `${x},${y - h/2}`; const tr = `${x + w},${y - h/2 + h * 0.3}`;
-        const br = `${x + w},${y + h/2 + h * 0.3}`; const bl = `${x},${y + h/2}`;
-        return (
-          <g key={i} opacity={l.opacity}>
-            <polygon points={`${tl} ${tr} ${br} ${bl}`} stroke="#C65F49" strokeWidth="0.8" fill="none"/>
-            <line x1={x} y1={y} x2={x+w} y2={y + h*0.3} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
-            <line x1={x + w*0.33} y1={y - h/2 + h*0.1} x2={x + w*0.33} y2={y + h/2 + h*0.1} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
-            <line x1={x + w*0.66} y1={y - h/2 + h*0.2} x2={x + w*0.66} y2={y + h/2 + h*0.2} stroke="#C65F49" strokeWidth="0.4" opacity="0.5"/>
-          </g>
-        );
-      })}
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
+      {/* Arcs */}
+      <circle cx={cx} cy={cy} r="52" stroke="#C65F49" strokeWidth="0.5" opacity="0.35"/>
+      <circle cx={cx} cy={cy} r="38" stroke="#C65F49" strokeWidth="0.5" opacity="0.4"/>
+      <circle cx={cx} cy={cy} r="26" stroke="#C65F49" strokeWidth="0.6" opacity="0.5"/>
+      <circle cx={cx} cy={cy} r="14" stroke="#C65F49" strokeWidth="0.7" opacity="0.6"/>
+      {/* Rays */}
+      {lines.map((l, i) => (
+        <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#C65F49" strokeWidth="0.6" opacity={l.op}/>
+      ))}
+      {/* Core glow */}
+      <circle cx={cx} cy={cy} r="5" stroke="#C65F49" strokeWidth="1" opacity="0.9"/>
+      <circle cx={cx} cy={cy} r="2" fill="#C65F49" opacity="1"/>
     </svg>
   );
 }
 
-function OrangePrismDecor() {
-  // 3D triangular prism / crystal
+function OrangeCircuitDecor() {
+  // Circuit board / PCB trace pattern
   return (
-    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
-      {/* Front face */}
-      <polygon points="65,18 110,85 20,85" stroke="#C65F49" strokeWidth="0.9" fill="none"/>
-      {/* Inner triangles */}
-      <polygon points="65,35 97,85 33,85" stroke="#C65F49" strokeWidth="0.6" fill="none" opacity="0.6"/>
-      <polygon points="65,52 84,85 46,85" stroke="#C65F49" strokeWidth="0.5" fill="none" opacity="0.4"/>
-      {/* Center line */}
-      <line x1="65" y1="18" x2="65" y2="85" stroke="#C65F49" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.5"/>
-      {/* Horizontal lines */}
-      <line x1="47" y1="52" x2="83" y2="52" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
-      <line x1="35" y1="68" x2="95" y2="68" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
-      {/* Glow dot at apex */}
-      <circle cx="65" cy="18" r="2.5" fill="#C65F49" opacity="0.8"/>
-      <circle cx="65" cy="18" r="5" fill="none" stroke="#C65F49" strokeWidth="0.4" opacity="0.4"/>
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
+      {/* Horizontal traces */}
+      <path d="M10,30 L50,30 L60,20 L120,20" stroke="#C65F49" strokeWidth="0.8"/>
+      <path d="M10,55 L40,55 L50,45 L80,45 L90,55 L120,55" stroke="#C65F49" strokeWidth="0.8"/>
+      <path d="M10,80 L35,80 L45,70 L65,70 L75,80 L120,80" stroke="#C65F49" strokeWidth="0.8"/>
+      <path d="M10,100 L30,100 L40,90 L120,90" stroke="#C65F49" strokeWidth="0.6" opacity="0.6"/>
+      {/* Vertical connectors */}
+      <line x1="50" y1="20" x2="50" y2="45" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
+      <line x1="80" y1="45" x2="80" y2="80" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
+      <line x1="35" y1="55" x2="35" y2="80" stroke="#C65F49" strokeWidth="0.7" opacity="0.7"/>
+      <line x1="100" y1="20" x2="100" y2="55" stroke="#C65F49" strokeWidth="0.5" opacity="0.5"/>
+      {/* Nodes / solder pads */}
+      {[[60,20],[90,55],[75,80],[50,45],[35,80],[80,45],[100,20],[40,90]].map(([x,y],i)=>(
+        <g key={i}>
+          <circle cx={x} cy={y} r="3.5" stroke="#C65F49" strokeWidth="0.8" fill="none"/>
+          <circle cx={x} cy={y} r="1.2" fill="#C65F49"/>
+        </g>
+      ))}
     </svg>
   );
 }
 
-function BlueWaveDecor() {
-  // Flowing wave / signal lines
+function BlueConstellationDecor() {
+  // Constellation — scattered nodes connected by thin lines
+  const nodes = [[105,18],[85,35],[115,50],[70,22],[95,65],[118,80],[75,55],[60,75],[110,95],[80,90]];
+  const edges = [[0,1],[0,3],[1,2],[1,6],[2,4],[3,6],[4,5],[4,6],[5,8],[6,7],[7,9],[8,9],[2,5]];
   return (
-    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
-      <path d="M10,30 C30,10 50,50 70,30 C90,10 110,50 130,30" stroke="#6EA8D8" strokeWidth="1" fill="none"/>
-      <path d="M10,48 C30,28 50,68 70,48 C90,28 110,68 130,48" stroke="#6EA8D8" strokeWidth="0.9" fill="none" opacity="0.8"/>
-      <path d="M10,66 C30,46 50,86 70,66 C90,46 110,86 130,66" stroke="#6EA8D8" strokeWidth="0.8" fill="none" opacity="0.6"/>
-      <path d="M10,84 C30,64 50,104 70,84 C90,64 110,104 130,84" stroke="#6EA8D8" strokeWidth="0.7" fill="none" opacity="0.4"/>
-      <path d="M10,100 C30,80 50,120 70,100 C90,80 110,120 130,100" stroke="#6EA8D8" strokeWidth="0.6" fill="none" opacity="0.25"/>
-      {/* Vertical tick marks */}
-      {[20, 50, 80, 110].map(x => (
-        <line key={x} x1={x} y1="20" x2={x} y2="105" stroke="#6EA8D8" strokeWidth="0.3" strokeDasharray="2 8" opacity="0.3"/>
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.38] transition-opacity duration-500 pointer-events-none">
+      {edges.map(([a,b],i) => (
+        <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#6EA8D8" strokeWidth="0.5" opacity="0.5"/>
+      ))}
+      {nodes.map(([x,y],i) => (
+        <g key={i}>
+          <circle cx={x} cy={y} r={i < 3 ? 3 : 1.8} fill="#6EA8D8" opacity={i < 3 ? 0.9 : 0.6}/>
+          {i < 3 && <circle cx={x} cy={y} r="6" stroke="#6EA8D8" strokeWidth="0.4" opacity="0.3"/>}
+        </g>
       ))}
     </svg>
   );
@@ -129,9 +137,9 @@ function BlueWaveDecor() {
 
 const decorMap = {
   judgement: <BlueCubeDecor />,
-  insideTheWork: <OrangeLayersDecor />,
-  appliedInPractice: <OrangePrismDecor />,
-  whatChanges: <BlueWaveDecor />,
+  insideTheWork: <OrangeRadialDecor />,
+  appliedInPractice: <OrangeCircuitDecor />,
+  whatChanges: <BlueConstellationDecor />,
 };
 
 function ArcCard({
