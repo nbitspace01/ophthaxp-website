@@ -295,7 +295,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                    frame is always shown top to bottom and it is the sides that
                    get trimmed — the subject holds his place as the window
                    narrows, at any desktop width. */
-                className="h-full w-full object-cover object-[50%_top]"
+                className="h-full w-full object-cover object-center"
               />
             ) : (
               <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
@@ -327,17 +327,16 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <div
             /* Off the shared 1200px column: the copy takes the half of the
                screen the portrait does not, so its own padding places it. */
-            className="relative flex min-h-[640px] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[720px] sm:px-10 lg:h-[760px] lg:py-0 lg:pl-[50%] lg:pr-20"
+            className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[calc(100vh-80px)] sm:px-10 lg:h-[calc(100vh-80px)] lg:py-0 lg:pl-[50%] lg:pr-20"
           >
-            <div className="w-full max-w-[420px] text-center lg:max-w-[560px]">
+            <div className="w-full max-w-[420px] text-left lg:max-w-[560px]">
+              <p className="text-sm font-semibold text-accent">LEGACY TRANSFER PROGRAMME</p>
               <h1
                 id="program-title"
                 className="font-serif text-[clamp(2rem,3.4vw,2.875rem)] leading-[1.11] text-white"
               >
                 {p.headline || p.name}
               </h1>
-
-              <span aria-hidden className="mx-auto mt-7 block h-0.5 w-5 bg-white/80" />
 
               {faculty?.name ? (
                 <Link
@@ -373,7 +372,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
               {/* Stat strip — duration · cohort · launch */}
               {(heroDuration || p.cohortSize || launchLabel) && (
-                <div className="mt-9 flex items-stretch justify-center divide-x divide-white/15 text-center">
+                <div className="mt-9 flex items-stretch justify-start divide-x divide-white/15 text-left">
                   {[
                     heroDuration && { value: heroDuration, label: "Fellowship duration" },
                     p.cohortSize
@@ -388,7 +387,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     .map((stat) => {
                       const s = stat as { value: string; label: string };
                       return (
-                        <div key={s.label} className="px-3 sm:px-5">
+                        <div key={s.label} className="px-3 first:pl-0 sm:px-5 sm:first:pl-0">
                           <p className="whitespace-nowrap text-lg font-bold text-white sm:text-xl">
                             {s.value}
                           </p>
@@ -402,7 +401,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Enrollment card */}
-              <div className="mx-auto mt-10 w-full max-w-[360px] rounded-[12px] border border-[#4A4A4A] bg-ink-800 p-[23px]">
+              <div className="mt-10 w-full rounded-[12px] border border-[#4A4A4A] bg-ink-800 p-[23px]">
                 <p className="text-[15px] font-semibold text-white">Programme Enrolment</p>
                 <div className="mt-4">
                   <CourseApplyButton
