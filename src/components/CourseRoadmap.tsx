@@ -252,9 +252,9 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                     const p = (item.phase ?? "").toLowerCase();
                     const iconCls = `transition-colors ${isActive ? "text-[#C65F49]" : "text-[#2E2E2E]"}`;
                     if (p.includes("in person") || p.includes("in-person")) {
-                      // Airplane — in-person session
+                      // Airplane — pointing right toward content
                       return (
-                        <svg viewBox="0 0 24 24" className={`h-[15px] w-[15px] ${iconCls}`} fill="currentColor">
+                        <svg viewBox="0 0 24 24" className={`h-[18px] w-[18px] rotate-90 ${iconCls}`} fill="currentColor">
                           <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>
                         </svg>
                       );
@@ -262,14 +262,14 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                     if (p.includes("online") || p.includes("virtual") || p.includes("recorded") || p.includes("video")) {
                       // Video / record icon — online session
                       return (
-                        <svg viewBox="0 0 24 24" className={`h-[15px] w-[15px] ${iconCls}`} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <svg viewBox="0 0 24 24" className={`h-[18px] w-[18px] ${iconCls}`} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.723v6.554a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/>
                         </svg>
                       );
                     }
                     // Default — checkmark tick
                     return (
-                      <svg viewBox="0 0 24 24" className={`h-[15px] w-[15px] ${iconCls}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg viewBox="0 0 24 24" className={`h-[18px] w-[18px] ${iconCls}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     );
