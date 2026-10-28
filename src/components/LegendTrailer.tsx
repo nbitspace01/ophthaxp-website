@@ -117,13 +117,10 @@ export function LegendTrailer({
   }, [speedOpen]);
 
   const frame =
-    "relative aspect-[16/10] w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black sm:aspect-[1200/640]";
+    "relative w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black" +
+    " aspect-[16/9] max-h-[70vh]";
 
-  const badge = (
-    <span className="pointer-events-none absolute right-4 top-4 z-20 inline-flex h-11 items-center rounded-full border-[1.5px] border-ink-700 bg-ink-800 px-6 text-[15px] font-medium text-white sm:right-6 sm:top-6">
-      Legend Video
-    </span>
-  );
+  const badge = null;
 
   // Embedded players (YouTube/Vimeo) own their own chrome, so we only dress the
   // frame around them.
@@ -158,10 +155,24 @@ export function LegendTrailer({
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onDurationChange={(e) => setDuration(e.currentTarget.duration)}
         onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
-        className="absolute inset-0 h-full w-full cursor-pointer object-cover object-top"
+        className="absolute inset-0 h-full w-full cursor-pointer object-cover object-center"
       />
 
       {badge}
+
+      {/* Centered play button — visible only when paused */}
+      {!playing && (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label="Play"
+          className="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center"
+        >
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm ring-1 ring-white/40 transition hover:bg-white/30 sm:h-20 sm:w-20">
+            <Play className="h-7 w-7 translate-x-[2px] fill-white text-white sm:h-9 sm:w-9" />
+          </span>
+        </button>
+      )}
 
       {/* Bottom scrim — carries the title block and the controls. */}
       <div
