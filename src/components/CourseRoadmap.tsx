@@ -369,10 +369,5 @@ export function CourseRoadmap({
 }) {
   if (items.length === 0) return null;
 
-  // Use the new arc design if any module has quadrant content
-  const useArc = items.some(hasArcContent);
-
-  return useArc
-    ? <ArcRoadmap items={items} title={title} subtitle={subtitle} />
-    : <AccordionRoadmap items={items} title={title} subtitle={subtitle} />;
+  return <ArcRoadmap items={items} title={title} subtitle={subtitle} />;
 }
