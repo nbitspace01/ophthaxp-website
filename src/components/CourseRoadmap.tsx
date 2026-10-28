@@ -413,14 +413,28 @@ function AccordionRoadmap({ items, title, subtitle }: { items: Item[]; title: st
 
 export function CourseRoadmap({
   items,
+  durationMonths,
   title = "The Programme Arc",
   subtitle = "A 12-Month journey that transforms how you observe, decide, operate and build a cornea practice.",
 }: {
   items: Item[];
+  durationMonths?: number;
   title?: string;
   subtitle?: string;
 }) {
-  if (items.length === 0) return null;
+  // If no modules data, auto-generate one tab per month from durationMonths
+  const resolved: Item[] =
+    items.length > 0
+      ? items
+      : durationMonths && durationMonths > 0
+      ? Array.from({ length: durationMonths }, (_, i) => ({
+          title: `Month ${i + 1}`,
+          description: "",
+          outcomes: [],
+        }))
+      : [];
 
-  return <ArcRoadmap items={items} title={title} subtitle={subtitle} />;
+  if (resolved.length === 0) return null;
+
+  return <ArcRoadmap items={resolved} title={title} subtitle={subtitle} />;
 }
