@@ -8,6 +8,7 @@ import { LegendTrailer } from "@/components/LegendTrailer";
 import { CourseMastery } from "@/components/CourseMastery";
 import { CourseRoadmap } from "@/components/CourseRoadmap";
 import { PracticeGrowthCalculator } from "@/components/PracticeGrowthCalculator";
+import { HowItWorks } from "@/components/HowItWorks";
 import { FaqGrid } from "@/components/FaqGrid";
 import { CourseStickyFooter } from "@/components/CourseStickyFooter";
 import { CourseApplyButton } from "@/components/CourseApplyButton";
@@ -476,8 +477,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           />
         </div>
 
+        {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
+        <HowItWorks />
+
         {/* ══════════════════════════════════════════════════════════════
-            § 6 — INVESTMENT
+            § 7 — INVESTMENT
         ══════════════════════════════════════════════════════════════ */}
         {priceText && (
           <section aria-labelledby="investment-title" className={SECTION}>
