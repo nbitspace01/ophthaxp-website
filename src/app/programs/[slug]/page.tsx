@@ -106,13 +106,13 @@ function signatureRole(title?: string): string {
 }
 
 const SPECIALTY_LABELS: Record<string, string> = {
-  "cornea-ocular-surface": "CORNEA",
-  "glaucoma": "GLAUCOMA",
-  "retina-vitreo-retinal-surgery": "RETINA",
-  "phaco-refractive-surgery": "CATARACT & REFRACTIVE",
-  "pediatric-ophthalmology": "PAEDIATRIC",
-  "oculoplasty": "OCULOPLASTY",
-  "ophthalmology-practice-mastery": "PRACTICE MASTERY",
+  "cornea-ocular-surface": "Cornea",
+  "glaucoma": "Glaucoma",
+  "retina-vitreo-retinal-surgery": "Retina",
+  "phaco-refractive-surgery": "Cataract & Refractive",
+  "pediatric-ophthalmology": "Paediatric",
+  "oculoplasty": "Oculoplasty",
+  "ophthalmology-practice-mastery": "Practice Mastery",
 };
 
 function specialtyLabel(specialty: string): string {
