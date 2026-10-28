@@ -484,11 +484,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <section aria-labelledby="investment-title" className={SECTION}>
             <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
-              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0 lg:border-r">
+              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   Programme Fee
                 </p>
-                <p className="mt-3 font-serif text-[clamp(2.2rem,4.5vw,3.5rem)] font-normal leading-none text-white">
+                <p className="mt-3 text-[clamp(2.2rem,4.5vw,3.5rem)] font-bold leading-none text-white">
                   ₹{priceText}
                 </p>
                 <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
