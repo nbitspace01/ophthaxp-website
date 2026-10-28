@@ -605,13 +605,13 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 />
                 {/* Main dark card */}
                 <div
-                  className="relative rounded-[16px] bg-[#0C0C0C] px-10 py-10 text-center"
-                  style={{ border: "1.5px solid #8B4A2A" }}
+                  className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center"
+                  style={{ border: "1.5px solid #FF6B2B" }}
                 >
                   {/* Inner border inset */}
                   <div
                     className="pointer-events-none absolute inset-[10px] rounded-[10px]"
-                    style={{ border: "1px solid #8B4A2A", opacity: 0.4 }}
+                    style={{ border: "1px solid #FF6B2B", opacity: 0.4 }}
                   />
                   {/* LOM mark — two vertical bars */}
                   <div className="mb-5 flex justify-center gap-[7px]">
