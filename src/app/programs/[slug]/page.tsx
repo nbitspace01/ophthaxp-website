@@ -484,16 +484,18 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <section aria-labelledby="investment-title" className={SECTION}>
             <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
-              <div className="flex flex-col justify-start border-b border-[#2A2A2A] p-6 sm:p-8 lg:w-[52%] lg:border-b-0">
+              <div className="flex flex-col border-b border-[#2A2A2A] p-6 sm:p-8 lg:w-[52%] lg:border-b-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   Programme Fee
                 </p>
-                <p className="mt-3 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
-                  ₹{priceText}
-                </p>
-                <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
-                  Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
-                </p>
+                <div className="flex flex-1 flex-col justify-center">
+                  <p className="mt-3 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
+                    ₹{priceText}
+                  </p>
+                  <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
+                    Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
+                  </p>
+                </div>
               </div>
 
               {/* Inset vertical divider — hidden on mobile, doesn't touch card top/bottom */}
