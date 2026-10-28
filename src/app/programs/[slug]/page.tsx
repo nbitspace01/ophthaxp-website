@@ -406,6 +406,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               </div>
             </div>
           </div>
+          </div>{/* end lg:grid */}
         </section>
 
         {/* ══════════════════════════════════════════════════════════════
