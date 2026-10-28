@@ -230,6 +230,8 @@ function pickModules(rec: RawRecord): CourseModule[] {
     "course_modules",
     "roadmap",
     "Roadmap",
+    "courseFormat",
+    "course_format",
   );
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
