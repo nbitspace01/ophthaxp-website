@@ -151,20 +151,14 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
         </div>
         <div className="flex flex-col gap-2">
           <p className="max-w-[340px] text-[14px] leading-[1.6] text-[#888]">{subtitle}</p>
-          {(hasLegendEdge || hasTechnicalCore) && (
-            <div className="flex items-center gap-4 mt-1">
-              {hasLegendEdge && (
-                <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
-                  <span className="h-2 w-2 rounded-full bg-[#6EA8D8]" /> The Legend&apos;s Edge
-                </span>
-              )}
-              {hasTechnicalCore && (
-                <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
-                  <span className="h-2 w-2 rounded-full bg-accent" /> Technical Core
-                </span>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-4 mt-1">
+            <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#4A90D9]" /> The Legend&apos;s Edge
+            </span>
+            <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
+              <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Technical Core
+            </span>
+          </div>
         </div>
       </div>
 
