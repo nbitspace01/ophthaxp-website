@@ -13,7 +13,6 @@ import { FaqGrid } from "@/components/FaqGrid";
 import { CourseStickyFooter } from "@/components/CourseStickyFooter";
 import { CourseApplyButton } from "@/components/CourseApplyButton";
 import {
-  CertificatePlate,
   certificateName,
   HOUSE_SIGNATORY,
 } from "@/components/CertificatePlate";
@@ -592,17 +591,50 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   "Take your place among a select group of ophthalmologists from around the world, guided directly by the Legend—and carry his depth of judgement and clinical standards into your own practice."}
               </p>
             </div>
-            {/* Right — certificate card */}
+            {/* Right — dark certificate card (flat card design) */}
             <div className="mt-10 flex justify-center lg:mt-0 lg:w-1/2 lg:justify-end">
-              <div className="relative w-[300px] sm:w-[340px]">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[10px] shadow-2xl">
-                  <div className="absolute left-[-32%] top-[-16%] aspect-[3/2] w-[135%]">
-                    <CertificatePlate
-                      name={recipientName}
-                      signatory={signatory}
-                      alt={`A ${p.name} certificate of completion made out to ${recipientName}, framed and standing on a sideboard`}
-                    />
+              {/* Outer wrapper: slight tilt + shadow */}
+              <div
+                className="relative w-[280px] sm:w-[340px]"
+                style={{ filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.55))", transform: "rotate(-2deg)" }}
+              >
+                {/* Second card behind (stacked effect) */}
+                <div
+                  className="absolute inset-0 rounded-[12px] bg-[#111]"
+                  style={{ transform: "translate(10px, 10px)", opacity: 0.6 }}
+                />
+                {/* Main dark card */}
+                <div className="relative rounded-[12px] bg-[#0D0D0D] px-7 py-8 text-center" style={{ border: "1px solid #5A2D1A" }}>
+                  {/* Inner border inset */}
+                  <div className="pointer-events-none absolute inset-[8px] rounded-[8px]" style={{ border: "1px solid #5A2D1A", opacity: 0.5 }} />
+                  {/* LOM mark — two vertical bars */}
+                  <div className="mb-3 flex justify-center gap-[5px]">
+                    <div className="h-[18px] w-[3px] rounded-full bg-[#C97B50]" />
+                    <div className="h-[18px] w-[3px] rounded-full bg-[#C97B50]" />
                   </div>
+                  {/* "LEGENDS OF MEDICINE" */}
+                  <p className="text-[8px] font-semibold uppercase tracking-[0.22em] text-[#C97B50]">
+                    Legends of Medicine
+                  </p>
+                  {/* Recipient name */}
+                  <p className="mt-4 text-[clamp(0.85rem,2.2vw,1.05rem)] font-bold uppercase tracking-[0.06em] text-white">
+                    {recipientName}
+                  </p>
+                  {/* Programme name */}
+                  <p className="mt-2 text-[10px] leading-[1.5] text-[#A5927A]">{p.name}</p>
+                  <p className="text-[10px] text-[#7A6A5A]">Guided by {signatory.name}</p>
+                  {/* Divider */}
+                  <div className="mx-auto my-4 h-px w-16 bg-[#5A2D1A]" />
+                  {/* Signature */}
+                  <p className="text-[1.1rem] text-[#C97B50]" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+                    {signatory.name}
+                  </p>
+                  {/* Cohort year */}
+                  {(p.launchYear || p.startDate) && (
+                    <p className="mt-3 text-[8px] font-semibold uppercase tracking-[0.2em] text-[#5A4A3A]">
+                      Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
