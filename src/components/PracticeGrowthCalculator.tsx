@@ -18,7 +18,10 @@ import {
 import { RoiSignupGate, type RoiQuota } from "@/components/RoiSignupGate";
 import { saveOutlook } from "@/lib/outlookSnapshot";
 import {
+  DEFAULT_OPERATING_COST_PCT,
   practiceImpactPct,
+  practiceOperatingExpenses,
+  practiceOperatingProfit,
   practiceRevenue,
   type PracticeProfile,
 } from "@/lib/roiDerived";
@@ -686,6 +689,7 @@ const DEFAULTS = {
   opFeeInr: 500,
   annualInpatients: 300,
   ipFeeInr: 75_000,
+  operatingCostPct: DEFAULT_OPERATING_COST_PCT,
 } as const;
 
 export function PracticeGrowthCalculator({
@@ -728,6 +732,13 @@ export function PracticeGrowthCalculator({
   );
   const [ipFeeInr, setIpFeeInr] = useState<number | null>(DEFAULTS.ipFeeInr);
 
+  // What running the practice costs, as a share of what it bills. The one
+  // input here that is an assumption rather than a plan, which is why it opens
+  // on a stated default and the card below names what it leaves out.
+  const [operatingCostPct, setOperatingCostPct] = useState<number | null>(
+    DEFAULTS.operatingCostPct,
+  );
+
   // What we send the backend as "patients treated". Its contract caps this at
   // 2000, so clamp rather than pass the raw annual volume and risk a 400.
   const expectedPatients = useMemo(
@@ -749,8 +760,9 @@ export function PracticeGrowthCalculator({
       opFeeInr: opFeeInr ?? 0,
       annualInpatients: annualInpatients ?? 0,
       ipFeeInr: ipFeeInr ?? 0,
+      operatingCostPct: operatingCostPct ?? DEFAULT_OPERATING_COST_PCT,
     }),
-    [annualOutpatients, opFeeInr, annualInpatients, ipFeeInr],
+    [annualOutpatients, opFeeInr, annualInpatients, ipFeeInr, operatingCostPct],
   );
 
   const [pinLookup, setPinLookup] = useState<PincodeLookup | null>(null);
@@ -1092,6 +1104,9 @@ export function PracticeGrowthCalculator({
   ) {
     missing.push("your volume and fees");
   }
+  // Deliberately not in the list above. The cost share opens on a stated
+  // default and a reader who never touches it has still answered it; clearing
+  // the box should not shut the button on a profile that is otherwise whole.
   /** Enough to compute with. The pincode lookup can still be in flight — the
       effect above re-runs when it lands, so the first result arrives either way. */
   const canGenerate = missing.length === 0;
@@ -1135,6 +1150,17 @@ export function PracticeGrowthCalculator({
   // treated" figure at one average selling price and has no notion of an
   // OP/IP split, so it cannot answer what the reader is being asked here.
   const projectedRevenue = useMemo(() => practiceRevenue(practice), [practice]);
+
+  /* The two figures that stop the top line being read as take-home pay. Both
+     derived from the same profile, so the three can never disagree. */
+  const operatingExpenses = useMemo(
+    () => practiceOperatingExpenses(practice),
+    [practice],
+  );
+  const operatingProfit = useMemo(
+    () => practiceOperatingProfit(practice),
+    [practice],
+  );
 
   /** Share of the local disease burden this practice volume could reach. */
   const impactPct = useMemo(
@@ -1608,6 +1634,38 @@ export function PracticeGrowthCalculator({
             />
           </div>
 
+          {/* What the practice keeps is a different question from what it
+              bills, so it gets its own band rather than sitting under fees. */}
+          <hr className="border-t border-[#4A4A4A]" />
+
+          <div>
+            <Field
+              htmlFor="growth-opex"
+              label="Operating Costs"
+              hint="Staff, rent, consumables, equipment upkeep, utilities and administration, as a share of what you bill. Most ophthalmology practices sit between 50% and 70%."
+              value={
+                <ValueInput
+                  value={operatingCostPct}
+                  min={0}
+                  max={90}
+                  onChange={setOperatingCostPct}
+                  ariaLabel="Operating costs as a percentage of revenue"
+                  suffix={<Unit side="right">%</Unit>}
+                />
+              }
+            />
+            <Slider
+              id="growth-opex"
+              min={0}
+              max={90}
+              step={1}
+              value={operatingCostPct}
+              onChange={setOperatingCostPct}
+              fill="rgba(183,90,68,0.8)"
+              valueText={`${operatingCostPct ?? 0} percent of revenue spent on running the practice`}
+            />
+          </div>
+
           {/* Opens the panel up the first time. Afterwards every control is live,
               so this becomes a way to re-run rather than the only way to see
               anything — which is why it stays enabled and does not change label. */}
@@ -1939,7 +1997,12 @@ export function PracticeGrowthCalculator({
 
                 {/* The need, and what meeting it is worth */}
                 <div className="flex flex-col gap-2.5 lg:contents">
-                  <div className="flex-1 rounded-xl bg-accent p-3.5 lg:col-start-2 lg:row-start-2">
+                  {/* Centred, like the financials card beside it. The two
+                      share a grid row and the financials card is the taller,
+                      so whatever it does not use shows up here — split above
+                      and below it reads as spacing, all of it underneath
+                      reads as a card that failed to fill. */}
+                  <div className="flex flex-1 flex-col justify-center rounded-xl bg-accent p-3.5 lg:col-start-2 lg:row-start-2">
                     <p className="inline-flex items-center gap-1.5 text-[13px] text-white">
                       Estimated Disease Burden
                       <span className="group/info relative">
@@ -1973,15 +2036,48 @@ export function PracticeGrowthCalculator({
                       <span className="group/info relative">
                         <Info className="h-3 w-3 text-[#A5A5A5]" aria-hidden />
                         <span className="pointer-events-none absolute left-0 top-full z-50 mt-2 w-max max-w-[15rem] rounded-lg border border-white/10 bg-black/90 px-3 py-1.5 text-[11px] font-medium leading-snug text-white/70 opacity-0 shadow-lg backdrop-blur transition duration-200 group-hover/info:opacity-100">
-                          This projects the annual gross fees from the outpatient and procedure volumes and average fees you set.
+                          A projection, not a forecast. Annual gross fees from the volumes and fees you set, less the operating cost share you set. Before tax, depreciation, loan interest and your own drawings, and assuming every patient you set is both seen and collected from.
                         </span>
                       </span>
                     </p>
+
+                    {/* The headline is what the practice keeps, not what it
+                        bills. Doctors read a gross figure as take-home and
+                        said so; leading with it was the trust problem. The
+                        gross line stays directly beneath, so the bigger number
+                        is still visible and the relationship between the two is
+                        the thing being shown. */}
                     <p className="relative mt-2.5 text-3xl font-bold leading-none tabular-nums text-white">
-                      {hasGenerated ? formatINRShort(projectedRevenue) : "—"}
+                      {hasGenerated ? formatINRShort(operatingProfit) : "—"}
                     </p>
-                    <p className="relative mt-3 text-[12px] leading-relaxed text-[#A5A5A5]">
-                      Estimated annually based on the volumes and fees you set.
+                    <p className="relative mt-1.5 text-[12px] text-[#A5A5A5]">
+                      Estimated annual operating profit
+                    </p>
+
+                    <dl className="relative mt-3 space-y-1 border-t border-white/[0.08] pt-3 text-[12px] tabular-nums">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="text-[#A5A5A5]">Gross revenue</dt>
+                        <dd className="font-semibold text-white/90">
+                          {hasGenerated ? formatINRShort(projectedRevenue) : "—"}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="text-[#A5A5A5]">
+                          Operating costs
+                          {operatingCostPct !== null ? ` (${operatingCostPct}%)` : ""}
+                        </dt>
+                        <dd className="font-semibold text-white/90">
+                          {hasGenerated ? `− ${formatINRShort(operatingExpenses)}` : "—"}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    {/* One line, not the full caveat. The card sits in a grid
+                        row with the burden card, so every line it grows is a
+                        line of empty space next to it; the whole caveat is on
+                        the ⓘ above, where a reader who wants it will look. */}
+                    <p className="relative mt-2.5 text-[11px] leading-snug text-[#8B8B8B]">
+                      Before tax, interest and drawings.
                     </p>
                   </div>
                 </div>

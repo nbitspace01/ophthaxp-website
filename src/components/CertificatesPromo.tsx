@@ -29,7 +29,7 @@ export function CertificatesPromo() {
   return (
     <section
       aria-labelledby="certificates-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
       <Link
         href="/programs"
@@ -60,7 +60,7 @@ export function CertificatesPromo() {
           </div>
         </div>
 
-        <div className="relative px-7 py-9 sm:px-10 lg:flex lg:h-full lg:items-center lg:px-16 lg:py-0">
+        <div className="relative px-6 py-7 sm:px-10 sm:py-9 lg:flex lg:h-full lg:items-center lg:px-16 lg:py-0">
           <div>
             {/* Dark on the beige panel while stacked; white once it sits on the
                 shadowed wall in the photo. */}

@@ -185,7 +185,7 @@ export function ProgramsSection({
     <section
       id="programs"
       aria-labelledby="programs-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="programs-title"
@@ -197,11 +197,13 @@ export function ProgramsSection({
         Each programme is a methodical, months-long hybrid journey with the Legend, built around the high-stakes realities of the specialty and your practice. The programme’s architecture starts and ends in your practice: every engagement with the Legend returns to practice; every return deepens the next, transforming how you think, decide, perform, and grow.
       </p>
 
-      {/* Specialty tabs */}
+      {/* Specialty tabs. Seven chips wrap to four rows on a phone, so there they
+          are one scrolling row instead, bled to both edges like the rail below.
+          Wrapped and centred from sm up, as designed. */}
       <div
         role="tablist"
         aria-label="Specialty filters"
-        className="mx-auto mt-10 flex max-w-5xl flex-wrap justify-center gap-3 sm:mt-14"
+        className="no-scrollbar -mx-5 mt-8 flex max-w-5xl gap-2.5 overflow-x-auto px-5 pb-1 sm:mx-auto sm:mt-14 sm:flex-wrap sm:justify-center sm:gap-3 sm:overflow-x-visible sm:px-0 sm:pb-0"
       >
         {FILTERS.map((tab) => {
           const selected = active === tab.key;
@@ -214,7 +216,7 @@ export function ProgramsSection({
               aria-selected={selected}
               onClick={() => setActive(tab.key)}
               className={cn(
-                "inline-flex items-center gap-2.5 rounded-[10px] border px-5 py-3 text-[15px] transition",
+                "inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-[10px] border px-4 py-2.5 text-[14px] transition sm:px-5 sm:py-3 sm:text-[15px]",
                 selected
                   ? "border-spark bg-transparent font-medium text-spark"
                   : "border-transparent bg-ink-800 text-white/70 hover:bg-ink-700 hover:text-white",
@@ -232,7 +234,7 @@ export function ProgramsSection({
           scrolled-past cards slide off the left exactly the way upcoming ones
           bleed off the right — while keeping the first card on the content
           column. Body has overflow-x: clip, so it adds no page scrollbar. */}
-      <div className="relative mt-14">
+      <div className="relative mt-10 sm:mt-14">
         {/* Only where there is somewhere to go. pageCount is 1 whenever the
             track already fits, so a rail holding one or two cards shows no
             arrows rather than a pair of buttons that do nothing — the same
@@ -353,7 +355,7 @@ export function ProgramsSection({
         )}
       </div>
 
-      <div className="mt-12 flex flex-wrap justify-center gap-3">
+      <div className="mt-9 flex flex-wrap justify-center gap-3 sm:mt-12">
         <Link
           href="/programs"
           className="rounded-[10px] bg-accent px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"

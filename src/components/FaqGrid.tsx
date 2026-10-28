@@ -145,7 +145,11 @@ export function FaqGrid({
               aria-expanded={i === openIndex}
               onClick={() => toggle(i)}
               className={cn(
-                "group flex min-h-[112px] w-full flex-col justify-start gap-4 rounded-[18px] border p-5 text-left transition-colors duration-300 ease-out motion-reduce:transition-none sm:min-h-[128px] sm:p-6",
+                /* No min-height on a phone: in one column it only pads six
+                   cards out to a screen and a half each way. The question
+                   itself sets the height there; the grid keeps the even rows
+                   from sm up. */
+                "group flex w-full flex-col justify-start gap-2.5 rounded-[18px] border p-4 text-left transition-colors duration-300 ease-out motion-reduce:transition-none sm:min-h-[128px] sm:gap-4 sm:p-6",
                 item.isPrompt
                   ? "border-accent/40 bg-accent/10 hover:bg-accent/20"
                   : i === openIndex

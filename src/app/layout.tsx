@@ -54,7 +54,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${playfair.variable} ${anton.variable} ${greatVibes.variable}`}>
-      <body className="font-sans antialiased">
+      {/* suppressHydrationWarning on <body> only. Browser extensions —
+          ColorZilla's cz-shortcut-listen, Grammarly's data-gr-* — write their
+          own attributes onto <body> before React hydrates, and React then
+          reports them as a server/client mismatch. The flag is one level deep:
+          it silences attribute and text mismatches on <body> itself and on
+          nothing inside it, so a genuine hydration bug in a component still
+          warns as loudly as before. */}
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}

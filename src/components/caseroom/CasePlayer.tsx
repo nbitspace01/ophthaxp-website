@@ -1133,7 +1133,12 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
               hundred and twenty pixels of height on every screen and earned
               none of it, and this is where a doctor is already looking when
               they are ready to commit. */}
-          <div className="flex items-center justify-between gap-3 border-t border-white/[0.06] px-4 py-3 sm:px-5">
+          {/* Wraps rather than squashes: "Back to Caseroom", the clock and
+              "Lock in diagnosis" together need more than a 360px phone has, and
+              nowrap turned the two buttons into slivers. Wrapped, the back link
+              keeps the first line and the clock and the commit button take the
+              second. */}
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5 border-t border-white/[0.06] px-4 py-3 sm:flex-nowrap sm:px-5">
             <button
               type="button"
               onClick={exit}
@@ -1143,7 +1148,10 @@ export function CasePlayer({ reviewId }: { reviewId?: number } = {}) {
               Back to Caseroom
             </button>
 
-            <div className="flex items-center gap-3">
+            {/* w-full on a phone, so this group always takes the second line
+                whole and the clock and the button sit at its two ends rather
+                than wherever the wrap happened to leave them. */}
+            <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
               <span
                 className="inline-flex items-center gap-1.5 text-[13px] tabular-nums text-white/40"
                 title="Session time — does not affect your score"

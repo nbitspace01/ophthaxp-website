@@ -245,7 +245,7 @@ export function HowItWorks() {
     <section
       id="how-it-works"
       aria-labelledby="how-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
       <p className="mb-2 text-center text-[0.72rem] font-bold uppercase tracking-[0.22em] text-accent">
         The Way In
@@ -257,19 +257,23 @@ export function HowItWorks() {
         Your Path into LoM
       </h2>
 
-      <ol className="mt-12 grid grid-cols-1 gap-3.5 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
+      {/* A swipe rail on a phone, the Figma grid from sm up — three stacked 4:3
+          cards were most of a screen each, and the step description is revealed
+          on hover, which a touch screen has no way to ask for. In the rail the
+          card is taller and the description is simply shown. */}
+      <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory scroll-pl-5 gap-3.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-16 sm:grid sm:grid-cols-2 sm:overflow-x-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
         {STEPS.map((step, i) => {
           return (
             <li
               key={step.n}
-              className="group/card relative isolate aspect-[4/3] overflow-hidden rounded-[10px] border border-[#4A4A4A] bg-ink-850 transition-[border-color,transform,box-shadow] duration-500 hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-[0_30px_84px_rgba(0,0,0,.34)]"
+              className="group/card relative isolate aspect-[4/5] w-[80vw] max-w-[360px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-[#4A4A4A] bg-ink-850 transition-[border-color,transform,box-shadow] duration-500 hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-[0_30px_84px_rgba(0,0,0,.34)] sm:aspect-[4/3] sm:w-auto sm:max-w-none sm:shrink"
             >
               <Image
                 src={step.src}
                 alt=""
                 fill
                 priority={i === 0}
-                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"
+                sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 30vw"
                 style={{ objectPosition: step.position ?? "center" }}
                 className="object-cover transition-[filter,transform] duration-[1.2s] ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:scale-[1.026]"
               />
@@ -294,7 +298,9 @@ export function HowItWorks() {
                 <p className="text-[22px] font-bold leading-[1.25] text-white">
                   {step.title}
                 </p>
-                <p className="mt-0 max-h-0 overflow-hidden text-[13px] leading-relaxed text-white/70 opacity-0 transition-[max-height,opacity,margin] duration-500 ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:mt-2.5 group-hover/card:max-h-28 group-hover/card:opacity-100">
+                {/* Open on a phone (no hover to open it with), hover-revealed
+                    from sm up, where it was designed to be. */}
+                <p className="mt-2.5 max-h-40 overflow-hidden text-[13px] leading-relaxed text-white/70 opacity-100 transition-[max-height,opacity,margin] duration-500 ease-[cubic-bezier(.2,.75,.2,1)] sm:mt-0 sm:max-h-0 sm:opacity-0 sm:group-hover/card:mt-2.5 sm:group-hover/card:max-h-28 sm:group-hover/card:opacity-100">
                   {step.description}
                 </p>
               </div>
@@ -302,6 +308,10 @@ export function HowItWorks() {
           );
         })}
       </ol>
+
+      <p className="mt-4 text-center text-[12px] uppercase tracking-[0.18em] text-white/35 sm:hidden">
+        Swipe through the steps
+      </p>
     </section>
   );
 }

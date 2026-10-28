@@ -124,7 +124,7 @@ const onFullscreenChange = () => {
   return (
     <section
       aria-labelledby="legends-title"
-      className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
       <h2
         id="legends-title"
@@ -134,7 +134,7 @@ const onFullscreenChange = () => {
       </h2>
 
       <div
-        className={`relative mt-10 w-full overflow-hidden rounded-[20px] bg-ink-850 sm:mt-14 sm:aspect-[1200/648] ${
+        className={`relative mt-8 w-full overflow-hidden rounded-[20px] bg-ink-850 sm:mt-14 sm:aspect-[1200/648] ${
           /* Taller on phones so the badge and the copy each have room. */
           playing ? "aspect-[16/10]" : "aspect-[4/5]"
         }`}
@@ -193,7 +193,7 @@ const onFullscreenChange = () => {
                 type="button"
                 onClick={() => setPlaying(true)}
                 aria-label={`Play ‘${FEATURED.cta}’ for ${FEATURED.programme} with ${FEATURED.legend}.`}
-                className="mt-6 inline-flex items-center gap-2.5 whitespace-nowrap rounded-[10px] border border-white/25 bg-black/40 px-5 py-3 sm:px-6text-[15px] font-medium text-white backdrop-blur-sm transition hover:border-accent hover:bg-accent"
+                className="mt-6 inline-flex items-center gap-2.5 whitespace-nowrap rounded-[10px] border border-white/25 bg-black/40 px-5 py-3 text-[15px] font-medium text-white backdrop-blur-sm transition hover:border-accent hover:bg-accent sm:px-6"
               >
                 <Play className="h-4 w-4" aria-hidden />
                 {FEATURED.cta}
