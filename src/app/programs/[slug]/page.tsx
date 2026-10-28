@@ -445,16 +445,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           </section>
         )}
 
-        {/* § 4 — THE ROADMAP */}
-        <CourseRoadmap
-          items={roadmapItems}
-          subtitle={
-            p.eligibility ||
-            "A structured journey from foundational knowledge to surgical confidence."
-          }
-        />
-
-        {/* § 5 — THE DIFFERENCE IT MAKES   Shared ROI calculator */}
+        {/* § 4 — THE DIFFERENCE IT MAKES   Shared ROI calculator */}
         <div className={SHELL}>
           <div className="mb-8">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
@@ -475,6 +466,15 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             defaultSpecialty={p.specialty}
           />
         </div>
+
+        {/* § 5 — THE ROADMAP */}
+        <CourseRoadmap
+          items={roadmapItems}
+          subtitle={
+            p.eligibility ||
+            "A structured journey from foundational knowledge to surgical confidence."
+          }
+        />
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
         <HowItWorks heading="Your Path into the Programme" align="left" />
