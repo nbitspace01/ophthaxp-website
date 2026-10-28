@@ -435,7 +435,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <h2 id="legend-title" className={`mt-3 ${HEADING}`}>
               What Becomes Possible
             </h2>
-            <div className="mt-5 sm:mt-7">
+            <div className="mt-5 sm:mt-7 mx-auto max-w-[75%]">
               <LegendTrailer
                 src={p.trailerVideoUrl}
                 poster={p.filmThumbnailUrl || heroImage}
