@@ -478,6 +478,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
         <HowItWorks heading="Your Path into the Programme" align="left" />
+        <p className={`${SHELL} -mt-6 text-[13px] text-[#888] italic`}>
+          The Dialogue carries a fee. If you join the cohort, it is adjusted in full against the programme fee.
+        </p>
 
         {/* ══════════════════════════════════════════════════════════════
             § 7 — INVESTMENT
