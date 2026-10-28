@@ -291,7 +291,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 <img
                   src={heroImage}
                   alt={legendName}
-                  className="h-full w-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
+                  className="h-[140%] w-[140%] max-w-none object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
+                  style={{ objectPosition: "center center" }}
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
@@ -385,10 +386,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
               {/* Enrollment card */}
               <div className="mt-4 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] px-5 py-4">
-                <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
-                  Programme Enrolment
-                </p>
-                <div className="mt-3">
+                <div>
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
