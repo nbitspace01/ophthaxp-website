@@ -56,7 +56,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
   onNext: () => void;
 }) {
   return (
-    <div className="flex flex-col bg-[#0D0D0D] p-6 sm:p-8 h-full">
+    <div className="flex flex-col bg-[#141618] p-6 sm:p-8 h-full">
       {/* Phase label + badge */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
