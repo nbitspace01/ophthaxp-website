@@ -144,7 +144,8 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
           </p>
           <h2
             id="roadmap-title"
-            className="text-[clamp(1.75rem,3.4vw,2.875rem)] font-extrabold leading-tight tracking-[-0.015em] text-white"
+            className="text-[clamp(2rem,4vw,3.5rem)] font-normal leading-tight tracking-[-0.01em] text-white"
+            style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontStyle: "italic" }}
           >
             {title}
           </h2>
