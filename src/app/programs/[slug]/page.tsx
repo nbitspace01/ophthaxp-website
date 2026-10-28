@@ -593,54 +593,52 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             </div>
             {/* Right — dark certificate card (flat card design, floating) */}
             <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
-              {/* cert-float applies the continuous floating animation */}
+              {/* cert-float applies the continuous floating animation — straight, no rotation */}
               <div
-                className="cert-float relative w-[300px] sm:w-[380px]"
-                style={{ filter: "drop-shadow(0 28px 48px rgba(0,0,0,0.6))" }}
+                className="cert-float relative w-[320px] sm:w-[440px]"
+                style={{ filter: "drop-shadow(0 32px 56px rgba(0,0,0,0.65))" }}
               >
-                {/* Second card behind (stacked depth effect) */}
+                {/* Second card behind (stacked depth) */}
                 <div
-                  className="absolute inset-0 rounded-[14px] bg-[#111]"
-                  style={{ transform: "translate(12px, 12px)", opacity: 0.55 }}
+                  className="absolute inset-0 rounded-[16px] bg-[#1A1A1A]"
+                  style={{ transform: "translate(14px, 14px)", opacity: 0.7 }}
                 />
                 {/* Main dark card */}
                 <div
-                  className="relative rounded-[14px] bg-[#0C0C0C] px-8 py-9 text-center"
-                  style={{ border: "1.5px solid #7A3A22" }}
+                  className="relative rounded-[16px] bg-[#0C0C0C] px-10 py-10 text-center"
+                  style={{ border: "1.5px solid #8B4A2A" }}
                 >
                   {/* Inner border inset */}
                   <div
-                    className="pointer-events-none absolute inset-[10px] rounded-[8px]"
-                    style={{ border: "1px solid #7A3A22", opacity: 0.45 }}
+                    className="pointer-events-none absolute inset-[10px] rounded-[10px]"
+                    style={{ border: "1px solid #8B4A2A", opacity: 0.4 }}
                   />
                   {/* LOM mark — two vertical bars */}
-                  <div className="mb-4 flex justify-center gap-[6px]">
-                    <div className="h-[22px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                    <div className="h-[22px] w-[3.5px] rounded-full bg-[#C97B50]" />
+                  <div className="mb-5 flex justify-center gap-[7px]">
+                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
+                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
                   </div>
                   {/* "LEGENDS OF MEDICINE" */}
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#C97B50]">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#C97B50]">
                     Legends of Medicine
                   </p>
-                  {/* Recipient name */}
-                  <p className="mt-5 text-[clamp(0.95rem,2vw,1.15rem)] font-bold uppercase tracking-[0.07em] text-white">
+                  {/* Recipient name — white, bold */}
+                  <p className="mt-6 text-[1.05rem] font-bold uppercase tracking-[0.08em] text-white sm:text-[1.25rem]">
                     {recipientName}
                   </p>
-                  {/* Programme name */}
-                  <p className="mt-2 text-[11px] leading-[1.5] text-[#A5927A]">{p.name}</p>
-                  <p className="mt-0.5 text-[10px] text-[#7A6A5A]">Guided by {signatory.name}</p>
-                  {/* Divider */}
-                  <div className="mx-auto my-5 h-px w-20 bg-[#7A3A22]" style={{ opacity: 0.6 }} />
-                  {/* Signature in script */}
+                  {/* Programme name — light white */}
+                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.name}</p>
+                  <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
+                  {/* Signature in script — copper */}
                   <p
-                    className="text-[1.25rem] leading-none text-[#C97B50]"
+                    className="mt-6 text-[1.35rem] leading-none text-[#C97B50]"
                     style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}
                   >
                     {signatory.name}
                   </p>
                   {/* Cohort year */}
                   {(p.launchYear || p.startDate) && (
-                    <p className="mt-4 text-[8.5px] font-semibold uppercase tracking-[0.22em] text-[#5A4A3A]">
+                    <p className="mt-4 text-[8px] font-semibold uppercase tracking-[0.26em] text-white/30">
                       Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
                     </p>
                   )}
