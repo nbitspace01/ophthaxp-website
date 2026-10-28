@@ -508,7 +508,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div className="border-b border-r border-[#2A2A2A] pb-5 pr-8">
+                    <div className="border-b border-[#2A2A2A] pb-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
                     </div>
@@ -518,7 +518,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
                   </div>
                   {p.cohortSize && (
-                    <div className="border-r border-[#2A2A2A] pt-5 pr-8">
+                    <div className="pt-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
                     </div>
