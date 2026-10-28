@@ -105,6 +105,20 @@ function signatureRole(title?: string): string {
   return first && first.length <= ROLE_FITS ? first : "Programme Mentor";
 }
 
+const SPECIALTY_LABELS: Record<string, string> = {
+  "cornea-ocular-surface": "CORNEA",
+  "glaucoma": "GLAUCOMA",
+  "retina-vitreo-retinal-surgery": "RETINA",
+  "phaco-refractive-surgery": "CATARACT & REFRACTIVE",
+  "pediatric-ophthalmology": "PAEDIATRIC",
+  "oculoplasty": "OCULOPLASTY",
+  "ophthalmology-practice-mastery": "PRACTICE MASTERY",
+};
+
+function specialtyLabel(specialty: string): string {
+  return SPECIALTY_LABELS[specialty.toLowerCase()] ?? specialty.split("-")[0].toUpperCase();
+}
+
 function doctorToFaculty(d: Doctor): Faculty {
   return {
     slug: d.slug,
@@ -306,7 +320,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:px-10">
               <div className="w-full max-w-none lg:max-w-[520px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
+                {p.specialty ? `${specialtyLabel(p.specialty)} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
