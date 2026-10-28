@@ -482,56 +482,54 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         ══════════════════════════════════════════════════════════════ */}
         {priceText && (
           <section aria-labelledby="investment-title" className={SECTION}>
-            <div className="rounded-[16px] border border-[#2E2E2E] bg-[#111111] p-8 sm:p-10 lg:grid lg:grid-cols-2 lg:gap-12">
+            <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
-              <div className="flex flex-col justify-between">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                    Programme Fee
+              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0 lg:border-r">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                  Programme Fee
+                </p>
+                <p className="mt-3 font-serif text-[clamp(2.2rem,4.5vw,3.5rem)] font-normal leading-none text-white">
+                  ₹{priceText}
+                </p>
+                <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
+                  Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
+                </p>
+                {p.moneyBackDays ? (
+                  <p className="mt-3 text-[12px] text-[#555]">
+                    {p.moneyBackDays}-day refund window. See our{" "}
+                    <Link href="/refunds" className="underline underline-offset-4 hover:text-white">
+                      refund policy
+                    </Link>.
                   </p>
-                  <p className="mt-3 text-[clamp(2rem,4vw,3.25rem)] font-bold leading-none text-white">
-                    ₹{priceText}
-                  </p>
-                  <p className="mt-4 text-[14px] leading-[1.65] text-[#A5A5A5]">
-                    Covers the complete programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
-                  </p>
-                  {p.moneyBackDays ? (
-                    <p className="mt-2 text-[12px] text-[#717171]">
-                      {p.moneyBackDays}-day refund window. See our{" "}
-                      <Link href="/refunds" className="underline underline-offset-4 hover:text-white">
-                        refund policy
-                      </Link>.
-                    </p>
-                  ) : null}
-                </div>
+                ) : null}
               </div>
 
               {/* Right — stats grid + buttons */}
-              <div className="mt-8 flex flex-col justify-between lg:mt-0">
-                <div className="grid grid-cols-2 gap-x-8 gap-y-5 border-b border-[#2E2E2E] pb-7">
+              <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
+                <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Duration</p>
-                      <p className="mt-1 text-[15px] font-semibold text-white">{heroDuration}</p>
+                    <div className="border-b border-r border-[#2A2A2A] pb-5 pr-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
+                      <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
                     </div>
                   )}
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Format</p>
-                    <p className="mt-1 text-[15px] font-semibold text-white">Hybrid · Live virtual &amp; in-person</p>
+                  <div className="border-b border-[#2A2A2A] pb-5 pl-8">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
                   </div>
                   {p.cohortSize && (
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Cohort</p>
-                      <p className="mt-1 text-[15px] font-semibold text-white">{p.cohortSize} doctors</p>
+                    <div className="border-r border-[#2A2A2A] pt-5 pr-8">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
+                      <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
                     </div>
                   )}
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#717171]">Admission</p>
-                    <p className="mt-1 text-[15px] font-semibold text-white">Following a Dialogue with the Legend</p>
+                  <div className="pt-5 pl-8">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">Following a Dialogue with the Legend</p>
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
@@ -544,18 +542,16 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   />
                   <Link
                     href="/contact"
-                    className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[12px] border border-[#4A4A4A] bg-transparent px-7 text-sm font-semibold text-white transition hover:border-white/40"
+                    className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[12px] border border-[#3A3A3A] bg-transparent px-6 text-sm font-semibold text-white transition hover:border-white/40"
                   >
                     Speak to Concierge
                   </Link>
                 </div>
-                {p.moneyBackDays ? null : (
-                  <p className="mt-4 text-[11px] text-[#555]">
-                    Any Dialogue fee already paid will be adjusted in full against the programme fee upon joining the cohort.
-                  </p>
-                )}
               </div>
             </div>
+            <p className="mt-4 text-[11px] text-[#555]">
+              Any Dialogue fee already paid will be adjusted in full against the programme fee upon joining the cohort.
+            </p>
           </section>
         )}
 
