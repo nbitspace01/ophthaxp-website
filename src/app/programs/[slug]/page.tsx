@@ -488,7 +488,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   Programme Fee
                 </p>
-                <p className="mt-3 text-[clamp(2.2rem,4.5vw,3.5rem)] font-bold leading-none text-white">
+                <p className="mt-3 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
                   ₹{priceText}
                 </p>
                 <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
@@ -510,24 +510,28 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div className="border-b border-[#2A2A2A] py-5 pr-8">
+                    <div className="py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
+                      <div className="mt-4 h-px bg-[#2A2A2A]" />
                     </div>
                   )}
-                  <div className="border-b border-[#2A2A2A] py-5 pl-8">
+                  <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
+                    <div className="mt-4 h-px bg-[#2A2A2A]" />
                   </div>
                   {p.cohortSize && (
-                    <div className="border-b border-[#2A2A2A] py-5 pr-8">
+                    <div className="py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
+                      <div className="mt-4 h-px bg-[#2A2A2A]" />
                     </div>
                   )}
-                  <div className="border-b border-[#2A2A2A] py-5 pl-8">
+                  <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Following a Dialogue with the Legend</p>
+                    <div className="mt-4 h-px bg-[#2A2A2A]" />
                   </div>
                 </div>
 
