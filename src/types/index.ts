@@ -133,6 +133,8 @@ export interface Program {
   courseFormat?: CourseFormatPhase[];
   modules?: CourseModule[];
   faqs?: CourseFaq[];
+  format?: string;
+  admissionText?: string;
   certificateNote?: string;
   sampleCertificateImage?: string;
   // CTA / flags

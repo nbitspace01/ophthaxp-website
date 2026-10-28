@@ -510,7 +510,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   )}
                   <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
-                    <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">{p.format ?? "Hybrid · Live virtual & in-person"}</p>
                     <div className="mt-4 h-px bg-[#2A2A2A]" />
                   </div>
                   {p.cohortSize && (
@@ -522,7 +522,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   )}
                   <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
-                    <p className="mt-1.5 text-[14px] font-medium text-white">Following a Dialogue with the Legend</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">{p.admissionText ?? "Following a Dialogue with the Legend"}</p>
                     <div className="mt-4 h-px bg-[#2A2A2A]" />
                   </div>
                 </div>
