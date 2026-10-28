@@ -56,7 +56,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
   onNext: () => void;
 }) {
   return (
-    <div className="flex flex-col rounded-[14px] border border-[#2A2A2A] bg-[#0D0D0D] p-6 sm:p-8">
+    <div className="flex flex-col bg-[#0D0D0D] p-6 sm:p-8 h-full">
       {/* Phase label + badge */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
@@ -176,9 +176,9 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:gap-8 lg:items-start">
+      <div className="flex flex-col lg:flex-row lg:items-start border border-[#1C1C1C] rounded-[4px] overflow-hidden">
         {/* Left sidebar — timeline list, scrollable when many items */}
-        <div ref={sidebarRef} className="lg:w-[33%] flex flex-col bg-[#050505] border border-[#1C1C1C] rounded-[4px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div ref={sidebarRef} className="lg:w-[33%] flex flex-col bg-[#050505] border-r border-[#1C1C1C] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item, i) => {
             const isActive = i === active;
             const isLegend = item.type === "legend-edge";
