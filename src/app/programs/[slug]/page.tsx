@@ -577,61 +577,70 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             width, so a 280px thumbnail printed it at about eight pixels tall. */}
         <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
           {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#E8E0D4] px-8 py-12 sm:px-14 sm:py-16 lg:flex lg:items-center lg:gap-12">
+          <div className="rounded-[20px] bg-[#E5DDD2] px-8 py-12 sm:px-14 sm:py-14 lg:flex lg:items-center lg:gap-6">
             {/* Left — text */}
-            <div className="lg:w-1/2">
+            <div className="lg:w-[45%]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B05A3A]">
                 The Recognition
               </p>
-              <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3.2rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
+              <h2 id="cert-title" className="mt-3 text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-[#1A1410]">
                 Among the <em className="font-normal italic" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>Few</em>
               </h2>
-              <p className="mt-5 text-[14px] leading-[1.75] text-[#4A3F35]">
+              <p className="mt-4 text-[14px] leading-[1.75] text-[#4A3F35]">
                 {p.certificateNote ||
                   "Take your place among a select group of ophthalmologists from around the world, guided directly by the Legend—and carry his depth of judgement and clinical standards into your own practice."}
               </p>
             </div>
-            {/* Right — dark certificate card (flat card design) */}
-            <div className="mt-10 flex justify-center lg:mt-0 lg:w-1/2 lg:justify-end">
-              {/* Outer wrapper: slight tilt + shadow */}
+            {/* Right — dark certificate card (flat card design, floating) */}
+            <div className="mt-10 flex justify-center lg:mt-0 lg:w-[55%] lg:justify-end lg:pr-6">
+              {/* cert-float applies the continuous floating animation */}
               <div
-                className="relative w-[280px] sm:w-[340px]"
-                style={{ filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.55))", transform: "rotate(-2deg)" }}
+                className="cert-float relative w-[300px] sm:w-[380px]"
+                style={{ filter: "drop-shadow(0 28px 48px rgba(0,0,0,0.6))" }}
               >
-                {/* Second card behind (stacked effect) */}
+                {/* Second card behind (stacked depth effect) */}
                 <div
-                  className="absolute inset-0 rounded-[12px] bg-[#111]"
-                  style={{ transform: "translate(10px, 10px)", opacity: 0.6 }}
+                  className="absolute inset-0 rounded-[14px] bg-[#111]"
+                  style={{ transform: "translate(12px, 12px)", opacity: 0.55 }}
                 />
                 {/* Main dark card */}
-                <div className="relative rounded-[12px] bg-[#0D0D0D] px-7 py-8 text-center" style={{ border: "1px solid #5A2D1A" }}>
+                <div
+                  className="relative rounded-[14px] bg-[#0C0C0C] px-8 py-9 text-center"
+                  style={{ border: "1.5px solid #7A3A22" }}
+                >
                   {/* Inner border inset */}
-                  <div className="pointer-events-none absolute inset-[8px] rounded-[8px]" style={{ border: "1px solid #5A2D1A", opacity: 0.5 }} />
+                  <div
+                    className="pointer-events-none absolute inset-[10px] rounded-[8px]"
+                    style={{ border: "1px solid #7A3A22", opacity: 0.45 }}
+                  />
                   {/* LOM mark — two vertical bars */}
-                  <div className="mb-3 flex justify-center gap-[5px]">
-                    <div className="h-[18px] w-[3px] rounded-full bg-[#C97B50]" />
-                    <div className="h-[18px] w-[3px] rounded-full bg-[#C97B50]" />
+                  <div className="mb-4 flex justify-center gap-[6px]">
+                    <div className="h-[22px] w-[3.5px] rounded-full bg-[#C97B50]" />
+                    <div className="h-[22px] w-[3.5px] rounded-full bg-[#C97B50]" />
                   </div>
                   {/* "LEGENDS OF MEDICINE" */}
-                  <p className="text-[8px] font-semibold uppercase tracking-[0.22em] text-[#C97B50]">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#C97B50]">
                     Legends of Medicine
                   </p>
                   {/* Recipient name */}
-                  <p className="mt-4 text-[clamp(0.85rem,2.2vw,1.05rem)] font-bold uppercase tracking-[0.06em] text-white">
+                  <p className="mt-5 text-[clamp(0.95rem,2vw,1.15rem)] font-bold uppercase tracking-[0.07em] text-white">
                     {recipientName}
                   </p>
                   {/* Programme name */}
-                  <p className="mt-2 text-[10px] leading-[1.5] text-[#A5927A]">{p.name}</p>
-                  <p className="text-[10px] text-[#7A6A5A]">Guided by {signatory.name}</p>
+                  <p className="mt-2 text-[11px] leading-[1.5] text-[#A5927A]">{p.name}</p>
+                  <p className="mt-0.5 text-[10px] text-[#7A6A5A]">Guided by {signatory.name}</p>
                   {/* Divider */}
-                  <div className="mx-auto my-4 h-px w-16 bg-[#5A2D1A]" />
-                  {/* Signature */}
-                  <p className="text-[1.1rem] text-[#C97B50]" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>
+                  <div className="mx-auto my-5 h-px w-20 bg-[#7A3A22]" style={{ opacity: 0.6 }} />
+                  {/* Signature in script */}
+                  <p
+                    className="text-[1.25rem] leading-none text-[#C97B50]"
+                    style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}
+                  >
                     {signatory.name}
                   </p>
                   {/* Cohort year */}
                   {(p.launchYear || p.startDate) && (
-                    <p className="mt-3 text-[8px] font-semibold uppercase tracking-[0.2em] text-[#5A4A3A]">
+                    <p className="mt-4 text-[8.5px] font-semibold uppercase tracking-[0.22em] text-[#5A4A3A]">
                       Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
                     </p>
                   )}

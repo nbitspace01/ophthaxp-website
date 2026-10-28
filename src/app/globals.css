@@ -1141,6 +1141,12 @@ body {
   50%      { transform: translateY(-1px); }
 }
 
+@keyframes cert-float {
+  0%, 100% { transform: rotate(-2deg) translateY(0px); }
+  50%      { transform: rotate(-2deg) translateY(-10px); }
+}
+.cert-float { animation: cert-float 3.5s ease-in-out infinite; }
+
 /* Glow intensifies during reveals */
 @keyframes loma-glow {
   0%, 4.6%     { opacity: 0.45; transform: scale(1); }
@@ -1168,7 +1174,8 @@ body {
   .loma-guide,
   .loma-workflow,
   .loma-float,
-  .loma-glow {
+  .loma-glow,
+  .cert-float {
     animation: none;
   }
   .loma-answer,
