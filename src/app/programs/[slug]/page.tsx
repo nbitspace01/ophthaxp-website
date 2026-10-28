@@ -456,6 +456,19 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
         {/* § 5 — THE DIFFERENCE IT MAKES   Shared ROI calculator */}
         <div className={SHELL}>
+          <div className="mb-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+              A Working View of the Future
+            </p>
+            <h2 className={`mt-3 ${HEADING}`}>
+              Your Future in{" "}
+              {p.specialty
+                ? SPECIALTY_LABELS[p.specialty.toLowerCase()]?.split(" ")[0] ??
+                  p.specialty.split("-")[0].charAt(0).toUpperCase() + p.specialty.split("-")[0].slice(1)
+                : "Medicine"}
+              , Visualised
+            </h2>
+          </div>
           <PracticeGrowthCalculator
             courseName={p.name}
             courseSlug={p.slug}
