@@ -478,7 +478,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         </div>
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
-        <HowItWorks />
+        <HowItWorks heading="Your Path into the Programme" align="left" />
 
         {/* ══════════════════════════════════════════════════════════════
             § 7 — INVESTMENT
