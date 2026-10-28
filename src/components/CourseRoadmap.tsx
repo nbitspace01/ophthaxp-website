@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { Check, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react";
 import type { CourseModule } from "@/types";
 
@@ -127,6 +127,19 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
 
 function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; subtitle: string }) {
   const [active, setActive] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const sync = () => {
+      if (panelRef.current && sidebarRef.current) {
+        sidebarRef.current.style.maxHeight = `${panelRef.current.offsetHeight}px`;
+      }
+    };
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, [active]);
 
   const hasLegendEdge = items.some((m) => m.type === "legend-edge");
   const hasTechnicalCore = items.some((m) => m.type === "technical-core");
@@ -165,7 +178,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
       {/* Two-column layout */}
       <div className="flex flex-col lg:flex-row border border-[#1C1C1C] rounded-[4px] overflow-hidden">
         {/* Left sidebar — timeline list, scrollable when many items */}
-        <div className="lg:w-[33%] flex flex-col bg-[#050505] border-r border-[#1C1C1C] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div ref={sidebarRef} className="lg:w-[33%] flex flex-col bg-[#050505] border-r border-[#1C1C1C] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item, i) => {
             const isActive = i === active;
             const isLegend = item.type === "legend-edge";
@@ -268,7 +281,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
         </div>
 
         {/* Right panel */}
-        <div className="lg:flex-1">
+        <div ref={panelRef} className="lg:flex-1">
           <ArcPanel
             item={items[active]}
             index={active}
