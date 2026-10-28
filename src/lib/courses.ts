@@ -234,7 +234,7 @@ function pickModules(rec: RawRecord): CourseModule[] {
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
     .map((m) => ({
-      title: pickString(m, "title", "name", "module", "phase", "heading") ?? "",
+      title: pickString(m, "title", "name", "module", "heading") ?? "",
       subtitle: pickString(m, "subtitle", "sub_title", "subTitle") ?? undefined,
       description:
         pickString(m, "description", "summary", "detail", "text", "body") ?? "",
