@@ -42,7 +42,7 @@ const HEADING =
    then easing back to a 40% wash, which holds the whole photograph in the same
    low key as the copy beside it. */
 const HERO_SCRIM =
-  "linear-gradient(to left, #000 0%, #000 38%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0.08) 100%)";
+  "linear-gradient(to left, #000 0%, #000 42%, rgba(0,0,0,0.5) 58%, rgba(0,0,0,0.05) 100%)";
 
 /* Shown when the course row carries no highlights of its own. */
 const DEFAULT_INCLUSIONS = [
@@ -158,7 +158,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
     : p.durationWeeks
       ? `${p.durationWeeks} ${p.durationWeeks === 1 ? "Week" : "Weeks"}`
       : durationLabel;
-  const enrollLabel = p.ctaLabel || "Begin your application";
+  const enrollLabel = "Begin your application";
   const heroImage = p.doctorImage || p.heroImage;
   // Fallback mentor name for the hero credit line when no faculty record could
   // be resolved. Skip it if it just duplicates the course title/headline.
@@ -285,17 +285,13 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               shoulder with the copy. Held to 62%, the very same crop puts him
               about a third across, clear of the text, which is where the
               design has him. */}
-          <div className="absolute inset-y-0 left-0 w-full lg:w-[62%]">
+          <div className="absolute inset-y-0 left-0 w-full lg:w-[55%]">
             {heroImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={heroImage}
                 alt={legendName}
-                /* Cover in a panel this shape scales to the height, so the
-                   frame is always shown top to bottom and it is the sides that
-                   get trimmed — the subject holds his place as the window
-                   narrows, at any desktop width. */
-                className="h-full w-full object-cover object-center"
+                className="h-full w-full object-cover object-top"
               />
             ) : (
               <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
@@ -327,9 +323,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <div
             /* Off the shared 1200px column: the copy takes the half of the
                screen the portrait does not, so its own padding places it. */
-            className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[calc(100vh-80px)] sm:px-10 lg:h-[calc(100vh-80px)] lg:py-0 lg:pl-[50%] lg:pr-20"
+            className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[calc(100vh-80px)] sm:px-10 lg:h-[680px] lg:min-h-[580px] lg:py-0 lg:pl-[57%] lg:pr-12"
           >
-            <div className="w-full max-w-[420px] text-left lg:max-w-[560px]">
+            <div className="w-full max-w-[400px] text-left lg:max-w-[480px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
