@@ -314,6 +314,11 @@ function parseDoctorReference(v: unknown): {
  * can name them either camelCase or snake_case in the admin panel.
  */
 function mapRecordToProgram(rec: RawRecord): Program | null {
+  if (process.env.NODE_ENV !== "production") {
+    const thumb = rec["filmThumbnail"] ?? rec["filmThumbnailUrl"] ?? rec["thumbnailUrl"];
+    if (thumb !== undefined) console.log("[courses] filmThumbnail raw value:", thumb);
+    else console.log("[courses] filmThumbnail keys available:", Object.keys(rec).filter(k => k.toLowerCase().includes("thumb") || k.toLowerCase().includes("film")));
+  }
   // Merged module: prefer the course-specific slug/name when present, fall
   // back to the doctor-level slug/name for legacy single-purpose `courses` modules.
   const slug = pickString(rec, "courseSlug", "course_slug", "slug", "Slug");
