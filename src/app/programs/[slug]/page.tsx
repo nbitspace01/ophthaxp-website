@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
 
 /* The page column, shared with every section on the home page: 1200px of
    content inside 120px gutters at the 1440 design width. */
-const SHELL = "mx-auto max-w-[1600px] px-5 sm:px-10 lg:px-[80px]";
+const SHELL = "mx-auto max-w-[1600px] px-5 sm:px-10 lg:px-[40px]";
 const SECTION = `${SHELL} py-16 sm:py-24`;
 /* Figma sets the section headings at 46px — a step above the home page's 41.6,
    which is why this is spelled out rather than reusing the shared clamp. */
@@ -577,7 +577,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             width, so a 280px thumbnail printed it at about eight pixels tall. */}
         <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
           {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-24 lg:pr-20">
+          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
             {/* Left — text */}
             <div className="px-8 sm:px-0 lg:w-[42%]">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
@@ -595,7 +595,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
               {/* cert-float applies the continuous floating animation — straight, no rotation */}
               <div
-                className="cert-float relative w-[420px] sm:w-[620px]"
+                className="cert-float relative w-[340px] sm:w-[500px]"
                 style={{ filter: "none" }}
               >
                 {/* Second card behind (stacked depth) */}

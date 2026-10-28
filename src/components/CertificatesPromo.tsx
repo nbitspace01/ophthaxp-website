@@ -9,9 +9,9 @@ export function CertificatesPromo() {
   return (
     <section
       aria-labelledby="certificates-title"
-      className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
+      className="mx-auto max-w-[1600px] px-5 py-10 sm:px-10 sm:py-14 lg:px-8"
     >
-      <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-24 lg:pr-20">
+      <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
         {/* Left — text */}
         <div className="px-8 sm:px-0 lg:w-[42%]">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
@@ -45,7 +45,7 @@ export function CertificatesPromo() {
         {/* Right — dark certificate card */}
         <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
           <div
-            className="cert-float relative w-[420px] sm:w-[620px]"
+            className="cert-float relative w-[340px] sm:w-[500px]"
             style={{ filter: "none" }}
           >
             {/* Shadow card behind */}
