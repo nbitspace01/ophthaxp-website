@@ -164,8 +164,8 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
 
       {/* Two-column layout */}
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-8">
-        {/* Left sidebar — timeline list */}
-        <div className="lg:w-[40%] flex flex-col bg-[#050505] border border-[#1C1C1C] rounded-[4px] overflow-hidden">
+        {/* Left sidebar — timeline list, scrollable when many items */}
+        <div className="lg:w-[40%] flex flex-col bg-[#050505] border border-[#1C1C1C] rounded-[4px] overflow-y-auto lg:max-h-[600px]">
           {items.map((item, i) => {
             const isActive = i === active;
             const isLegend = item.type === "legend-edge";
@@ -268,7 +268,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
         </div>
 
         {/* Right panel */}
-        <div className="lg:flex-1">
+        <div className="lg:flex-1 lg:overflow-y-auto lg:max-h-[600px]">
           <ArcPanel
             item={items[active]}
             index={active}
