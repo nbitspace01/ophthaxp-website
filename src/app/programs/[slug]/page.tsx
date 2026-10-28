@@ -595,8 +595,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
               {/* cert-float applies the continuous floating animation — straight, no rotation */}
               <div
-                className="cert-float relative w-[320px] sm:w-[440px]"
-                style={{ filter: "drop-shadow(0 32px 56px rgba(0,0,0,0.65))" }}
+                className="cert-float relative w-[340px] sm:w-[500px]"
+                style={{ filter: "none" }}
               >
                 {/* Second card behind (stacked depth) */}
                 <div
