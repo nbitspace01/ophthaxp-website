@@ -30,6 +30,39 @@ function RowDivider({ left, right }: { left: string; right: string }) {
   );
 }
 
+function BlueCubeDecor() {
+  return (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[110px] h-[110px] opacity-[0.12] group-hover:opacity-[0.28] transition-opacity duration-500 pointer-events-none">
+      <path d="M60 20 L95 40 L95 80 L60 100 L25 80 L25 40 Z" stroke="#6EA8D8" strokeWidth="1" fill="none"/>
+      <path d="M60 20 L60 60 M60 60 L95 40 M60 60 L25 40 M60 60 L60 100" stroke="#6EA8D8" strokeWidth="0.8" strokeDasharray="3 3"/>
+      <path d="M40 30 L75 50 L75 85 L40 65 Z" stroke="#6EA8D8" strokeWidth="0.6" fill="none" opacity="0.5"/>
+      <circle cx="60" cy="20" r="2" fill="#6EA8D8"/>
+      <circle cx="95" cy="40" r="2" fill="#6EA8D8"/>
+      <circle cx="95" cy="80" r="2" fill="#6EA8D8"/>
+      <circle cx="60" cy="100" r="2" fill="#6EA8D8"/>
+      <circle cx="25" cy="80" r="2" fill="#6EA8D8"/>
+      <circle cx="25" cy="40" r="2" fill="#6EA8D8"/>
+    </svg>
+  );
+}
+
+function OrangeHexDecor() {
+  return (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[110px] h-[110px] opacity-[0.12] group-hover:opacity-[0.28] transition-opacity duration-500 pointer-events-none">
+      <path d="M60 15 L90 32 L90 68 L60 85 L30 68 L30 32 Z" stroke="#C65F49" strokeWidth="1" fill="none"/>
+      <path d="M60 32 L80 43 L80 65 L60 76 L40 65 L40 43 Z" stroke="#C65F49" strokeWidth="0.8" fill="none" opacity="0.6"/>
+      <path d="M60 49 L70 55 L70 66 L60 72 L50 66 L50 55 Z" stroke="#C65F49" strokeWidth="0.7" fill="none" opacity="0.4"/>
+      <path d="M60 15 L60 32 M90 32 L80 43 M90 68 L80 65 M60 85 L60 76 M30 68 L40 65 M30 32 L40 43" stroke="#C65F49" strokeWidth="0.5" strokeDasharray="2 2" opacity="0.5"/>
+      <circle cx="60" cy="15" r="1.5" fill="#C65F49"/>
+      <circle cx="90" cy="32" r="1.5" fill="#C65F49"/>
+      <circle cx="90" cy="68" r="1.5" fill="#C65F49"/>
+      <circle cx="60" cy="85" r="1.5" fill="#C65F49"/>
+      <circle cx="30" cy="68" r="1.5" fill="#C65F49"/>
+      <circle cx="30" cy="32" r="1.5" fill="#C65F49"/>
+    </svg>
+  );
+}
+
 function ArcCard({
   heading,
   body,
@@ -41,9 +74,10 @@ function ArcCard({
 }) {
   const headColor = accent === "blue" ? "text-[#6EA8D8]" : "text-accent";
   return (
-    <div className="flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px]">
-      <p className={`text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
+    <div className="group relative flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px] overflow-hidden hover:border-[#3A3A3A] transition-colors duration-300">
+      {accent === "blue" ? <BlueCubeDecor /> : <OrangeHexDecor />}
+      <p className={`relative z-10 text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
+      {body && <p className="relative z-10 mt-2 text-[13px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
     </div>
   );
 }
