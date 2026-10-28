@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
 
 /* The page column, shared with every section on the home page: 1200px of
    content inside 120px gutters at the 1440 design width. */
-const SHELL = "mx-auto max-w-[1600px] px-5 sm:px-10 lg:px-[40px]";
+const SHELL = "mx-auto max-w-[1600px]";
 const SECTION = `${SHELL} py-16 sm:py-24`;
 /* Figma sets the section headings at 46px — a step above the home page's 41.6,
    which is why this is spelled out rather than reusing the shared clamp. */
