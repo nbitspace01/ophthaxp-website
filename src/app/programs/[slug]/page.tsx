@@ -588,7 +588,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 <em className="font-normal not-italic" style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic" }}>Few</em>
               </h2>
               <p className="mt-4 text-[17px] leading-[1.8] text-[#4A3F35]">
-                Take your place among a select group of ophthalmologists from around the world, guided directly by Dr. Srinivas K. Rao and carry his depth of judgement and clinical standards into your own practice.
+                Take your place among a select group of ophthalmologists from around the world, guided directly by {signatory.name} and carry his depth of judgement and clinical standards into your own practice.
               </p>
             </div>
             {/* Right — dark certificate card (flat card design, floating) */}
