@@ -117,13 +117,9 @@ export function LegendTrailer({
   }, [speedOpen]);
 
   const frame =
-    "relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black";
+    "relative aspect-[16/7] w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black";
 
-  const badge = (
-    <span className="pointer-events-none absolute right-4 top-4 z-20 inline-flex h-11 items-center rounded-full border-[1.5px] border-ink-700 bg-ink-800 px-6 text-[15px] font-medium text-white sm:right-6 sm:top-6">
-      Legend Video
-    </span>
-  );
+  const badge = null;
 
   // Embedded players (YouTube/Vimeo) own their own chrome, so we only dress the
   // frame around them.
