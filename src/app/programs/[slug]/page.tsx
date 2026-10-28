@@ -283,23 +283,23 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-[48%_52%] lg:h-[calc(100vh-80px)]">
+          <div className="lg:grid lg:grid-cols-[50%_50%] lg:h-[660px]">
             {/* Image column — desktop only, hover zoom */}
-            <div className="hidden lg:block relative overflow-hidden group">
+            <div className="hidden lg:block relative overflow-hidden group bg-black">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={heroImage}
                   alt={legendName}
-                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-in-out group-hover:scale-105"
+                  className="h-full w-full object-cover object-[center_8%] transition-transform duration-700 ease-in-out group-hover:scale-105"
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
               )}
               {/* Right edge fade into content bg */}
-              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[28%] bg-gradient-to-r from-transparent to-black" />
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[22%] bg-gradient-to-r from-transparent to-black" />
               {/* Bottom edge fade */}
-              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black via-black/60 to-transparent" />
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black via-black/50 to-transparent" />
             </div>
 
             {/* Content column */}
