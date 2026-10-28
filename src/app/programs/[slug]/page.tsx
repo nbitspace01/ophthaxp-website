@@ -484,7 +484,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <section aria-labelledby="investment-title" className={SECTION}>
             <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
-              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0 lg:border-r">
+              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   Programme Fee
                 </p>
@@ -504,26 +504,28 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 ) : null}
               </div>
 
+              {/* Inset vertical divider — hidden on mobile, doesn't touch card top/bottom */}
+              <div className="hidden lg:block w-px self-stretch my-8 bg-[#2A2A2A]" />
               {/* Right — stats grid + buttons */}
               <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div className="border-t border-[#2A2A2A] py-5 pr-8">
+                    <div className="border-b border-[#2A2A2A] py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
                     </div>
                   )}
-                  <div className="border-t border-[#2A2A2A] py-5 pl-8">
+                  <div className="border-b border-[#2A2A2A] py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
                   </div>
                   {p.cohortSize && (
-                    <div className="border-t border-[#2A2A2A] py-5 pr-8">
+                    <div className="border-b border-[#2A2A2A] py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
                     </div>
                   )}
-                  <div className="border-t border-[#2A2A2A] py-5 pl-8">
+                  <div className="border-b border-[#2A2A2A] py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Following a Dialogue with the Legend</p>
                   </div>
