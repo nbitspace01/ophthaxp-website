@@ -31,17 +31,32 @@ function RowDivider({ left, right }: { left: string; right: string }) {
 }
 
 function BlueCubeDecor() {
+  // Perspective grid: vanishing point left, grid plane right
+  const vx = 10, vy = 60;
+  const cols = [70, 82, 94, 106, 118];
+  const rows = [20, 33, 46, 60, 73, 86, 100];
   return (
-    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[110px] h-[110px] opacity-[0.12] group-hover:opacity-[0.28] transition-opacity duration-500 pointer-events-none">
-      <path d="M60 20 L95 40 L95 80 L60 100 L25 80 L25 40 Z" stroke="#6EA8D8" strokeWidth="1" fill="none"/>
-      <path d="M60 20 L60 60 M60 60 L95 40 M60 60 L25 40 M60 60 L60 100" stroke="#6EA8D8" strokeWidth="0.8" strokeDasharray="3 3"/>
-      <path d="M40 30 L75 50 L75 85 L40 65 Z" stroke="#6EA8D8" strokeWidth="0.6" fill="none" opacity="0.5"/>
-      <circle cx="60" cy="20" r="2" fill="#6EA8D8"/>
-      <circle cx="95" cy="40" r="2" fill="#6EA8D8"/>
-      <circle cx="95" cy="80" r="2" fill="#6EA8D8"/>
-      <circle cx="60" cy="100" r="2" fill="#6EA8D8"/>
-      <circle cx="25" cy="80" r="2" fill="#6EA8D8"/>
-      <circle cx="25" cy="40" r="2" fill="#6EA8D8"/>
+    <svg viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 right-0 w-[130px] h-[120px] opacity-[0.18] group-hover:opacity-[0.35] transition-opacity duration-500 pointer-events-none">
+      {/* Converging lines from vanishing point to each row on right edge */}
+      {rows.map((y, i) => (
+        <line key={`r${i}`} x1={vx} y1={vy} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.5" opacity="0.6"/>
+      ))}
+      {/* Converging lines from vanishing point to each col top/bottom */}
+      {cols.map((x, i) => (
+        <line key={`c${i}`} x1={vx} y1={vy} x2={x} y2={rows[0]} stroke="#6EA8D8" strokeWidth="0.4" opacity="0.4"/>
+      ))}
+      {/* Vertical grid lines on the plane */}
+      {cols.map((x, i) => {
+        const topY = vy + (rows[0] - vy) * (x - vx) / (118 - vx);
+        const botY = vy + (rows[rows.length-1] - vy) * (x - vx) / (118 - vx);
+        return <line key={`v${i}`} x1={x} y1={topY} x2={x} y2={botY} stroke="#6EA8D8" strokeWidth="0.6"/>;
+      })}
+      {/* Horizontal grid lines (perspective) */}
+      {rows.map((y, i) => (
+        <line key={`h${i}`} x1={cols[0]} y1={vy + (y - vy) * (cols[0]-vx)/(118-vx)} x2={118} y2={y} stroke="#6EA8D8" strokeWidth="0.6"/>
+      ))}
+      {/* Vanishing point dot */}
+      <circle cx={vx} cy={vy} r="2" fill="#6EA8D8" opacity="0.8"/>
     </svg>
   );
 }
@@ -77,7 +92,7 @@ function ArcCard({
     <div className="group relative flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px] overflow-hidden hover:border-[#3A3A3A] transition-colors duration-300">
       {accent === "blue" ? <BlueCubeDecor /> : <OrangeHexDecor />}
       <p className={`relative z-10 text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="relative z-10 mt-2 text-[13px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
+      {body && <p className="relative z-10 mt-2 text-[11px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
     </div>
   );
 }
