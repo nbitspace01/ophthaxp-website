@@ -304,7 +304,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
             {/* Content column */}
             <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-10 lg:pr-8">
-              <div className="w-full max-w-[420px] text-left">
+              <div className="w-full max-w-none lg:max-w-[420px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
