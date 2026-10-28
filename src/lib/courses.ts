@@ -223,12 +223,9 @@ function toStringList(v: unknown): string[] {
  * to `courseFormat` on the page, so an empty list here is not an error.
  */
 function pickModules(rec: RawRecord): CourseModule[] {
-  // If courseFormat key exists in the record (even if null/empty), use it exclusively
-  // so clearing it in Aaga doesn't fall through to the legacy modules field.
-  const hasCourseFormatKey = "courseFormat" in rec || "course_format" in rec;
-  const raw = hasCourseFormatKey
-    ? pickObjectArray<RawRecord>(rec, "courseFormat", "course_format")
-    : pickObjectArray<RawRecord>(rec, "modules", "courseModules", "course_modules", "roadmap", "Roadmap");
+  // Only read from courseFormat / course_format — legacy "modules" field is ignored.
+  // Empty or stub-only courseFormat returns [] so the roadmap falls back to duration months.
+  const raw = pickObjectArray<RawRecord>(rec, "courseFormat", "course_format");
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
     .map((m) => ({
@@ -257,15 +254,8 @@ function pickModules(rec: RawRecord): CourseModule[] {
           m.items,
       ),
     }))
-    .filter((m) => {
-      if (!m.title) return false;
-      // courseFormat entries must have at least one arc quadrant field to be shown;
-      // title/description-only entries are placeholder stubs that should not render.
-      if (hasCourseFormatKey) {
-        return !!(m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges);
-      }
-      return true;
-    });
+    // Only show entries that have at least one arc quadrant field filled in.
+    .filter((m) => !!(m.title && (m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges)));
 }
 
 /**
