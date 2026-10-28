@@ -430,8 +430,16 @@ export function CourseRoadmap({
       (m) => m.description || m.subtitle || m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges,
     );
 
+  // If any module has arc content, drop title-only placeholders that have none.
+  const anyArcContent = items.some(
+    (m) => m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges,
+  );
+  const filteredItems = anyArcContent
+    ? items.filter((m) => m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges || m.description)
+    : items;
+
   const resolved: Item[] = hasRealModules
-    ? items
+    ? filteredItems
     : durationMonths && durationMonths > 0
     ? Array.from({ length: durationMonths }, (_, i) => ({
         title: `Month ${i + 1}`,
