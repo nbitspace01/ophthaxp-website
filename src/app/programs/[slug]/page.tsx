@@ -283,34 +283,34 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-[50%_50%] lg:h-[660px]">
+          <div className="lg:grid lg:grid-cols-[55%_45%] lg:h-[680px]">
             {/* Image column — desktop only, hover zoom */}
-            <div className="hidden lg:block relative overflow-hidden group bg-black">
+            <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={heroImage}
                   alt={legendName}
-                  className="h-full w-full object-cover object-[center_8%] transition-transform duration-700 ease-in-out group-hover:scale-105"
+                  className="h-full w-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
               )}
-              {/* Right edge fade into content bg */}
-              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[22%] bg-gradient-to-r from-transparent to-black" />
-              {/* Bottom edge fade */}
-              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black via-black/50 to-transparent" />
+              {/* Subtle right edge blend into content column */}
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[15%] bg-gradient-to-r from-transparent to-black" />
+              {/* Subtle bottom fade */}
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
             </div>
 
             {/* Content column */}
-            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-12 lg:pr-10">
-              <div className="w-full max-w-[400px] text-left lg:max-w-[460px]">
+            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-10 lg:pr-8">
+              <div className="w-full max-w-[420px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
-                className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.75rem)] font-light leading-[1.1] text-white"
+                className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.75rem)] font-normal leading-[1.1] text-white"
               >
                 {p.headline || p.name}
               </h1>
@@ -405,7 +405,6 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 </p>
               </div>
             </div>
-          </div>
           </div>
         </section>
 
