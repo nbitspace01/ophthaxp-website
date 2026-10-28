@@ -9,7 +9,7 @@ export function CertificatesPromo() {
   return (
     <section
       aria-labelledby="certificates-title"
-      className="mx-auto max-w-[1600px] py-10 sm:py-14"
+      className="mx-auto max-w-[1600px] px-8 py-10 sm:px-16 sm:py-14 lg:px-24"
     >
       <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
         {/* Left — text */}
