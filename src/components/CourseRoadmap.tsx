@@ -43,7 +43,7 @@ function ArcCard({
   return (
     <div className="flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px]">
       <p className={`text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#bbb]">{body}</p>}
+      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
     </div>
   );
 }
@@ -76,7 +76,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
 
       {/* Italic description */}
       {item.description && (
-        <p className="mt-2 text-[13px] italic text-[#aaa] leading-[1.6]">{item.description}</p>
+        <p className="mt-2 text-[13px] italic text-[#ccc] leading-[1.6]">{item.description}</p>
       )}
 
       {/* Top row — With the Legend */}
@@ -230,7 +230,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                     className={`block text-[13.5px] leading-snug transition-colors ${
                       isActive
                         ? "font-semibold text-white"
-                        : "font-normal text-[#999]"
+                        : "font-normal text-[#ccc]"
                     }`}
                   >
                     {item.title}
@@ -238,7 +238,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                   {item.subtitle && (
                     <span
                       className={`block text-[12px] mt-[3px] leading-snug transition-colors ${
-                        isActive ? "text-[#bbb]" : "text-[#999]"
+                        isActive ? "text-[#ddd]" : "text-[#aaa]"
                       }`}
                     >
                       {item.subtitle}
