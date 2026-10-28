@@ -23,9 +23,9 @@ function hasArcContent(item: Item) {
 function RowDivider({ left, right }: { left: string; right: string }) {
   return (
     <div className="flex items-center gap-3 mb-3">
-      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#444] shrink-0">{left}</span>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#777] shrink-0">{left}</span>
       <span className="flex-1 h-px bg-[#2A2A2A]" />
-      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#444] shrink-0">{right}</span>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#777] shrink-0">{right}</span>
     </div>
   );
 }
@@ -43,7 +43,7 @@ function ArcCard({
   return (
     <div className="flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px]">
       <p className={`text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#888]">{body}</p>}
+      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#bbb]">{body}</p>}
     </div>
   );
 }
@@ -63,7 +63,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
           Phase {String(index + 1).padStart(2, "0")}
         </p>
         {item.phase && (
-          <span className="rounded-full border border-[#3A3A3A] px-3 py-1 text-[11px] text-[#888]">
+          <span className="rounded-full border border-[#3A3A3A] px-3 py-1 text-[11px] text-[#bbb]">
             {item.phase}
           </span>
         )}
@@ -76,7 +76,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
 
       {/* Italic description */}
       {item.description && (
-        <p className="mt-2 text-[13px] italic text-[#666] leading-[1.6]">{item.description}</p>
+        <p className="mt-2 text-[13px] italic text-[#aaa] leading-[1.6]">{item.description}</p>
       )}
 
       {/* Top row — With the Legend */}
@@ -99,7 +99,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
 
       {/* Footer nav */}
       <div className="mt-6 flex items-center justify-between border-t border-[#2A2A2A] pt-4">
-        <p className="text-[12px] tabular-nums text-[#555]">
+        <p className="text-[12px] tabular-nums text-[#888]">
           {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
         </p>
         <div className="flex items-center gap-5">
@@ -107,7 +107,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
             type="button"
             onClick={onPrev}
             disabled={index === 0}
-            className="flex items-center gap-1.5 text-[13px] text-[#888] transition hover:text-white disabled:opacity-30"
+            className="flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30"
           >
             <ArrowLeft className="h-3.5 w-3.5 text-accent" /> Previous Phase
           </button>
@@ -115,7 +115,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
             type="button"
             onClick={onNext}
             disabled={index === total - 1}
-            className="flex items-center gap-1.5 text-[13px] text-[#888] transition hover:text-white disabled:opacity-30"
+            className="flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30"
           >
             Next Phase <ArrowRight className="h-3.5 w-3.5 text-accent" />
           </button>
@@ -163,12 +163,12 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
           </h2>
         </div>
         <div className="flex flex-col gap-2">
-          <p className="max-w-[340px] text-[14px] leading-[1.6] text-[#888]">{subtitle}</p>
+          <p className="max-w-[340px] text-[14px] leading-[1.6] text-[#bbb]">{subtitle}</p>
           <div className="flex items-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
+            <span className="flex items-center gap-1.5 text-[12px] text-[#bbb]">
               <span className="h-2.5 w-2.5 rounded-full bg-[#4A90D9]" style={{ boxShadow: "0 0 6px 2px rgba(74,144,217,0.55)" }} /> The Legend&apos;s Edge
             </span>
-            <span className="flex items-center gap-1.5 text-[12px] text-[#888]">
+            <span className="flex items-center gap-1.5 text-[12px] text-[#bbb]">
               <span className="h-2.5 w-2.5 rounded-full bg-accent" style={{ boxShadow: "0 0 6px 2px rgba(183,90,68,0.6)" }} /> Technical Core
             </span>
           </div>
@@ -238,7 +238,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                   {item.subtitle && (
                     <span
                       className={`block text-[12px] mt-[3px] leading-snug transition-colors ${
-                        isActive ? "text-[#888]" : "text-[#666]"
+                        isActive ? "text-[#bbb]" : "text-[#999]"
                       }`}
                     >
                       {item.subtitle}
