@@ -257,7 +257,15 @@ function pickModules(rec: RawRecord): CourseModule[] {
           m.items,
       ),
     }))
-    .filter((m) => m.title);
+    .filter((m) => {
+      if (!m.title) return false;
+      // courseFormat entries must have at least one arc quadrant field to be shown;
+      // title/description-only entries are placeholder stubs that should not render.
+      if (hasCourseFormatKey) {
+        return !!(m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges);
+      }
+      return true;
+    });
 }
 
 /**
