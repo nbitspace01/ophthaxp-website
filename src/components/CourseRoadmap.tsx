@@ -163,52 +163,97 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        {/* Left sidebar */}
-        <div className="lg:w-[38%] flex flex-col rounded-[14px] border border-[#2A2A2A] overflow-hidden">
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-8">
+        {/* Left sidebar — timeline list */}
+        <div className="lg:w-[40%] flex flex-col bg-[#050505] border border-[#1C1C1C] rounded-[4px] overflow-hidden">
           {items.map((item, i) => {
             const isActive = i === active;
-            const typeAbbr = item.type === "technical-core" ? "CR" : item.type === "legend-edge" ? "LE" : null;
+            const isLegend = item.type === "legend-edge";
+            const isCore = item.type === "technical-core";
+            const isLast = i === items.length - 1;
             return (
               <button
                 key={i}
                 type="button"
                 onClick={() => setActive(i)}
-                className={`relative flex items-center gap-3 px-4 py-4 text-left transition border-b border-[#1E1E1E] last:border-b-0 ${
-                  isActive ? "bg-[#1A1A1A]" : "bg-[#0D0D0D] hover:bg-[#131313]"
-                }`}
+                className={`relative flex items-start gap-0 text-left transition-colors ${
+                  isActive
+                    ? "bg-[#1A100D]"
+                    : "bg-transparent hover:bg-[#0D0D0D]"
+                } ${!isLast ? "border-b border-[#1A1A1A]" : ""}`}
               >
-                {/* Active left accent bar */}
-                <span className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full transition-all ${isActive ? "bg-accent" : "bg-transparent"}`} />
-
-                {/* Number circle */}
+                {/* Left coral border for active */}
                 <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition ${
-                    isActive
-                      ? "bg-accent text-white"
-                      : "border border-[#3A3A3A] text-[#555]"
+                  className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${
+                    isActive ? "bg-[#C65F49]" : "bg-transparent"
                   }`}
-                >
-                  {String(i + 1).padStart(2, "0")}
+                />
+
+                {/* Timeline column: vertical line + circle */}
+                <span className="relative flex flex-col items-center self-stretch pl-5 pr-4 py-[18px]">
+                  {/* Vertical line above circle */}
+                  {i !== 0 && (
+                    <span className="absolute top-0 left-[calc(20px+14px)] w-px bg-[#222] bottom-1/2" />
+                  )}
+                  {/* Vertical line below circle */}
+                  {!isLast && (
+                    <span className="absolute top-1/2 left-[calc(20px+14px)] w-px bg-[#222] bottom-0" />
+                  )}
+                  {/* Number circle */}
+                  <span
+                    className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all ${
+                      isActive
+                        ? "bg-[#C65F49] text-white shadow-[0_0_8px_rgba(198,95,73,0.5)]"
+                        : "border border-[#2E2E2E] text-[#484848] bg-[#050505]"
+                    }`}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                 </span>
 
                 {/* Title + subtitle */}
-                <span className="min-w-0 flex-1">
-                  <span className={`block text-[13px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#666]"}`}>
+                <span className="min-w-0 flex-1 py-[18px]">
+                  <span
+                    className={`block text-[13.5px] leading-snug transition-colors ${
+                      isActive
+                        ? "font-semibold text-white"
+                        : "font-normal text-[#5A5A5A]"
+                    }`}
+                  >
                     {item.title}
                   </span>
                   {item.subtitle && (
-                    <span className="block text-[11px] text-[#444] mt-0.5">{item.subtitle}</span>
+                    <span
+                      className={`block text-[12px] mt-[3px] leading-snug transition-colors ${
+                        isActive ? "text-[#888]" : "text-[#3A3A3A]"
+                      }`}
+                    >
+                      {item.subtitle}
+                    </span>
                   )}
                 </span>
 
-                {/* Right icon: arrow for active, type badge for inactive */}
-                {isActive
-                  ? <ArrowRight className="h-3.5 w-3.5 shrink-0 text-accent" />
-                  : typeAbbr
-                  ? <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full border border-[#333] text-[9px] font-bold text-[#555]">{typeAbbr}</span>
-                  : null
-                }
+                {/* Right icon */}
+                <span className="shrink-0 flex items-center self-center pr-4 pl-2">
+                  {isLegend ? (
+                    /* Airplane SVG matching ref image */
+                    <svg viewBox="0 0 24 24" className={`h-4 w-4 transition-colors ${isActive ? "text-[#C65F49]" : "text-[#2E2E2E]"}`} fill="currentColor">
+                      <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>
+                    </svg>
+                  ) : isCore ? (
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border text-[9px] font-bold transition-colors ${
+                        isActive
+                          ? "border-[#C65F49] text-[#C65F49]"
+                          : "border-[#2E2E2E] text-[#3A3A3A]"
+                      }`}
+                    >
+                      CR
+                    </span>
+                  ) : (
+                    <span className="h-5 w-5" />
+                  )}
+                </span>
               </button>
             );
           })}
