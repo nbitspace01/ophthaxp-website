@@ -283,7 +283,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-[46%_54%] lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
             {/* Image column — desktop only, hover zoom */}
             <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
               {heroImage ? (
@@ -303,7 +303,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             </div>
 
             {/* Content column */}
-            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-10 lg:pr-8">
+            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:px-10">
               <div className="w-full max-w-none lg:max-w-[520px] text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
