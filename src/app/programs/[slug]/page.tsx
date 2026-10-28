@@ -37,12 +37,6 @@ const SECTION = `${SHELL} py-16 sm:py-24`;
 const HEADING =
   "text-[clamp(1.75rem,3.4vw,2.875rem)] font-extrabold leading-tight tracking-[-0.015em] text-white";
 
-/* Hero scrim. Fully black from the right edge in to 38% of the width — where
-   the portrait panel below stops, so that panel's edge never shows as a seam —
-   then easing back to a 40% wash, which holds the whole photograph in the same
-   low key as the copy beside it. */
-const HERO_SCRIM =
-  "linear-gradient(to left, #000 0%, #000 42%, rgba(0,0,0,0.5) 58%, rgba(0,0,0,0.05) 100%)";
 
 /* Shown when the course row carries no highlights of its own. */
 const DEFAULT_INCLUSIONS = [
@@ -276,56 +270,41 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
       <Navbar />
       <main className="bg-ink-950 text-white">
         {/* ══════════════════════════════════════════════════════════════
-            § 1 — HERO   Full-bleed portrait, copy column on the right
+            § 1 — HERO   Portrait column left, copy column right
         ══════════════════════════════════════════════════════════════ */}
         <section aria-labelledby="program-title" className="relative overflow-hidden bg-black">
-          {/* The portrait is a left-hand panel, not a full-bleed backdrop.
-              These are centred portraits, so spread over the whole width the
-              Legend lands dead centre — half under the scrim, shoulder to
-              shoulder with the copy. Held to 62%, the very same crop puts him
-              about a third across, clear of the text, which is where the
-              design has him. */}
-          <div className="absolute inset-y-0 left-0 w-full lg:w-[55%]">
-            {heroImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={heroImage}
-                alt={legendName}
-                className="h-full w-full object-cover object-top"
-              />
-            ) : (
-              <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
-            )}
-          </div>
+          {/* Mobile: image as full-bleed backdrop with bottom scrim */}
+          {heroImage && (
+            <div className="absolute inset-0 lg:hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={heroImage} alt="" className="h-full w-full object-cover" aria-hidden />
+              <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
+            </div>
+          )}
 
-          {/* Desktop: the copy sits in the solid right-hand end of a horizontal
-              scrim. Mobile has no room for a side column, so the photo is
-              darkened from the bottom instead and the copy stacks over it. */}
-          <span
-            aria-hidden
-            className="absolute inset-0 hidden lg:block"
-            style={{ backgroundImage: HERO_SCRIM }}
-          />
-          <span
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40 lg:hidden"
-          />
+          {/* Desktop: two-column grid — image left, content right */}
+          <div className="lg:grid lg:grid-cols-[48%_52%] lg:h-[calc(100vh-80px)]">
+            {/* Image column — desktop only, hover zoom */}
+            <div className="hidden lg:block relative overflow-hidden group">
+              {heroImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={heroImage}
+                  alt={legendName}
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-in-out group-hover:scale-105"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
+              )}
+              {/* Right edge fade into content bg */}
+              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[28%] bg-gradient-to-r from-transparent to-black" />
+              {/* Bottom edge fade */}
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black via-black/60 to-transparent" />
+            </div>
 
-          {/* The photo has to dissolve into the black page below it. Figma fades
-             the last ~60px to nothing; left uncut, a bright frame (a lit wall, a
-             stack of books) ends on a hard horizontal seam. Mobile already gets
-             this from the scrim above. */}
-          <span
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 hidden h-[120px] bg-gradient-to-t from-black via-black/60 to-transparent lg:block"
-          />
-
-          <div
-            /* Off the shared 1200px column: the copy takes the half of the
-               screen the portrait does not, so its own padding places it. */
-            className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[calc(100vh-80px)] sm:px-10 lg:h-[680px] lg:min-h-[580px] lg:py-0 lg:pl-[57%] lg:pr-12"
-          >
-            <div className="w-full max-w-[400px] text-left lg:max-w-[480px]">
+            {/* Content column */}
+            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:pl-12 lg:pr-10">
+              <div className="w-full max-w-[400px] text-left lg:max-w-[460px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                 {p.specialty ? `${p.specialty.toUpperCase()} PROGRAMME` : "LEGACY TRANSFER PROGRAMME"}
               </p>
@@ -376,7 +355,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
               {/* Stat strip — duration · cohort · launch */}
               {(heroDuration || p.cohortSize || launchLabel) && (
-                <div className="mt-8 border-t border-b border-white/10 py-6 flex items-stretch justify-start divide-x divide-white/15 text-left">
+                <div className="mt-5 flex items-stretch justify-between border-b border-t border-white/10 py-4 text-left">
                   {[
                     heroDuration && { value: heroDuration, label: "Duration" },
                     p.cohortSize
@@ -391,11 +370,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     .map((stat) => {
                       const s = stat as { value: string; label: string };
                       return (
-                        <div key={s.label} className="px-4 first:pl-0 sm:px-6 sm:first:pl-0">
+                        <div key={s.label} className="flex-1 border-r border-white/15 px-3 last:border-r-0 first:pl-0 last:pr-0">
                           <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
                             {s.label}
                           </p>
-                          <p className="mt-1.5 whitespace-nowrap text-[1.05rem] font-bold text-white sm:text-lg">
+                          <p className="mt-1 whitespace-nowrap text-[1rem] font-bold text-white sm:text-[1.05rem]">
                             {s.value}
                           </p>
                         </div>
@@ -405,11 +384,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Enrollment card */}
-              <div className="mt-6 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] px-6 py-5">
+              <div className="mt-4 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] px-5 py-4">
                 <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
                   Programme Enrolment
                 </p>
-                <div className="mt-4">
+                <div className="mt-3">
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
@@ -421,11 +400,12 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     block
                   />
                 </div>
-                <p className="mt-3.5 text-[12px] leading-[1.5] text-[#717171]">
+                <p className="mt-3 text-[12px] leading-[1.5] text-[#717171]">
                   Every phase in the programme is designed to translate into your clinical practice.
                 </p>
               </div>
             </div>
+          </div>
           </div>
         </section>
 
