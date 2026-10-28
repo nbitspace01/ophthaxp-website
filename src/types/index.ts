@@ -122,6 +122,7 @@ export interface Program {
   launchMonth?: string;
   launchYear?: number;
   trailerVideoUrl?: string;
+  filmThumbnailUrl?: string;
   pricePerDayInr?: number;
   billingPeriod?: "annual" | "monthly" | "onetime";
   moneyBackDays?: number;

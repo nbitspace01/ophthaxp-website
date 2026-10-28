@@ -378,6 +378,18 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
         "videoUrl",
       ),
     ),
+    filmThumbnailUrl: absoluteUrl(
+      pickString(
+        rec,
+        "filmThumbnailUrl",
+        "film_thumbnail_url",
+        "filmThumbnail",
+        "film_thumbnail",
+        "thumbnailUrl",
+        "thumbnail_url",
+        "thumbnail",
+      ),
+    ),
     pricePerDayInr: pickNumber(rec, "pricePerDayInr", "price_per_day_inr", "pricePerDay"),
     billingPeriod: pickString(rec, "billingPeriod", "billing_period") as Program["billingPeriod"],
     moneyBackDays: pickNumber(rec, "moneyBackDays", "money_back_days"),
