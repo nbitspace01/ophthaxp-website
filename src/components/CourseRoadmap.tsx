@@ -92,7 +92,7 @@ function ArcCard({
     <div className="group relative flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px] overflow-hidden hover:border-[#3A3A3A] transition-colors duration-300">
       {accent === "blue" ? <BlueCubeDecor /> : <OrangeHexDecor />}
       <p className={`relative z-10 text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="relative z-10 mt-2 text-[11px] leading-[1.65] text-[#e0e0e0]">{body}</p>}
+      {body && <p className="relative z-10 mt-2 text-[11px] leading-[1.65] text-[#e0e0e0] font-light">{body}</p>}
     </div>
   );
 }
