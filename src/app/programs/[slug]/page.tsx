@@ -283,7 +283,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
+          <div className="lg:grid lg:grid-cols-[52%_48%] lg:gap-2 lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
             {/* Image column — desktop only, hover zoom */}
             <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
               {heroImage ? (
