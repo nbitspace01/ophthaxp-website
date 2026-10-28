@@ -19,28 +19,31 @@ function hasArcContent(item: Item) {
 
 /* ─── Arc design (new) ──────────────────────────────────────────────────── */
 
+/** Row divider: "WITH THE LEGEND ────────── THE EXPERIENCE" */
+function RowDivider({ left, right }: { left: string; right: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-3">
+      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#444] shrink-0">{left}</span>
+      <span className="flex-1 h-px bg-[#2A2A2A]" />
+      <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#444] shrink-0">{right}</span>
+    </div>
+  );
+}
+
 function ArcCard({
-  label,
-  side,
   heading,
   body,
   accent,
 }: {
-  label: string;
-  side: string;
   heading: string;
   body?: string;
   accent: "blue" | "orange";
 }) {
   const headColor = accent === "blue" ? "text-[#6EA8D8]" : "text-accent";
   return (
-    <div className="flex flex-col gap-2 rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5">
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#555]">{label}</p>
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#555]">{side}</p>
-      </div>
+    <div className="flex flex-col rounded-[10px] border border-[#2A2A2A] bg-[#111] p-5 min-h-[120px]">
       <p className={`text-[15px] font-semibold leading-snug ${headColor}`}>{heading}</p>
-      {body && <p className="mt-1 text-[13px] leading-[1.6] text-[#888]">{body}</p>}
+      {body && <p className="mt-2 text-[13px] leading-[1.65] text-[#888]">{body}</p>}
     </div>
   );
 }
@@ -54,7 +57,8 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
 }) {
   return (
     <div className="flex flex-col h-full rounded-[14px] border border-[#2A2A2A] bg-[#0D0D0D] p-6 sm:p-8">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      {/* Phase label + badge */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
           Phase {String(index + 1).padStart(2, "0")}
         </p>
@@ -65,57 +69,47 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
         )}
       </div>
 
-      <h3 className="mt-3 text-[clamp(1.25rem,2.2vw,1.75rem)] font-extrabold leading-tight tracking-tight text-white">
+      {/* Title */}
+      <h3 className="mt-3 text-[clamp(1.2rem,2vw,1.6rem)] font-extrabold leading-tight tracking-tight text-white">
         {item.title}{item.subtitle ? ` ${item.subtitle}` : ""}
       </h3>
 
+      {/* Italic description */}
       {item.description && (
-        <p className="mt-2 text-[14px] italic text-[#888] leading-[1.6]">{item.description}</p>
+        <p className="mt-2 text-[13px] italic text-[#666] leading-[1.6]">{item.description}</p>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 flex-1">
-        <ArcCard
-          label="With the Legend"
-          side="The Experience"
-          heading="The Judgement"
-          body={item.judgement}
-          accent="blue"
-        />
-        <ArcCard
-          label="With the Legend"
-          side="The Experience"
-          heading="Inside the Work"
-          body={item.insideTheWork}
-          accent="blue"
-        />
-        <ArcCard
-          label="In Your Practice"
-          side="The Transformation"
-          heading="Applied in Your Practice"
-          body={item.appliedInPractice}
-          accent="orange"
-        />
-        <ArcCard
-          label="In Your Practice"
-          side="The Transformation"
-          heading="What Changes"
-          body={item.whatChanges}
-          accent="orange"
-        />
+      {/* Top row — With the Legend */}
+      <div className="mt-5">
+        <RowDivider left="With the Legend" right="The Experience" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <ArcCard heading="The Judgement" body={item.judgement} accent="blue" />
+          <ArcCard heading="Inside the Work" body={item.insideTheWork} accent="blue" />
+        </div>
       </div>
 
+      {/* Bottom row — In Your Practice */}
+      <div className="mt-4">
+        <RowDivider left="In Your Practice" right="The Transformation" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <ArcCard heading="Applied in Your Practice" body={item.appliedInPractice} accent="orange" />
+          <ArcCard heading="What Changes" body={item.whatChanges} accent="orange" />
+        </div>
+      </div>
+
+      {/* Footer nav */}
       <div className="mt-6 flex items-center justify-between border-t border-[#2A2A2A] pt-4">
         <p className="text-[12px] tabular-nums text-[#555]">
           {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <button
             type="button"
             onClick={onPrev}
             disabled={index === 0}
             className="flex items-center gap-1.5 text-[13px] text-[#888] transition hover:text-white disabled:opacity-30"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> Previous Phase
+            <ArrowLeft className="h-3.5 w-3.5 text-accent" /> Previous Phase
           </button>
           <button
             type="button"
@@ -123,7 +117,7 @@ function ArcPanel({ item, index, total, onPrev, onNext }: {
             disabled={index === total - 1}
             className="flex items-center gap-1.5 text-[13px] text-[#888] transition hover:text-white disabled:opacity-30"
           >
-            Next Phase <ArrowRight className="h-3.5 w-3.5" />
+            Next Phase <ArrowRight className="h-3.5 w-3.5 text-accent" />
           </button>
         </div>
       </div>
@@ -177,38 +171,50 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
       {/* Two-column layout */}
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Left sidebar */}
-        <div className="lg:w-[38%] flex flex-col gap-0 border border-[#2A2A2A] rounded-[14px] overflow-hidden">
+        <div className="lg:w-[38%] flex flex-col rounded-[14px] border border-[#2A2A2A] overflow-hidden">
           {items.map((item, i) => {
             const isActive = i === active;
-            const typeColor =
-              item.type === "technical-core" ? "bg-accent" : "bg-[#6EA8D8]";
+            const typeAbbr = item.type === "technical-core" ? "CR" : item.type === "legend-edge" ? "LE" : null;
             return (
               <button
                 key={i}
                 type="button"
                 onClick={() => setActive(i)}
-                className={`flex items-center gap-4 px-5 py-4 text-left transition border-b border-[#2A2A2A] last:border-b-0 ${
-                  isActive
-                    ? "bg-[#1D1D1D] border-l-[3px] border-l-accent"
-                    : "bg-[#0D0D0D] hover:bg-[#161616] border-l-[3px] border-l-transparent"
+                className={`relative flex items-center gap-3 px-4 py-4 text-left transition border-b border-[#1E1E1E] last:border-b-0 ${
+                  isActive ? "bg-[#1A1A1A]" : "bg-[#0D0D0D] hover:bg-[#131313]"
                 }`}
               >
+                {/* Active left accent bar */}
+                <span className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full transition-all ${isActive ? "bg-accent" : "bg-transparent"}`} />
+
+                {/* Number circle */}
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white ${
-                    isActive ? "bg-accent" : typeColor + " opacity-60"
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition ${
+                    isActive
+                      ? "bg-accent text-white"
+                      : "border border-[#3A3A3A] text-[#555]"
                   }`}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
+
+                {/* Title + subtitle */}
                 <span className="min-w-0 flex-1">
-                  <span className={`block text-[14px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#888]"}`}>
+                  <span className={`block text-[13px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#666]"}`}>
                     {item.title}
                   </span>
                   {item.subtitle && (
-                    <span className="block text-[12px] text-[#555] mt-0.5">{item.subtitle}</span>
+                    <span className="block text-[11px] text-[#444] mt-0.5">{item.subtitle}</span>
                   )}
                 </span>
-                {isActive && <ArrowRight className="h-4 w-4 shrink-0 text-accent" />}
+
+                {/* Right icon: arrow for active, type badge for inactive */}
+                {isActive
+                  ? <ArrowRight className="h-3.5 w-3.5 shrink-0 text-accent" />
+                  : typeAbbr
+                  ? <span className="shrink-0 flex h-5 w-5 items-center justify-center rounded-full border border-[#333] text-[9px] font-bold text-[#555]">{typeAbbr}</span>
+                  : null
+                }
               </button>
             );
           })}
