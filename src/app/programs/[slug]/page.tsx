@@ -470,7 +470,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* § 5 — THE ROADMAP */}
         <CourseRoadmap
           items={roadmapItems}
-          durationMonths={p.durationMonths}
+          durationMonths={p.durationMonths ?? (p.durationWeeks ? Math.round(p.durationWeeks / 4.33) : undefined)}
           subtitle={p.eligibility || undefined}
         />
 

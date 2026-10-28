@@ -381,7 +381,7 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     bio: pickString(rec, "bio", "shortBio", "short_bio"),
     lessonsCount: pickNumber(rec, "lessonsCount", "lessons_count", "lessons"),
     durationMinutes: pickNumber(rec, "durationMinutes", "duration_minutes", "totalMinutes"),
-    durationMonths: pickNumber(rec, "durationMonths", "duration_months"),
+    durationMonths: pickNumber(rec, "durationMonths", "duration_months", "months", "durationInMonths"),
     launchMonth: pickString(rec, "launchMonth", "launch_month"),
     launchYear: pickNumber(rec, "launchYear", "launch_year"),
     trailerVideoUrl: absoluteUrl(
