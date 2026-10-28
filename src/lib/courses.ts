@@ -223,16 +223,12 @@ function toStringList(v: unknown): string[] {
  * to `courseFormat` on the page, so an empty list here is not an error.
  */
 function pickModules(rec: RawRecord): CourseModule[] {
-  const raw = pickObjectArray<RawRecord>(
-    rec,
-    "courseFormat",
-    "course_format",
-    "modules",
-    "courseModules",
-    "course_modules",
-    "roadmap",
-    "Roadmap",
-  );
+  // If courseFormat key exists in the record (even if null/empty), use it exclusively
+  // so clearing it in Aaga doesn't fall through to the legacy modules field.
+  const hasCourseFormatKey = "courseFormat" in rec || "course_format" in rec;
+  const raw = hasCourseFormatKey
+    ? pickObjectArray<RawRecord>(rec, "courseFormat", "course_format")
+    : pickObjectArray<RawRecord>(rec, "modules", "courseModules", "course_modules", "roadmap", "Roadmap");
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
     .map((m) => ({
