@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 
 /* The page column, shared with every section on the home page: 1200px of
    content inside 120px gutters at the 1440 design width. */
-const SHELL = "mx-auto max-w-[1440px] px-5 sm:px-10 lg:px-[120px]";
+const SHELL = "mx-auto max-w-[1600px] px-5 sm:px-10 lg:px-[80px]";
 const SECTION = `${SHELL} py-16 sm:py-24`;
 /* Figma sets the section headings at 46px — a step above the home page's 41.6,
    which is why this is spelled out rather than reusing the shared clamp. */
@@ -508,15 +508,17 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div className="border-b border-[#2A2A2A] pb-5 pr-8">
+                    <div className="pb-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
                     </div>
                   )}
-                  <div className="border-b border-[#2A2A2A] pb-5 pl-8">
+                  <div className="pb-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
                   </div>
+                  {/* inset horizontal divider — spans both columns, inset so it doesn't touch the edges */}
+                  <div className="col-span-2 mx-2 border-t border-[#2A2A2A]" />
                   {p.cohortSize && (
                     <div className="pt-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
