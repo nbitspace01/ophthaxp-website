@@ -508,24 +508,22 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
-                    <div className="pb-5 pr-8">
+                    <div className="border-t border-[#2A2A2A] py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
                     </div>
                   )}
-                  <div className="pb-5 pl-8">
+                  <div className="border-t border-[#2A2A2A] py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Hybrid · Live virtual &amp; in-person</p>
                   </div>
-                  {/* inset horizontal divider — spans both columns, inset so it doesn't touch the edges */}
-                  <div className="col-span-2 mx-2 border-t border-[#2A2A2A]" />
                   {p.cohortSize && (
-                    <div className="pt-5 pr-8">
+                    <div className="border-t border-[#2A2A2A] py-5 pr-8">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
                       <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
                     </div>
                   )}
-                  <div className="pt-5 pl-8">
+                  <div className="border-t border-[#2A2A2A] py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">Following a Dialogue with the Legend</p>
                   </div>
