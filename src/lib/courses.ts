@@ -225,13 +225,13 @@ function toStringList(v: unknown): string[] {
 function pickModules(rec: RawRecord): CourseModule[] {
   const raw = pickObjectArray<RawRecord>(
     rec,
+    "courseFormat",
+    "course_format",
     "modules",
     "courseModules",
     "course_modules",
     "roadmap",
     "Roadmap",
-    "courseFormat",
-    "course_format",
   );
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
