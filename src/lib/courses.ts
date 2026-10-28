@@ -223,20 +223,28 @@ function toStringList(v: unknown): string[] {
  * to `courseFormat` on the page, so an empty list here is not an error.
  */
 function pickModules(rec: RawRecord): CourseModule[] {
-  const raw = pickObjectArray<RawRecord>(
-    rec,
-    "modules",
-    "courseModules",
-    "course_modules",
-    "roadmap",
-    "Roadmap",
-  );
+  // Only read from courseFormat / course_format — legacy "modules" field is ignored.
+  // Empty or stub-only courseFormat returns [] so the roadmap falls back to duration months.
+  const raw = pickObjectArray<RawRecord>(rec, "courseFormat", "course_format");
   return raw
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
     .map((m) => ({
-      title: pickString(m, "title", "name", "module", "phase", "heading") ?? "",
+      title: pickString(m, "title", "name", "module", "heading") ?? "",
+      subtitle: pickString(m, "subtitle", "sub_title", "subTitle") ?? undefined,
       description:
         pickString(m, "description", "summary", "detail", "text", "body") ?? "",
+      phase: pickString(m, "phase", "phaseLabel", "phase_label", "tag") ?? undefined,
+      type: (m.type === "legend-edge" || m.type === "technical-core"
+        ? m.type
+        : m.type === "technical" || m.type === "core"
+        ? "technical-core"
+        : m.type === "legend" || m.type === "edge"
+        ? "legend-edge"
+        : undefined) as CourseModule["type"],
+      judgement: pickString(m, "judgement", "judgment", "the_judgement") ?? undefined,
+      insideTheWork: pickString(m, "insideTheWork", "inside_the_work", "insideWork") ?? undefined,
+      appliedInPractice: pickString(m, "appliedInPractice", "applied_in_practice", "applied") ?? undefined,
+      whatChanges: pickString(m, "whatChanges", "what_changes", "changes") ?? undefined,
       outcomes: toStringList(
         m.outcomes ??
           m.learningOutcomes ??
@@ -246,7 +254,8 @@ function pickModules(rec: RawRecord): CourseModule[] {
           m.items,
       ),
     }))
-    .filter((m) => m.title);
+    // Only show entries that have at least one arc quadrant field filled in.
+    .filter((m) => !!(m.title && (m.judgement || m.insideTheWork || m.appliedInPractice || m.whatChanges)));
 }
 
 /**
@@ -314,6 +323,11 @@ function parseDoctorReference(v: unknown): {
  * can name them either camelCase or snake_case in the admin panel.
  */
 function mapRecordToProgram(rec: RawRecord): Program | null {
+  if (process.env.NODE_ENV !== "production") {
+    const thumb = rec["filmThumbnail"] ?? rec["filmThumbnailUrl"] ?? rec["thumbnailUrl"];
+    if (thumb !== undefined) console.log("[courses] filmThumbnail raw value:", thumb);
+    else console.log("[courses] filmThumbnail keys available:", Object.keys(rec).filter(k => k.toLowerCase().includes("thumb") || k.toLowerCase().includes("film")));
+  }
   // Merged module: prefer the course-specific slug/name when present, fall
   // back to the doctor-level slug/name for legacy single-purpose `courses` modules.
   const slug = pickString(rec, "courseSlug", "course_slug", "slug", "Slug");
@@ -363,7 +377,7 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     bio: pickString(rec, "bio", "shortBio", "short_bio"),
     lessonsCount: pickNumber(rec, "lessonsCount", "lessons_count", "lessons"),
     durationMinutes: pickNumber(rec, "durationMinutes", "duration_minutes", "totalMinutes"),
-    durationMonths: pickNumber(rec, "durationMonths", "duration_months"),
+    durationMonths: pickNumber(rec, "durationMonths", "duration_months", "months", "durationInMonths"),
     launchMonth: pickString(rec, "launchMonth", "launch_month"),
     launchYear: pickNumber(rec, "launchYear", "launch_year"),
     trailerVideoUrl: absoluteUrl(
@@ -376,6 +390,18 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
         "trailerUrl",
         "trailer_url",
         "videoUrl",
+      ),
+    ),
+    filmThumbnailUrl: absoluteUrl(
+      pickString(
+        rec,
+        "filmThumbnailUrl",
+        "film_thumbnail_url",
+        "filmThumbnail",
+        "film_thumbnail",
+        "thumbnailUrl",
+        "thumbnail_url",
+        "thumbnail",
       ),
     ),
     pricePerDayInr: pickNumber(rec, "pricePerDayInr", "price_per_day_inr", "pricePerDay"),
@@ -408,6 +434,8 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     modules: pickModules(rec),
     faqs: pickObjectArray<CourseFaq>(rec, "faqs", "faq"),
     certificateNote: pickString(rec, "certificateNote", "certificate_note"),
+    format: pickString(rec, "format"),
+    admissionText: pickString(rec, "admissionText", "admission_text"),
     sampleCertificateImage: absoluteUrl(
       pickString(
         rec,
