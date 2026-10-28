@@ -330,10 +330,12 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:min-h-[calc(100vh-80px)] sm:px-10 lg:h-[calc(100vh-80px)] lg:py-0 lg:pl-[50%] lg:pr-20"
           >
             <div className="w-full max-w-[420px] text-left lg:max-w-[560px]">
-              <p className="text-sm font-semibold text-accent">LEGACY TRANSFER PROGRAMME</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                LEGACY TRANSFER PROGRAMME
+              </p>
               <h1
                 id="program-title"
-                className="font-serif text-[clamp(2rem,3.4vw,2.875rem)] leading-[1.11] text-white"
+                className="mt-3 font-serif text-[clamp(2.25rem,3.8vw,3.25rem)] leading-[1.08] text-white"
               >
                 {p.headline || p.name}
               </h1>
@@ -341,15 +343,16 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {faculty?.name ? (
                 <Link
                   href={`/doctors/${faculty.slug}`}
-                  className="mt-6 inline-block text-sm text-[#A5A5A5] transition hover:text-white"
+                  className="mt-4 inline-flex items-center gap-1 text-sm text-[#A5A5A5] transition hover:text-white"
                 >
                   with{" "}
                   <span className="font-semibold text-white">
                     Dr. {faculty.name.replace(/^Dr\.?\s+/i, "")}
                   </span>
+                  <span className="text-[10px] text-[#A5A5A5]" aria-hidden>↗</span>
                 </Link>
               ) : mentorName ? (
-                <p className="mt-6 text-sm text-[#A5A5A5]">
+                <p className="mt-4 text-sm text-[#A5A5A5]">
                   with{" "}
                   <span className="font-semibold text-white">
                     Dr. {mentorName.replace(/^Dr\.?\s+/i, "")}
@@ -358,41 +361,46 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               ) : null}
 
               {p.tagline && (
-                <p className="mt-5 text-sm leading-[1.6] text-[#A5A5A5]">{p.tagline}</p>
+                <p className="mt-4 text-[14px] leading-[1.65] text-[#A5A5A5]">{p.tagline}</p>
               )}
 
               {p.trailerVideoUrl && (
                 <a
                   href="#legend-video"
-                  className="mt-6 inline-block text-sm font-semibold text-white underline decoration-white/50 underline-offset-[6px] transition hover:decoration-white"
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white underline decoration-white/50 underline-offset-[6px] transition hover:decoration-white"
                 >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/30">
+                    <svg className="h-2.5 w-2.5 translate-x-[1px]" viewBox="0 0 8 10" fill="currentColor" aria-hidden>
+                      <path d="M0 0l8 5-8 5V0z" />
+                    </svg>
+                  </span>
                   What Becomes Possible
                 </a>
               )}
 
               {/* Stat strip — duration · cohort · launch */}
               {(heroDuration || p.cohortSize || launchLabel) && (
-                <div className="mt-9 flex items-stretch justify-start divide-x divide-white/15 text-left">
+                <div className="mt-8 flex items-stretch justify-start divide-x divide-white/15 text-left">
                   {[
-                    heroDuration && { value: heroDuration, label: "Fellowship duration" },
+                    heroDuration && { value: heroDuration, label: "Duration" },
                     p.cohortSize
                       ? {
                           value: String(p.cohortSize).padStart(2, "0"),
                           label: "Cohort Size",
                         }
                       : null,
-                    launchLabel && { value: launchLabel, label: "Programme Begins" },
+                    launchLabel && { value: launchLabel, label: "Starting From" },
                   ]
                     .filter(Boolean)
                     .map((stat) => {
                       const s = stat as { value: string; label: string };
                       return (
-                        <div key={s.label} className="px-3 first:pl-0 sm:px-5 sm:first:pl-0">
-                          <p className="whitespace-nowrap text-lg font-bold text-white sm:text-xl">
-                            {s.value}
-                          </p>
-                          <p className="mt-1.5 whitespace-nowrap text-[13px] text-[#A5A5A5]">
+                        <div key={s.label} className="px-4 first:pl-0 sm:px-6 sm:first:pl-0">
+                          <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
                             {s.label}
+                          </p>
+                          <p className="mt-1.5 whitespace-nowrap text-[1.05rem] font-bold text-white sm:text-lg">
+                            {s.value}
                           </p>
                         </div>
                       );
@@ -401,8 +409,10 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Enrollment card */}
-              <div className="mt-10 w-full rounded-[12px] border border-[#4A4A4A] bg-ink-800 p-[23px]">
-                <p className="text-[15px] font-semibold text-white">Programme Enrolment</p>
+              <div className="mt-8 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] p-6">
+                <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
+                  Programme Enrolment
+                </p>
                 <div className="mt-4">
                   <CourseApplyButton
                     courseId={p.id}
@@ -415,8 +425,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     block
                   />
                 </div>
-                <p className="mt-4 text-xs leading-[1.45] text-[#A5A5A5]">
-                  Every module is designed to translate directly into clinical practice.
+                <p className="mt-3.5 text-[12px] leading-[1.5] text-[#717171]">
+                  Every phase in the programme is designed to translate into your clinical practice.
                 </p>
               </div>
             </div>
