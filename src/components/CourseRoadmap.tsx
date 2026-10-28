@@ -250,7 +250,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                 <span className="shrink-0 flex items-center self-center pr-4 pl-2">
                   {(() => {
                     const p = (item.phase ?? "").toLowerCase();
-                    const iconCls = `transition-colors ${isActive ? "text-[#C65F49]" : "text-[#2E2E2E]"}`;
+                    const iconCls = `transition-colors ${isActive ? "text-white" : "text-[#2E2E2E]"}`;
                     if (p.includes("in person") || p.includes("in-person")) {
                       // Airplane — pointing right toward content
                       return (
