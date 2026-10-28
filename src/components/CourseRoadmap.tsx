@@ -206,11 +206,11 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
                 <span className="relative flex flex-col items-center self-stretch pl-5 pr-4 py-[18px]">
                   {/* Vertical line above circle */}
                   {i !== 0 && (
-                    <span className="absolute top-0 left-[calc(20px+14px)] w-px bg-[#222] bottom-1/2" />
+                    <span className={`absolute top-0 left-[calc(20px+14px)] w-px bottom-1/2 ${i <= active ? "bg-[#C65F49]" : "bg-[#222]"}`} />
                   )}
                   {/* Vertical line below circle */}
                   {!isLast && (
-                    <span className="absolute top-1/2 left-[calc(20px+14px)] w-px bg-[#222] bottom-0" />
+                    <span className={`absolute top-1/2 left-[calc(20px+14px)] w-px bottom-0 ${i < active ? "bg-[#C65F49]" : "bg-[#222]"}`} />
                   )}
                   {/* Number circle */}
                   <span
