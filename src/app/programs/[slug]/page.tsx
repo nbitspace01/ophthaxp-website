@@ -484,7 +484,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           <section aria-labelledby="investment-title" className={SECTION}>
             <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
-              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-8 sm:p-10 lg:w-[52%] lg:border-b-0">
+              <div className="flex flex-col justify-center border-b border-[#2A2A2A] p-6 sm:p-8 lg:w-[52%] lg:border-b-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   Programme Fee
                 </p>
@@ -494,20 +494,12 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 <p className="mt-5 text-[13px] leading-[1.7] text-[#888]">
                   Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
                 </p>
-                {p.moneyBackDays ? (
-                  <p className="mt-3 text-[12px] text-[#555]">
-                    {p.moneyBackDays}-day refund window. See our{" "}
-                    <Link href="/refunds" className="underline underline-offset-4 hover:text-white">
-                      refund policy
-                    </Link>.
-                  </p>
-                ) : null}
               </div>
 
               {/* Inset vertical divider — hidden on mobile, doesn't touch card top/bottom */}
               <div className="hidden lg:block w-px self-stretch my-8 bg-[#2A2A2A]" />
               {/* Right — stats grid + buttons */}
-              <div className="flex flex-col justify-between p-8 sm:p-10 lg:w-[48%]">
+              <div className="flex flex-col justify-between p-6 sm:p-8 lg:w-[48%]">
                 <div className="grid grid-cols-2">
                   {heroDuration && (
                     <div className="py-5 pr-8">
@@ -535,7 +527,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   </div>
                 </div>
 
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
