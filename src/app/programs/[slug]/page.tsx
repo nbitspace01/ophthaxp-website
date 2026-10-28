@@ -600,8 +600,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               >
                 {/* Second card behind (stacked depth) */}
                 <div
-                  className="absolute inset-0 rounded-[16px] bg-[#1A1A1A]"
-                  style={{ transform: "translate(14px, 14px)", opacity: 0.7 }}
+                  className="absolute inset-0 rounded-[16px] bg-black"
+                  style={{ transform: "translate(14px, 14px)", opacity: 1 }}
                 />
                 {/* Main dark card */}
                 <div
