@@ -68,7 +68,18 @@ export interface CourseFormatPhase {
  */
 export interface CourseModule {
   title: string;
+  /** Secondary line shown under the title in the sidebar */
+  subtitle?: string;
   description: string;
+  /** Badge shown in the top-right of the detail panel, e.g. "Opening encounter · In person" */
+  phase?: string;
+  /** Dot-legend category */
+  type?: "legend-edge" | "technical-core";
+  /** Four quadrant card content */
+  judgement?: string;
+  insideTheWork?: string;
+  appliedInPractice?: string;
+  whatChanges?: string;
   outcomes: string[];
 }
 

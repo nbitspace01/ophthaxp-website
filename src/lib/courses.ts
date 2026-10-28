@@ -235,8 +235,21 @@ function pickModules(rec: RawRecord): CourseModule[] {
     .filter((m): m is RawRecord => Boolean(m) && typeof m === "object")
     .map((m) => ({
       title: pickString(m, "title", "name", "module", "phase", "heading") ?? "",
+      subtitle: pickString(m, "subtitle", "sub_title", "subTitle") ?? undefined,
       description:
         pickString(m, "description", "summary", "detail", "text", "body") ?? "",
+      phase: pickString(m, "phase", "phaseLabel", "phase_label", "tag") ?? undefined,
+      type: (m.type === "legend-edge" || m.type === "technical-core"
+        ? m.type
+        : m.type === "technical" || m.type === "core"
+        ? "technical-core"
+        : m.type === "legend" || m.type === "edge"
+        ? "legend-edge"
+        : undefined) as CourseModule["type"],
+      judgement: pickString(m, "judgement", "judgment", "the_judgement") ?? undefined,
+      insideTheWork: pickString(m, "insideTheWork", "inside_the_work", "insideWork") ?? undefined,
+      appliedInPractice: pickString(m, "appliedInPractice", "applied_in_practice", "applied") ?? undefined,
+      whatChanges: pickString(m, "whatChanges", "what_changes", "changes") ?? undefined,
       outcomes: toStringList(
         m.outcomes ??
           m.learningOutcomes ??
