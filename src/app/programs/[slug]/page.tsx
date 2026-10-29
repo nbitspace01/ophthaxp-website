@@ -298,7 +298,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
           {/* Desktop: two-column grid — image left, content right */}
           <div className="lg:grid lg:grid-cols-[52%_48%] lg:gap-2 lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
-            {/* Image column — desktop only, hover zoom */}
+            {/* Image column — desktop only, hover zoom + glow */}
             <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -310,6 +310,10 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
               )}
+              {/* Orange glow — right side, very subtle, only on hover */}
+              <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100 bg-[radial-gradient(ellipse_50%_55%_at_78%_60%,rgba(183,90,68,0.11),transparent)]" />
+              {/* Blue glow — left side, very subtle, only on hover */}
+              <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100 bg-[radial-gradient(ellipse_40%_50%_at_22%_55%,rgba(50,100,170,0.08),transparent)]" />
               {/* Subtle right edge blend into content column */}
               <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[15%] bg-gradient-to-r from-transparent to-black" />
               {/* Subtle bottom fade */}
@@ -319,8 +323,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             {/* Content column */}
             <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:px-10">
               <div className="w-full max-w-none lg:max-w-[520px] text-left">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                {p.specialty ? `PROGRAMME / ${specialtyLabel(p.specialty)}` : "LEGACY TRANSFER PROGRAMME"}
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                {p.specialty ? `LEGACY TRANSFER PROGRAMME / ${specialtyLabel(p.specialty)}` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
@@ -502,17 +506,15 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
               <div className="cert-float relative w-[340px] sm:w-[500px]" style={{ filter: "none" }}>
                 <div className="absolute inset-0 rounded-[16px] bg-black" style={{ transform: "translate(14px, 14px)", opacity: 1 }} />
-                <div className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center" style={{ border: "1.5px solid #FF6B2B" }}>
-                  <div className="pointer-events-none absolute inset-[10px] rounded-[10px]" style={{ border: "1px solid #FF6B2B", opacity: 0.4 }} />
-                  <div className="mb-5 flex justify-center gap-[7px]">
-                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                    <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                  </div>
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#C97B50]">Legends of Medicine</p>
-                  <p className="mt-6 text-[1.05rem] font-bold uppercase tracking-[0.08em] text-white sm:text-[1.25rem]">{recipientName}</p>
-                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.name}</p>
+                <div className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center" style={{ border: "1.5px solid #8B4433" }}>
+                  <div className="pointer-events-none absolute inset-[10px] rounded-[10px]" style={{ border: "1px solid #8B4433", opacity: 0.45 }} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/brand/lom-icon-loading.svg" alt="Legends of Medicine" className="mx-auto mb-4 h-7 w-auto" />
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white">Legends of Medicine</p>
+                  <p className="mt-6 font-serif text-[1.1rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.35rem]">{recipientName}</p>
+                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.headline || p.name}</p>
                   <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
-                  <p className="mt-6 text-[1.35rem] leading-none text-[#C97B50]" style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}>{signatory.name}</p>
+                  <p className="mt-6 font-serif text-[1.35rem] italic leading-none text-[#C97B50]">{signatory.name}</p>
                   {(p.launchYear || p.startDate) && (
                     <p className="mt-4 text-[8px] font-semibold uppercase tracking-[0.26em] text-white/30">
                       Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
