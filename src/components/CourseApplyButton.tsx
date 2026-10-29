@@ -46,16 +46,19 @@ export function CourseApplyButton({
   const VARIANTS: Record<string, string> = {
     primary: `rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition hover:bg-accent-deep focus-visible:ring-accent`,
     outline: `rounded-full border border-accent/50 bg-accent/10 px-8 py-3 text-sm font-semibold text-accent transition hover:bg-accent hover:text-white focus-visible:ring-accent`,
-    accent: `rounded-[12px] border-[1.5px] border-accent bg-accent px-7 py-3 text-sm font-semibold text-white transition hover:border-accent-deep hover:bg-accent-deep focus-visible:ring-accent`,
+    accent: `rounded-[12px] border-[1.5px] border-accent bg-accent px-7 py-3.5 text-sm font-semibold text-white transition hover:border-accent-deep hover:bg-accent-deep focus-visible:ring-accent flex items-center justify-center gap-2`,
     "accent-outline": `rounded-[12px] border-[1.5px] border-[#4A4A4A] bg-ink-800 px-7 py-3 text-sm font-medium text-[#A0A0A0] transition hover:border-white/25 hover:text-white focus-visible:ring-white/40`,
   };
   const cls = `${widthCls} ${VARIANTS[variant] ?? VARIANTS.primary} ${focusCls}`;
+
+  const showArrow = variant === "accent";
 
   // The journey has its own page when we know where to send them.
   if (courseSlug) {
     return (
       <Link href={`/apply/${courseSlug}`} className={cls}>
         {label}
+        {showArrow && <span aria-hidden>→</span>}
       </Link>
     );
   }
@@ -64,6 +67,7 @@ export function CourseApplyButton({
     <>
       <button type="button" onClick={() => setOpen(true)} className={cls}>
         {label}
+        {showArrow && <span aria-hidden>→</span>}
       </button>
       <ApplyFormModal
         open={open}

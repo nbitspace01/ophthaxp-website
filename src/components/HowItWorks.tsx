@@ -240,21 +240,22 @@ function Chip({
   );
 }
 
-export function HowItWorks() {
+export function HowItWorks({ heading, align }: { heading?: string; align?: "left" | "center" } = {}) {
+  const isLeft = align === "left";
   return (
     <section
       id="how-it-works"
       aria-labelledby="how-title"
       className="mx-auto max-w-[1440px] px-5 py-10 sm:px-10 sm:py-14 lg:px-14"
     >
-      <p className="mb-2 text-center text-[0.72rem] font-bold uppercase tracking-[0.22em] text-accent">
+      <p className={`mb-2 text-[0.72rem] font-bold uppercase tracking-[0.22em] text-accent ${isLeft ? "" : "text-center"}`}>
         The Way In
       </p>
       <h2
         id="how-title"
-        className="mx-auto max-w-2xl text-center text-[clamp(1.75rem,3.1vw,2.6rem)] font-extrabold leading-[1.3] tracking-[-0.015em] text-white"
+        className={`${isLeft ? "" : "mx-auto max-w-2xl text-center"} text-[clamp(1.75rem,3.1vw,2.6rem)] font-extrabold leading-[1.3] tracking-[-0.015em] text-white`}
       >
-        Your Path into LoM
+        {heading ?? "Your Path into LoM"}
       </h2>
 
       {/* A swipe rail on a phone, the Figma grid from sm up — three stacked 4:3
