@@ -106,7 +106,7 @@ export function ProgramsSection({
       // doctor row carries the course itself. Either one is a programme.
       const linked =
         courseByDoctorSlug.get(d.slug) || courseByDoctorSlug.get(String(d.id));
-      const courseName = d.courseName || linked?.name;
+      const courseName = linked?.name || d.courseName;
       const courseSlug = linked?.slug || d.courseSlug;
       if (!courseName || !courseSlug) continue;
       out.push({ doctor: d, courseName, courseSlug, isNew: linked?.isNew });
@@ -286,7 +286,7 @@ export function ProgramsSection({
                 <Link
                   key={d.id}
                   href={`/programs/${courseSlug}`}
-                  className="group relative aspect-[306/482] w-[248px] shrink-0 snap-start overflow-hidden rounded-xl border border-white/15 bg-ink-850 sm:w-[306px]"
+                  className="group relative aspect-[306/482] w-[248px] shrink-0 snap-start overflow-hidden rounded-xl border border-white/15 bg-ink-850 transition duration-300 hover:-translate-y-1 hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-[306px]"
                 >
                   {isNew && (
                     <span className="absolute left-3 top-3 z-10 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black">
@@ -316,7 +316,7 @@ export function ProgramsSection({
                     <p className="font-serif text-[26px] font-medium leading-[1.12] text-white">
                       {courseName}
                     </p>
-                    <span className="mx-auto mt-3 block h-px w-5 bg-white/70" aria-hidden />
+                    <span className="mx-auto mt-3 block h-px w-5 bg-white/70 transition-all duration-300 group-hover:w-10" aria-hidden />
                     <p className="mt-3 text-[13px] text-white/70">
                       with <span className="font-semibold text-white">{d.name}</span>
                     </p>
