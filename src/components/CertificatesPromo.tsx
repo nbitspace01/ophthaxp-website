@@ -9,11 +9,11 @@ export function CertificatesPromo() {
   return (
     <section
       aria-labelledby="certificates-title"
-      className="mx-auto max-w-[1600px] px-8 py-10 sm:px-16 sm:py-14 lg:px-24"
+      className="mx-auto max-w-[1600px] py-10 sm:py-14"
     >
-      <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
+      <div className="overflow-hidden rounded-[20px] bg-[#DED0BB] lg:grid lg:grid-cols-[42%_58%] lg:items-center lg:min-h-[440px]">
         {/* Left — text */}
-        <div className="px-8 sm:px-0 lg:w-[42%]">
+        <div className="px-8 py-12 sm:px-16 sm:py-14 lg:px-24 lg:py-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
             The Recognition
           </p>
@@ -43,9 +43,9 @@ export function CertificatesPromo() {
         </div>
 
         {/* Right — dark certificate card */}
-        <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
+        <div className="grid place-items-center px-8 pb-12 sm:px-16 sm:pb-14 lg:px-16 lg:py-16">
           <div
-            className="cert-float relative w-[340px] sm:w-[500px]"
+            className="cert-float relative w-full max-w-[460px]"
             style={{ filter: "none" }}
           >
             {/* Shadow card behind */}
@@ -56,17 +56,15 @@ export function CertificatesPromo() {
             {/* Main dark card */}
             <div
               className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center"
-              style={{ border: "1.5px solid #FF6B2B" }}
+              style={{ border: "1.5px solid #8B4433" }}
             >
               <div
                 className="pointer-events-none absolute inset-[10px] rounded-[10px]"
-                style={{ border: "1px solid #FF6B2B", opacity: 0.4 }}
+                style={{ border: "1px solid #8B4433", opacity: 0.45 }}
               />
-              <div className="mb-5 flex justify-center gap-[7px]">
-                <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-                <div className="h-[24px] w-[3.5px] rounded-full bg-[#C97B50]" />
-              </div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#C97B50]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/lom-icon-loading.svg" alt="Legends of Medicine" className="mx-auto mb-4 h-7 w-auto" />
+              <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white">
                 Legends of Medicine
               </p>
               <p className="mt-6 text-[1.05rem] font-bold uppercase tracking-[0.08em] text-white sm:text-[1.25rem]">

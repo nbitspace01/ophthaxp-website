@@ -286,7 +286,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* ══════════════════════════════════════════════════════════════
             § 1 — HERO   Portrait column left, copy column right
         ══════════════════════════════════════════════════════════════ */}
-        <section aria-labelledby="program-title" className="relative overflow-hidden bg-black">
+        <section aria-labelledby="program-title" className="relative bg-black">
           {/* Mobile: image as full-bleed backdrop with bottom scrim */}
           {heroImage && (
             <div className="absolute inset-0 lg:hidden">
@@ -297,55 +297,58 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           )}
 
           {/* Desktop: two-column grid — image left, content right */}
-          <div className="lg:grid lg:grid-cols-[52%_48%] lg:gap-2 lg:h-[calc(100vh-80px)] lg:max-h-[740px]">
-            {/* Image column — desktop only, hover zoom + glow */}
-            <div className="hidden lg:flex lg:items-center lg:justify-center relative overflow-hidden group bg-black">
+          <div className="lg:grid lg:grid-cols-[56%_44%] lg:h-[650px] lg:items-center overflow-hidden border-b border-[#181818]">
+            {/* Image column — desktop only */}
+            <div className="hidden lg:grid lg:place-items-center relative overflow-hidden group bg-black" style={{ isolation: "isolate" }}>
+              {/* Radial glows (::before) — faint at rest, vivid on hover */}
+              <span aria-hidden className="pointer-events-none absolute inset-0 z-[1] opacity-[.12] group-hover:opacity-100 transition-opacity duration-[650ms]" style={{ background: "radial-gradient(circle at 31% 43%,rgba(106,165,203,.2),transparent 29%),radial-gradient(circle at 69% 44%,rgba(183,90,68,.18),transparent 28%)" }} />
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={heroImage}
                   alt={legendName}
-                  className="h-full w-full object-contain transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
+                  className="relative z-0 w-[112%] max-w-none h-auto scale-[1.02] group-hover:scale-[1.095] brightness-[1.01] contrast-[1.025] group-hover:brightness-[1.13] group-hover:contrast-[1.07]"
+                  style={{
+                    objectFit: "contain",
+                    objectPosition: "center",
+                    maxHeight: "none",
+                    transformOrigin: "50% 48%",
+                    transition: "transform .85s cubic-bezier(.22,.61,.36,1), filter .7s ease",
+                  }}
                 />
               ) : (
-                <div className="h-full w-full bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-ink-900 to-black" />
               )}
-              {/* Orange glow — right side, very subtle, only on hover */}
-              <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100 bg-[radial-gradient(ellipse_50%_55%_at_78%_60%,rgba(183,90,68,0.11),transparent)]" />
-              {/* Blue glow — left side, very subtle, only on hover */}
-              <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100 bg-[radial-gradient(ellipse_40%_50%_at_22%_55%,rgba(50,100,170,0.08),transparent)]" />
-              {/* Subtle right edge blend into content column */}
-              <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[15%] bg-gradient-to-r from-transparent to-black" />
-              {/* Subtle bottom fade */}
-              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
+              {/* Edge fades (::after) */}
+              <span aria-hidden className="pointer-events-none absolute inset-0 z-[2]" style={{ background: "linear-gradient(90deg,transparent 79%,#050505 100%),linear-gradient(0deg,#050505 0%,transparent 15%)" }} />
             </div>
 
             {/* Content column */}
-            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-center lg:justify-start lg:py-10 lg:px-10">
-              <div className="w-full max-w-none lg:max-w-[520px] text-left">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+            <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:items-start lg:justify-start lg:pt-0 lg:pb-0 lg:pr-[62px] lg:pl-[26px]">
+              <div className="w-full text-left">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent mb-4">
                 {p.specialty ? `LEGACY TRANSFER PROGRAMME / ${specialtyLabel(p.specialty)}` : "LEGACY TRANSFER PROGRAMME"}
               </p>
               <h1
                 id="program-title"
-                className="mt-3 font-serif text-[clamp(1.9rem,3.2vw,2.75rem)] font-normal leading-[1.1] text-white"
+                className="font-serif text-[46px] pr-14  font-semibold leading-[1.08] tracking-[-0.025em] text-white mb-[14px]"
               >
-                {p.headline || p.name}
+                {p.name || p.headline}
               </h1>
 
               {faculty?.name ? (
                 <Link
                   href={`/doctors/${faculty.slug}`}
-                  className="mt-4 inline-flex items-center gap-1 text-sm text-[#A5A5A5] transition hover:text-white"
+                  className="inline-flex items-center gap-1 text-[15px] text-[#a7a7aa] transition hover:text-white"
                 >
                   with{" "}
                   <span className="font-semibold text-white">
                     Dr. {faculty.name.replace(/^Dr\.?\s+/i, "")}
                   </span>
-                  <span className="text-[10px] text-accent" aria-hidden>↗</span>
+                  <span className="text-accent" aria-hidden>↗</span>
                 </Link>
               ) : mentorName ? (
-                <p className="mt-4 text-sm text-[#A5A5A5]">
+                <p className="text-[15px] text-[#a7a7aa]">
                   with{" "}
                   <span className="font-semibold text-white">
                     Dr. {mentorName.replace(/^Dr\.?\s+/i, "")}
@@ -354,45 +357,38 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               ) : null}
 
               {p.tagline && (
-                <p className="mt-4 text-[14px] leading-[1.65] text-[#A5A5A5]">{p.tagline}</p>
+                <p className="mt-[17px] max-w-[470px] text-[14px] leading-[1.6] text-[#b7b7bb] mb-[14px]">{p.tagline}</p>
               )}
 
               {p.trailerVideoUrl && (
                 <a
                   href="#legend-video"
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white no-underline transition hover:opacity-80"
+                  className="inline-flex items-center gap-[10px] text-[13px] font-bold text-white no-underline transition hover:opacity-80"
                 >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/30">
-                    <svg className="h-2.5 w-2.5 translate-x-[1px]" viewBox="0 0 8 10" fill="currentColor" aria-hidden>
-                      <path d="M0 0l8 5-8 5V0z" />
-                    </svg>
-                  </span>
+                  <span className="flex h-[27px] w-[27px] items-center justify-center rounded-full border border-[#3a3a3a] text-[8px]">▶</span>
                   Watch Programme Film
                 </a>
               )}
 
               {/* Stat strip — duration · cohort · launch */}
               {(heroDuration || p.cohortSize || launchLabel) && (
-                <div className="mt-5 flex items-stretch justify-between border-b border-t border-white/10 py-4 text-left">
+                <div className="mt-[18px] mb-[16px] grid grid-cols-3 border-t border-b border-[#2b2b2b] py-[16px] text-left">
                   {[
                     heroDuration && { value: heroDuration, label: "Duration" },
                     p.cohortSize
-                      ? {
-                          value: String(p.cohortSize).padStart(2, "0"),
-                          label: "Cohort Size",
-                        }
+                      ? { value: String(p.cohortSize), label: "Cohort Size" }
                       : null,
                     launchLabel && { value: launchLabel, label: "Starting From" },
                   ]
                     .filter(Boolean)
-                    .map((stat) => {
+                    .map((stat, i) => {
                       const s = stat as { value: string; label: string };
                       return (
-                        <div key={s.label} className="flex-1 border-r border-white/15 px-3 last:border-r-0 first:pl-0 last:pr-0">
-                          <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-[#A5A5A5]">
+                        <div key={s.label} className={i > 0 ? "border-l border-[#2b2b2b] pl-[22px]" : ""}>
+                          <p className="text-[10px] uppercase tracking-[0.11em] text-[#717175]">
                             {s.label}
                           </p>
-                          <p className="mt-1 whitespace-nowrap text-[1rem] font-bold text-white sm:text-[1.05rem]">
+                          <p className="mt-2 text-[13px] font-bold text-white">
                             {s.value}
                           </p>
                         </div>
@@ -402,7 +398,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Enrollment card */}
-              <div className="mt-4 w-full rounded-[14px] border border-[#3A3A3A] bg-[#161616] px-5 py-4">
+              <div className="mt-4 w-full rounded-[12px] border border-[#343434] bg-[#1b1b1b] px-[14px] pt-[12px] pb-[13px]">
                 <div>
                   <CourseApplyButton
                     courseId={p.id}
@@ -415,7 +411,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                     block
                   />
                 </div>
-                <p className="mt-3 text-[12px] leading-[1.5] text-[#717171]">
+                <p className="mt-[10px] text-center text-[12px] leading-[1.45] text-[#929296] lg:whitespace-nowrap">
                   Every phase in the programme is designed to translate into your clinical practice.
                 </p>
               </div>
@@ -486,11 +482,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
         {/* The plate is ours and it is drawn live, so it carries the reader's
             own name and this programme's mentor. */}
-        <section aria-labelledby="cert-title" className={SHELL + " py-16 sm:py-24"}>
-          {/* Beige recognition card */}
-          <div className="rounded-[20px] bg-[#DED0BB] py-12 sm:py-14 lg:flex lg:items-center lg:gap-0 lg:pl-16 lg:pr-12">
+        <section aria-labelledby="cert-title" className="mx-auto max-w-[1600px] py-16 sm:py-24">
+          {/* Beige recognition card — full-width of the max-width container, padding inside */}
+          <div className="overflow-hidden rounded-[20px] bg-[#DED0BB] lg:grid lg:grid-cols-[42%_58%] lg:items-center lg:min-h-[440px]">
             {/* Left — text */}
-            <div className="px-8 sm:px-0 lg:w-[42%]">
+            <div className="px-8 py-12 sm:px-16 sm:py-14 lg:px-24 lg:py-16">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B05A3A]">
                 The Recognition
               </p>
@@ -503,8 +499,8 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               </p>
             </div>
             {/* Right — dark certificate card */}
-            <div className="mt-10 flex justify-center px-8 sm:px-0 lg:mt-0 lg:w-[58%] lg:justify-end">
-              <div className="cert-float relative w-[340px] sm:w-[500px]" style={{ filter: "none" }}>
+            <div className="grid place-items-center px-8 pb-12 sm:px-16 sm:pb-14 lg:px-16 lg:py-16">
+              <div className="cert-float relative w-full max-w-[460px]" style={{ filter: "none" }}>
                 <div className="absolute inset-0 rounded-[16px] bg-black" style={{ transform: "translate(14px, 14px)", opacity: 1 }} />
                 <div className="relative rounded-[16px] bg-[#1A1716] px-10 py-10 text-center" style={{ border: "1.5px solid #8B4433" }}>
                   <div className="pointer-events-none absolute inset-[10px] rounded-[10px]" style={{ border: "1px solid #8B4433", opacity: 0.45 }} />

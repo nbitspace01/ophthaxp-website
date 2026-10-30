@@ -77,6 +77,13 @@ export function LegendTrailer({
   const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [speedOpen, setSpeedOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
 
   const direct = isDirectVideo(src);
 
@@ -116,9 +123,9 @@ export function LegendTrailer({
     return () => document.removeEventListener("mousedown", onDown);
   }, [speedOpen]);
 
-  const frame =
-    "relative w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black" +
-    " aspect-[16/9] max-h-[70vh]";
+  const frame = isFullscreen
+    ? "relative w-full h-full bg-black"
+    : "relative w-full overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-black aspect-[16/9] max-h-[70vh]";
 
   const badge = null;
 
@@ -141,7 +148,22 @@ export function LegendTrailer({
   const progress = duration ? (time / duration) * 100 : 0;
 
   return (
-    <div ref={wrapRef} className={frame}>
+    <div ref={wrapRef} id="legend-trailer-wrap" className={frame}>
+      <style>{`
+        #legend-trailer-wrap:fullscreen,
+        #legend-trailer-wrap:-webkit-full-screen {
+          width: 100vw !important;
+          height: 100vh !important;
+          max-height: none !important;
+          aspect-ratio: unset !important;
+          border-radius: 0 !important;
+          border: none !important;
+        }
+        #legend-trailer-wrap:fullscreen video,
+        #legend-trailer-wrap:-webkit-full-screen video {
+          object-fit: contain !important;
+        }
+      `}</style>
       <video
         ref={videoRef}
         src={src}
