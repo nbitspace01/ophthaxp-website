@@ -122,6 +122,7 @@ export interface Program {
   headline?: string;
   tagline?: string;
   heroImage?: string;
+  cardImage?: string;
   doctorImage?: string;
   specialistTitle?: string;
   city?: string;

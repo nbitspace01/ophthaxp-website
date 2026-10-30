@@ -191,7 +191,7 @@ export function ProgramsPageClient({
                   <CatalogCard
                     key={p.id}
                     href={`/programs/${p.slug}`}
-                    imageUrl={p.heroImage || p.doctorImage || legend?.imageUrl}
+                    imageUrl={p.cardImage || p.heroImage || p.doctorImage || legend?.imageUrl}
                     imageAlt={p.name}
                     title={p.name}
                     credit={
