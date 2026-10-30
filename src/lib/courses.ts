@@ -370,6 +370,7 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     headline: pickString(rec, "headline", "Headline"),
     tagline: pickString(rec, "tagline", "Tagline"),
     heroImage: heroImage ?? doctorImageFallback,
+    cardImage: absoluteUrl(pickString(rec, "cardImage", "card_image", "thumbnailImage", "thumbnail_image", "thumbnail")) ?? undefined,
     doctorImage: heroImage ?? doctorImageFallback,
     specialistTitle: pickString(rec, "specialistTitle", "specialist_title", "title"),
     city: pickString(rec, "city", "location"),
