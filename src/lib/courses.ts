@@ -10,6 +10,8 @@ import { DOCTORS, PROGRAMS } from "@/lib/data";
 
 const NOCODE_BASE = process.env.NOCODE_API_BASE_URL || "";
 const NOCODE_APP_ID = process.env.NOCODE_APP_ID || "";
+const NOCODE_ORG_ID = process.env.NOCODE_ORG_ID || "";
+const NOCODE_API_KEY = process.env.NOCODE_API_KEY || "";
 // In the merged setup both courses and doctors live in one module ("doctors").
 // Keep the legacy NOCODE_COURSES_MODULE override for backwards compat, but
 // default it to the doctors module so a single create-module covers both.
@@ -505,13 +507,16 @@ function mapRecordToDoctor(rec: RawRecord): Doctor | null {
   const slug = pickString(rec, "slug", "Slug");
   const name = formatPersonName(pickString(rec, "name", "fullName"));
   if (!slug || !name) return null;
-  const specialtyRaw =
-    pickString(rec, "specialty", "Specialty") ??
-    (Array.isArray(rec.specialty) ? (rec.specialty as string[]).join(",") : "");
-  const specialty = specialtyRaw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean) as Doctor["specialty"];
+  // specialty is TEXT[] (multi-value) in the DB; the API returns an array.
+  // Fall back to splitting a legacy comma-separated string for older records.
+  const specialty: Doctor["specialty"] = Array.isArray(rec.specialty)
+    ? (rec.specialty as string[]).map((s) => s.trim()).filter(Boolean) as Doctor["specialty"]
+    : (
+        (pickString(rec, "specialty", "Specialty") ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean) as Doctor["specialty"]
+      );
 
   const heroImages = pickStringArray(rec, "heroImages", "hero_images")
     .map((u) => absoluteUrl(u))
@@ -575,7 +580,11 @@ function mapRecordToDoctor(rec: RawRecord): Doctor | null {
 async function fetchJson(url: string): Promise<{ ok: boolean; json: any }> {
   try {
     console.log("[courses] GET", url);
-    const res = await fetch(url, { cache: "no-store" });
+    const headers: Record<string, string> = {};
+    if (NOCODE_API_KEY) headers["x-api-key"] = NOCODE_API_KEY;
+    if (NOCODE_APP_ID) headers["app-id"] = NOCODE_APP_ID;
+    if (NOCODE_ORG_ID) headers["org-id"] = NOCODE_ORG_ID;
+    const res = await fetch(url, { cache: "no-store", headers });
     const text = await res.text();
     let json: any = null;
     try {
@@ -623,7 +632,7 @@ async function listAllPrograms(): Promise<Program[]> {
   if (!isBackendConfigured) return PROGRAMS;
 
   // 1. Try the dedicated courses module first.
-  const primaryUrl = `${NOCODE_BASE}/api/public/records/${NOCODE_APP_ID}/${encodeURIComponent(
+  const primaryUrl = `${NOCODE_BASE}/api/data/${encodeURIComponent(
     NOCODE_MODULE,
   )}?limit=100`;
   const { ok, json } = await fetchJson(primaryUrl);
@@ -644,7 +653,7 @@ async function listAllPrograms(): Promise<Program[]> {
     console.log(
       `[courses] "${NOCODE_MODULE}" returned 0 programs — falling back to doctors module "${NOCODE_DOCTORS_MODULE}"`,
     );
-    const fallbackUrl = `${NOCODE_BASE}/api/public/records/${NOCODE_APP_ID}/${encodeURIComponent(
+    const fallbackUrl = `${NOCODE_BASE}/api/data/${encodeURIComponent(
       NOCODE_DOCTORS_MODULE,
     )}?limit=100`;
     const fallback = await fetchJson(fallbackUrl);
@@ -751,7 +760,7 @@ export async function fetchCourseFromBackend(slug: string): Promise<Program | nu
   }
 
   // Use the records endpoint with a slug filter
-  const url = `${NOCODE_BASE}/api/public/records/${NOCODE_APP_ID}/${encodeURIComponent(
+  const url = `${NOCODE_BASE}/api/data/${encodeURIComponent(
     NOCODE_MODULE,
   )}?slug=${encodeURIComponent(slug)}&limit=1`;
   const { ok, json } = await fetchJson(url);
@@ -786,7 +795,7 @@ export async function fetchCourseSlugsFromBackend(): Promise<string[]> {
  */
 export async function fetchAllDoctorsFromBackend(): Promise<Doctor[]> {
   if (!isBackendConfigured) return DOCTORS;
-  const url = `${NOCODE_BASE}/api/public/records/${NOCODE_APP_ID}/${encodeURIComponent(
+  const url = `${NOCODE_BASE}/api/data/${encodeURIComponent(
     NOCODE_DOCTORS_MODULE,
   )}?limit=100`;
   const { ok, json } = await fetchJson(url);

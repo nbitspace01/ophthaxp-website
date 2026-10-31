@@ -270,6 +270,7 @@ export function ProgramsSection({
           onBlurCapture={() => setIsPaused(false)}
           onTouchStart={() => setIsPaused(true)}
           className="no-scrollbar rail-bleed flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 pr-5 sm:pr-10"
+          style={{ "--rail-inset": "calc(max(0px, (100vw - 1440px) / 2) + 3.5rem)" } as React.CSSProperties}
         >
           {entries.length === 0 ? (
             <div className="w-full rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/55">
@@ -313,8 +314,10 @@ export function ProgramsSection({
                       it. Every card in the rail has both - one without a
                       programme never got this far. */}
                   <div className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 text-center">
-                    <p className="font-serif text-[26px] font-medium leading-[1.12] text-white">
-                      {courseName}
+                    <p className="font-serif text-[26px] font-medium leading-[1.12] text-white text-center">
+                      {courseName.split("|").map((line, i) => (
+                        <span key={i}>{i > 0 && <br />}{line}</span>
+                      ))}
                     </p>
                     <span className="mx-auto mt-3 block h-px w-5 bg-white/70 transition-all duration-300 group-hover:w-10" aria-hidden />
                     <p className="mt-3 text-[13px] text-white/70">

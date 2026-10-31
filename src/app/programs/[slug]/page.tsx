@@ -17,6 +17,7 @@ import {
   HOUSE_SIGNATORY,
 } from "@/components/CertificatePlate";
 import { getSessionUser } from "@/lib/session";
+import { plainName } from "@/lib/utils";
 import {
   fetchCourseFromBackend,
   fetchCourseSlugsFromBackend,
@@ -59,7 +60,7 @@ export async function generateMetadata({
   const p = await fetchCourseFromBackend(params.slug);
   if (!p) return buildMetadata({ title: "Programme not found" });
   return buildMetadata({
-    title: p.headline ? `${p.name} — ${p.headline}` : p.name,
+    title: p.headline ? `${plainName(p.name)} — ${p.headline}` : plainName(p.name),
     description: p.tagline || p.description,
     alternates: { canonical: `/programs/${p.slug}` },
   });
@@ -333,7 +334,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 id="program-title"
                 className="font-serif text-[46px] pr-14  font-semibold leading-[1.08] tracking-[-0.025em] text-white mb-[14px]"
               >
-                {p.name || p.headline}
+                {(p.name || p.headline || "").split("|").map((line, i) => (
+                  <span key={i}>{i > 0 && <br />}{line}</span>
+                ))}
               </h1>
 
               {faculty?.name ? (
@@ -508,7 +511,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   <img src="/brand/lom-icon-loading.svg" alt="Legends of Medicine" className="mx-auto mb-4 h-7 w-auto" />
                   <p className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white">Legends of Medicine</p>
                   <p className="mt-6 font-serif text-[1.1rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.35rem]">{recipientName}</p>
-                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.headline || p.name}</p>
+                  <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.headline || plainName(p.name)}</p>
                   <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
                   <p className="mt-6 font-serif text-[1.35rem] italic leading-none text-[#C97B50]">{signatory.name}</p>
                   {(p.launchYear || p.startDate) && (
