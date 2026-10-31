@@ -289,8 +289,10 @@ export function CatalogCard({
       )}
 
       <div className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 text-center">
-        <p className="line-clamp-2 font-serif text-[24px] font-medium leading-[1.12] text-white">
-          {title}
+        <p className="font-serif text-[24px] font-medium leading-[1.12] text-white text-center">
+          {title.split("|").map((line, i) => (
+            <span key={i}>{i > 0 && <br />}{line}</span>
+          ))}
         </p>
         <span
           aria-hidden

@@ -1,3 +1,8 @@
+/** Strip pipe-break markers for use in plain-string contexts (alt text, page titles, sentences). */
+export function plainName(name: string): string {
+  return name.replace(/\|/g, " ");
+}
+
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }

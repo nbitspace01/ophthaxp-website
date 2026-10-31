@@ -13,6 +13,7 @@ import {
   SearchField,
 } from "@/components/CatalogUI";
 import type { Doctor, Program } from "@/types";
+import { plainName } from "@/lib/utils";
 
 const DURATION_BUCKETS: { key: string; label: string; matches: (months: number) => boolean }[] = [
   { key: "all", label: "Any duration", matches: () => true },
@@ -192,7 +193,7 @@ export function ProgramsPageClient({
                     key={p.id}
                     href={`/programs/${p.slug}`}
                     imageUrl={p.cardImage || p.heroImage || p.doctorImage || legend?.imageUrl}
-                    imageAlt={p.name}
+                    imageAlt={plainName(p.name)}
                     title={p.name}
                     credit={
                       mentorName

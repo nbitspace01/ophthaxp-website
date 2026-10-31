@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { ApplyFormModal } from "@/components/ApplyFormModal";
+import { plainName } from "@/lib/utils";
 
 type TierKey = "bronze" | "silver" | "gold";
 
@@ -114,7 +115,7 @@ export function ProgramsPricingTiers({
   const tiers = buildTiers(basePriceInr);
 
   const heading = courseName
-    ? `Choose your ${courseName} plan`
+    ? `Choose your ${plainName(courseName)} plan`
     : "Choose the path that fits your practice";
   const subheading = courseName
     ? "Three ways to take this program — pick the level of mentorship that matches where you are in your practice."
@@ -237,7 +238,7 @@ export function ProgramsPricingTiers({
         courseName={
           openTier
             ? courseName
-              ? `${courseName} — ${openTier.name} plan`
+              ? `${plainName(courseName)} — ${openTier.name} plan`
               : `${openTier.name} plan — ${openTier.tagline}`
             : undefined
         }
