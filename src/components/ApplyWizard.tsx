@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Lock, Eye, EyeClosed } from "lucide-react";
 import { ThemedSelect } from "@/components/ThemedSelect";
 
 /**
@@ -174,6 +174,8 @@ export function ApplyWizard({
   const [stateValue, setStateValue] = useState(known.state ?? "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Booking. `booked` is the call that exists; `slot` is the one being chosen.
   const [booked, setBooked] = useState<BookedAppointment | null>(initialAppointment);
@@ -789,13 +791,23 @@ export function ApplyWizard({
             {user ? null : (
               <>
                 <Field label="Password" required>
-                  <input type="password" required autoComplete="new-password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <div className="relative">
+                    <input type={showPassword ? "text" : "password"} required autoComplete="new-password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80" tabIndex={-1}>
+                      {showPassword ? <Eye size={16} /> : <EyeClosed size={16} />}
+                    </button>
+                  </div>
                   <span className="mt-1 block text-[11px] text-white/40">
                     At least 8 characters, with an uppercase letter, a number and a symbol.
                   </span>
                 </Field>
                 <Field label="Confirm Password" required>
-                  <input type="password" required autoComplete="new-password" className={inputCls} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  <div className="relative">
+                    <input type={showConfirm ? "text" : "password"} required autoComplete="new-password" className={inputCls} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                    <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80" tabIndex={-1}>
+                      {showConfirm ? <Eye size={16} /> : <EyeClosed size={16} />}
+                    </button>
+                  </div>
                 </Field>
               </>
             )}

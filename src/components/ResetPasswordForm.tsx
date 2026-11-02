@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Eye, EyeClosed } from "lucide-react";
 
 type Status = "idle" | "saving" | "error";
 
@@ -31,6 +32,8 @@ export function ResetPasswordForm({ token, email }: { token: string; email: stri
   const [status, setStatus] = useState<Status>("idle");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -91,16 +94,26 @@ export function ResetPasswordForm({ token, email }: { token: string; email: stri
           <span className="mb-1.5 block text-xs font-semibold text-white/70">
             New Password<span className="ml-1 text-accent">*</span>
           </span>
-          <input
-            name="password"
-            type="password"
-            required
-            autoComplete="new-password"
-            autoFocus
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="new-password"
+              autoFocus
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+              tabIndex={-1}
+            >
+              {showPassword ? <Eye size={16} /> : <EyeClosed size={16} />}
+            </button>
+          </div>
           <span className="mt-1.5 block text-[11px] text-white/40">
             At least 8 characters, with a capital, a number and a symbol.
           </span>
@@ -110,15 +123,25 @@ export function ResetPasswordForm({ token, email }: { token: string; email: stri
           <span className="mb-1.5 block text-xs font-semibold text-white/70">
             Confirm Password<span className="ml-1 text-accent">*</span>
           </span>
-          <input
-            name="confirmPassword"
-            type="password"
-            required
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className={inputCls}
-          />
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showConfirm ? "text" : "password"}
+              required
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+              tabIndex={-1}
+            >
+              {showConfirm ? <Eye size={16} /> : <EyeClosed size={16} />}
+            </button>
+          </div>
         </label>
 
         {status === "error" && errorMsg ? (

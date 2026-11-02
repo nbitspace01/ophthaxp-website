@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MailWarning } from "lucide-react";
+import { MailWarning, Eye, EyeClosed } from "lucide-react";
 
 type Status = "idle" | "signing-in" | "error";
 type ResendStatus = "idle" | "sending" | "sent" | "failed" | "throttled";
@@ -39,6 +39,7 @@ export function LoginForm({
   const [status, setStatus] = useState<Status>("idle");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [resend, setResend] = useState<ResendStatus>("idle");
@@ -180,16 +181,26 @@ export function LoginForm({
               Forgot password?
             </Link>
           </div>
-          <input
-            id="login-password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
-          />
+          <div className="relative">
+            <input
+              id="login-password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+              tabIndex={-1}
+            >
+              {showPassword ? <Eye size={16} /> : <EyeClosed size={16} />}
+            </button>
+          </div>
         </div>
 
         {status === "error" && errorMsg ? (
