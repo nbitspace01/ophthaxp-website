@@ -75,6 +75,17 @@ export function ProgramsSection({
     }
     return map;
   }, [programs, data]);
+  // Every specialty a Legend's programmes are filed under. One Legend can teach
+  // across several, and a programme's own specialty need not be on their row.
+  const courseSpecialtiesByDoctor = useMemo(() => {
+    const map = new Map<string, Specialty[]>();
+    for (const p of programs ?? []) {
+      if (!p.doctorSlug || !p.specialty) continue;
+      const ref = String(p.doctorSlug);
+      map.set(ref, [...(map.get(ref) ?? []), p.specialty]);
+    }
+    return map;
+  }, [programs]);
   const [active, setActive] = useState<string>("all");
   const [pageCount, setPageCount] = useState(1);
   const [activePage, setActivePage] = useState(0);
@@ -117,8 +128,14 @@ export function ProgramsSection({
   const filtered = useMemo(() => {
     const filter = FILTERS.find((f) => f.key === active);
     if (!filter || filter.specialties.length === 0) return entries;
-    return entries.filter((e) => e.doctor.specialty.some((sp) => filter.specialties.includes(sp)));
-  }, [active, entries]);
+    return entries.filter((e) =>
+      [
+        ...e.doctor.specialty,
+        ...(courseSpecialtiesByDoctor.get(e.doctor.slug) ?? []),
+        ...(courseSpecialtiesByDoctor.get(String(e.doctor.id)) ?? []),
+      ].some((sp) => filter.specialties.includes(sp)),
+    );
+  }, [active, entries, courseSpecialtiesByDoctor]);
 
   // Track scroll position so the bottom pagination reflects the reader's place
   // in the rail. Recomputes on scroll, on filter change, and when the rail resizes.
