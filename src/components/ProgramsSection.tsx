@@ -80,9 +80,10 @@ export function ProgramsSection({
   const courseSpecialtiesByDoctor = useMemo(() => {
     const map = new Map<string, Specialty[]>();
     for (const p of programs ?? []) {
-      if (!p.doctorSlug || !p.specialty) continue;
+      const own = p.specialties?.length ? p.specialties : p.specialty ? [p.specialty] : [];
+      if (!p.doctorSlug || own.length === 0) continue;
       const ref = String(p.doctorSlug);
-      map.set(ref, [...(map.get(ref) ?? []), p.specialty]);
+      map.set(ref, [...(map.get(ref) ?? []), ...own]);
     }
     return map;
   }, [programs]);

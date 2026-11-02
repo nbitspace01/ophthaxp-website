@@ -353,13 +353,16 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
   // JSON blob — parse it robustly to recover the linked doctor's slug + name.
   const doctorRef = parseDoctorReference(rec.doctorSlug ?? rec.doctor_slug);
 
+  // Multi-select: the API returns a list (["glaucoma","retina-..."]). Keep all
+  // of them so filters match any one; `specialty` stays the first for display.
+  const specialties = pickStringArray(rec, "specialty", "Specialty") as Program["specialty"][];
+
   return {
     id: String(pickString(rec, "id") ?? rec.id ?? slug),
     slug,
     name,
-    specialty:
-      (pickString(rec, "specialty", "Specialty") as Program["specialty"]) ||
-      ("ophthalmology-practice-mastery" as Program["specialty"]),
+    specialty: specialties[0] ?? ("ophthalmology-practice-mastery" as Program["specialty"]),
+    specialties,
     description:
       pickString(rec, "description", "summary", "bio", "shortBio") || "",
     durationWeeks: pickNumber(rec, "durationWeeks", "duration_weeks", "duration") ?? 0,

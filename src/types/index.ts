@@ -112,6 +112,8 @@ export interface Program {
   slug: string;
   name: string;
   specialty: Specialty;
+  /** Every specialty the course is filed under (multi-select). `specialty` is the first. */
+  specialties?: Specialty[];
   description: string;
   durationWeeks: number;
   cohortSize: number;

@@ -9,6 +9,6 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const specialty = url.searchParams.get("specialty") as Specialty | null;
   const all = await fetchCoursesFromBackend();
-  const data = specialty ? all.filter((p) => p.specialty === specialty) : all;
+  const data = specialty ? all.filter((p) => (p.specialties?.length ? p.specialties : [p.specialty]).includes(specialty)) : all;
   return NextResponse.json({ data, count: data.length });
 }
