@@ -427,9 +427,9 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
   }
 
   return (
-    <section aria-labelledby="roadmap-title" className="mx-auto max-w-[1440px] pt-[42px] pb-[42px]"
+    <section aria-labelledby="roadmap-title" className="w-full pt-[42px] pb-[42px]"
       style={{ paddingLeft: "clamp(24px,8.34vw,120px)", paddingRight: "clamp(24px,8.34vw,120px)" }}>
-      <style>{ARC_CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: ARC_CSS }} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10">

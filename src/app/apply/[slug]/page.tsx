@@ -14,6 +14,7 @@ import {
 import { findAppointmentForApplication, isBookingConfigured } from "@/lib/bookingApi";
 import { getSessionUser } from "@/lib/session";
 import { buildMetadata } from "@/lib/seo";
+import { plainName } from "@/lib/utils";
 
 /**
  * The application, as a page rather than a popup.
@@ -36,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const course = await fetchCourseFromBackend(params.slug);
   return buildMetadata({
-    title: course ? `Apply — ${course.name}` : "Apply",
+    title: course ? `Apply — ${plainName(course.name)}` : "Apply",
     alternates: { canonical: `/apply/${params.slug}` },
     // An application in progress is nobody else's business.
     robots: { index: false, follow: false },
@@ -86,16 +87,16 @@ export default async function ApplyPage({
         href={`/programs/${params.slug}`}
         className="text-xs font-semibold uppercase tracking-[0.16em] text-white/40 transition hover:text-white/70"
       >
-        ← Back to {course.name}
+        ← Back to {plainName(course.name)}
       </Link>
 
       {isJourneyComplete(application) ? (
-        <JourneyFinished courseName={course.name} mentorName={course.mentorName ?? undefined} />
+        <JourneyFinished courseName={plainName(course.name)} mentorName={course.mentorName ?? undefined} />
       ) : (
       <ApplyWizard
         courseId={String(course.id)}
         courseSlug={params.slug}
-        courseName={course.name}
+        courseName={plainName(course.name)}
         mentorName={course.mentorName ?? undefined}
         mentorEmail={course.mentorEmail ?? course.faculty?.email ?? undefined}
         feeInr={process.env.APPLY_EXPLORATORY_FEE_INR || undefined}
