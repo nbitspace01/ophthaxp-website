@@ -249,7 +249,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
   const courseLd = {
     "@context": "https://schema.org",
     "@type": "Course",
-    name: p.name,
+    name: plainName(p.name),
     description: p.tagline || p.description,
     provider: { "@type": "Organization", name: SITE_NAME, sameAs: SITE_URL },
     hasCourseInstance: {
@@ -406,7 +406,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
-                    courseName={p.name}
+                    courseName={plainName(p.name)}
                     mentorName={faculty?.name}
                     brochureUrl={p.brochureUrl}
                     label={enrollLabel}
@@ -464,7 +464,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             </h2>
           </div>
           <PracticeGrowthCalculator
-            courseName={p.name}
+            courseName={plainName(p.name)}
             courseSlug={p.slug}
             defaultSpecialty={p.specialty}
           />
@@ -581,7 +581,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   <CourseApplyButton
                     courseId={p.id}
                     courseSlug={p.slug}
-                    courseName={p.name}
+                    courseName={plainName(p.name)}
                     mentorName={faculty?.name}
                     brochureUrl={p.brochureUrl}
                     label="Begin your application"
@@ -612,7 +612,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               Frequently asked questions
             </h2>
             <div className="mt-10 sm:mt-16">
-              <FaqGrid key={p.slug} items={faqItems} label={p.name} />
+              <FaqGrid key={p.slug} items={faqItems} label={plainName(p.name)} />
             </div>
           </section>
         )}
@@ -664,7 +664,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
       <Footer />
       <CourseStickyFooter
         courseId={p.id}
-        courseName={p.name}
+        courseName={plainName(p.name)}
         courseSlug={p.slug}
         facultyTitle={p.specialistTitle || faculty?.title}
         facultyName={faculty?.name}
