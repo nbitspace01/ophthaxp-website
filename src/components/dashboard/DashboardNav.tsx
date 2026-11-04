@@ -32,6 +32,7 @@ import { AccountChip } from "@/components/AccountChip";
  */
 
 const SECTIONS = [
+  { id: "your-space", label: "Your Space" },
   { id: "growth-lab", label: "Growth Lab" },
   { id: "pathways", label: "Pathways" },
 ];

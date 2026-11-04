@@ -40,9 +40,12 @@ export function YourSpace({
     const apply = () => {
       const key = window.location.hash.replace("#", "");
       if (!THREAD.some((item) => item.key === key)) return;
+      // A hash that names a section of this page (`#pathways`) is a jump to
+      // that section, not a request for a pane here.
+      if (document.getElementById(key)) return;
       setActive(key);
       window.requestAnimationFrame(() => {
-        document.getElementById("growth-lab")?.scrollIntoView();
+        document.getElementById("your-space")?.scrollIntoView();
       });
     };
 

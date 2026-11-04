@@ -29,6 +29,32 @@ export interface Doctor {
   heroFocusY?: number;
   heroZoom?: number;
   trailerVideoUrl?: string;
+  /* Profile page hero, all optional. The portrait shown there, the two-part
+     subtitle ("A Legend in" + the highlighted words), the intro paragraph,
+     and the three boxes of the strip under it. */
+  profileImage?: string;
+  profileTagline?: string;
+  profileTaglineHighlight?: string;
+  profileHighlight1?: string;
+  profileHighlight2Title?: string;
+  profileHighlight2Text?: string;
+  profileHighlight3Title?: string;
+  profileHighlight3Text?: string;
+  /** "The Master at Work" films, in admin order. Empty slots are dropped. */
+  films?: { title: string; image?: string; video?: string }[];
+  /* "Making of the Legend": column 1, a quote heading column 2, then column 3
+     with a highlight box between its two parts. Paragraphs are separated by
+     a blank line. */
+  storyColumn1?: string;
+  storyQuote?: string;
+  storyColumn2?: string;
+  storyColumn3?: string;
+  storyHighlight?: string;
+  storyColumn3After?: string;
+  /** "From the Legend, directly.": the intro paragraph, and the programme card's image and hover video. */
+  programmeIntro?: string;
+  programmeImage?: string;
+  programmeVideo?: string;
   isFeatured?: boolean;
   isNew?: boolean;
   // Course-side fields (1:1 doctor↔course in the merged module)

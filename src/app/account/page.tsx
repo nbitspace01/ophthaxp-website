@@ -25,7 +25,7 @@ import {
 } from "@/components/dashboard/PathwaysPanel";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Growth Lab",
+  title: "Your Space",
   description: "Where your work with Legends of Medicine stands.",
   alternates: { canonical: "/account" },
   robots: { index: false, follow: false },
@@ -103,12 +103,12 @@ export default async function AccountPage() {
 
   return (
     <>
-      <section id="growth-lab" aria-labelledby="growth-lab-title" className="dash-section">
+      <section id="your-space" aria-labelledby="your-space-title" className="dash-section">
         <PageHeading
           level={1}
-          id="growth-lab-title"
-          eyebrow="Growth lab"
-          title="Tools that chase breakthroughs."
+          id="your-space-title"
+          eyebrow="Your space"
+          title="Curated for the Legend in you."
           aside={
             <>
               <p className="flex items-center justify-end gap-2 text-sm text-white/60">
@@ -124,6 +124,18 @@ export default async function AccountPage() {
           match={match}
           outlook={parseOutlook(storedOutlook)}
           joinedTools={joinedTools}
+        />
+      </section>
+
+      <section
+        id="growth-lab"
+        aria-labelledby="growth-lab-title"
+        className="dash-section mt-24 lg:mt-32"
+      >
+        <PageHeading
+          id="growth-lab-title"
+          eyebrow="Growth lab"
+          title="Tools that chase breakthroughs."
         />
 
         <div className="mt-10 grid gap-6 lg:mt-14 lg:grid-cols-3">

@@ -1,21 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Link2,
-  MapPin,
-  Play,
-  Share2,
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Play, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { TrailerPlayer } from "@/components/TrailerPlayer";
-import type { Doctor } from "@/types";
+import type { Doctor, Program } from "@/types";
+import "./legend-profile.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -29,570 +21,663 @@ const SPECIALTY_LABELS: Record<string, string> = {
   "ophthalmology-practice-mastery": "Practice Mastery",
 };
 
+/* The breadcrumb uses the same names as the specialty filter buttons on the
+   Legends page, so the word matches the filter it links back to. */
+const CRUMB_LABELS: Record<string, string> = {
+  "cornea-ocular-surface": "Cornea",
+  "phaco-refractive-surgery": "Refractive Surgery",
+  "retina-vitreo-retinal-surgery": "Retina",
+  glaucoma: "Glaucoma",
+  "pediatric-ophthalmology": "Paediatric",
+  oculoplasty: "Oculoplasty",
+  "ophthalmology-practice-mastery": "Practice Management",
+};
+
+/** The short word the breadcrumb uses, e.g. "Cornea" from "Cornea & Ocular Surface". */
+function shortSpecialty(label: string): string {
+  return label.split(/\s*[&/]\s*|\s+-\s+/)[0];
+}
+
+/**
+ * The biography as paragraphs, dealt into the three newspaper columns of the
+ * "Making of the Legend" spread in reading order. A biography stored as one
+ * long block is split at sentence ends so the columns still fill evenly.
+ */
+function editorialColumns(text: string): string[][] {
+  let paragraphs = text
+    .split(/\n\s*\n|\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  // Too little to spread across three columns.
+  if (paragraphs.length < 3 && text.length < 700) return [paragraphs];
+  if (paragraphs.length < 3) {
+    const sentences = text.match(/[^.!?]+[.!?]+["”’]?\s*|[^.!?]+$/g) ?? [text];
+    const per = Math.max(1, Math.ceil(sentences.length / 6));
+    paragraphs = [];
+    for (let i = 0; i < sentences.length; i += per) {
+      paragraphs.push(sentences.slice(i, i + per).join("").trim());
+    }
+  }
+  const columns: string[][] = [[], [], []];
+  const per = Math.ceil(paragraphs.length / 3);
+  paragraphs.forEach((p, i) => columns[Math.min(2, Math.floor(i / per))].push(p));
+  return columns.filter((c) => c.length > 0);
+}
+
+/** Paragraphs of a story field: split on blank lines, or on single lines. */
+function paragraphsOf(text?: string): string[] {
+  return (text || "")
+    .split(/\n\s*\n|\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function DoctorDetailClient({
   doctor,
-  otherDoctors,
+  programs = [],
+  fromSpecialty,
 }: {
   doctor: Doctor;
-  otherDoctors: Doctor[];
+  /** Still passed by the page; the "More Legends" rail that used it is gone. */
+  otherDoctors?: Doctor[];
+  programs?: Program[];
+  /** The specialty filter the reader clicked through from on the Legends page. */
+  fromSpecialty?: string;
 }) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const videoSectionRef = useRef<HTMLElement>(null);
-  const heroImgRef = useRef<HTMLDivElement>(null);
-
-  const [bioExpanded, setBioExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [pageUrl, setPageUrl] = useState("");
-
-  const scrollToVideo = () =>
-    videoSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  // Capture page URL client-side only
-  useEffect(() => { setPageUrl(window.location.href); }, []);
-
-  // Subtle parallax on hero portrait
+  const rootRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const programmeVideoRef = useRef<HTMLVideoElement>(null);
+  const programmeCardRef = useRef<HTMLButtonElement>(null);
+  // The programme card plays its video in place, like the featured video on
+  // the home page: click to play, × or Esc to close.
+  const [programmePlaying, setProgrammePlaying] = useState(false);
+  const closeProgrammeVideo = useCallback(() => {
+    programmeVideoRef.current?.pause();
+    setProgrammePlaying(false);
+    programmeCardRef.current?.focus();
+  }, []);
+  // Esc handling copied from the home page's featured video (LegendsVideo):
+  // in fullscreen, Esc only leaves fullscreen; the next Esc closes the video.
   useEffect(() => {
-    const onScroll = () => {
-      if (!heroImgRef.current) return;
-      heroImgRef.current.style.transform = `translateY(${window.scrollY * 0.22}px)`;
+    if (!programmePlaying) return;
+    const isFullscreen = () =>
+      Boolean(
+        document.fullscreenElement ||
+          (document as Document & { webkitFullscreenElement?: Element | null })
+            .webkitFullscreenElement ||
+          (programmeVideoRef.current as (HTMLVideoElement & { webkitDisplayingFullscreen?: boolean }) | null)
+            ?.webkitDisplayingFullscreen,
+      );
+
+    // downSeen: the current Esc press was seen going down, so its keyup is
+    // already accounted for. ignoreNextKeyUp: fullscreen was just left, so a
+    // keyup from the Esc that left it must not close the video; it expires
+    // after a moment so it can never swallow the second Esc.
+    let downSeen = false;
+    let ignoreNextKeyUp = false;
+    let ignoreTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const onFullscreenChange = () => {
+      if (isFullscreen()) return;
+      ignoreNextKeyUp = true;
+      if (ignoreTimer) clearTimeout(ignoreTimer);
+      ignoreTimer = setTimeout(() => {
+        ignoreNextKeyUp = false;
+        // Take focus off the native video controls so the next Esc reaches us.
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      }, 300);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.repeat) return;
+      downSeen = true;
+      ignoreNextKeyUp = false;
+      if (isFullscreen()) {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      closeProgrammeVideo();
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (downSeen) {
+        downSeen = false;
+        return;
+      }
+      // Keyup with no keydown seen: the browser swallowed the keydown.
+      if (ignoreNextKeyUp) {
+        ignoreNextKeyUp = false;
+        return;
+      }
+      if (isFullscreen()) return;
+      closeProgrammeVideo();
+    };
+
+    window.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("keyup", onKeyUp, true);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+    programmeVideoRef.current?.play().catch(() => {});
+    return () => {
+      if (ignoreTimer) clearTimeout(ignoreTimer);
+      window.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("keyup", onKeyUp, true);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+    };
+  }, [programmePlaying, closeProgrammeVideo]);
+
+  const [filmOpen, setFilmOpen] = useState(false);
+  // The selected film (cards and dots move at once) and the one on stage,
+  // which follows after the poster has faded out.
+  const startFilm = doctor.films && doctor.films.length === 3 ? 1 : 0;
+  const [activeFilm, setActiveFilm] = useState(startFilm);
+  const [shownFilm, setShownFilm] = useState(startFilm);
+  const [filmChanging, setFilmChanging] = useState(false);
+  const filmTimer = useRef<number>();
+  useEffect(() => () => window.clearTimeout(filmTimer.current), []);
+  const selectFilm = (index: number) => {
+    if (index === activeFilm) return;
+    setActiveFilm(index);
+    window.clearTimeout(filmTimer.current);
+    setFilmChanging(true);
+    filmTimer.current = window.setTimeout(() => {
+      setShownFilm(index);
+      setFilmChanging(false);
+    }, 320);
+  };
+
+
+  // Sections fade up as they reach the viewport, once.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+    root.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
-  // Share handlers
-  const handleShare = useCallback(async () => {
-    const title = `${doctor.name} — ${doctor.title} · Legends of Medicine`;
-    const text = `${doctor.name}, ${doctor.title}, is teaching at Legends of Medicine. Learn directly from one of India's finest ophthalmologists.`;
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ title, text, url: pageUrl }); } catch {}
-    } else {
-      await navigator.clipboard.writeText(pageUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [doctor, pageUrl]);
+  // The portrait leans a few pixels toward the pointer and drifts with scroll.
+  useEffect(() => {
+    const portrait = portraitRef.current;
+    if (!portrait || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(pageUrl || window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [pageUrl]);
+    const onMove = (event: PointerEvent) => {
+      const bounds = portrait.getBoundingClientRect();
+      const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 4;
+      const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 3;
+      portrait.style.setProperty("--portrait-x", `${x}px`);
+      portrait.style.setProperty("--portrait-y", `${y}px`);
+    };
+    const onLeave = () => {
+      portrait.style.setProperty("--portrait-x", "0px");
+      portrait.style.setProperty("--portrait-y", "0px");
+    };
+    const onScroll = () => {
+      const hero = portrait.closest(".legend-hero") as HTMLElement | null;
+      if (!hero) return;
+      const progress = Math.max(0, Math.min(1, -hero.getBoundingClientRect().top / hero.offsetHeight));
+      portrait.style.setProperty("--portrait-scroll-y", `${progress * 18}px`);
+    };
+
+    portrait.addEventListener("pointermove", onMove);
+    portrait.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      portrait.removeEventListener("pointermove", onMove);
+      portrait.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  // The intro film plays in a native dialog; closing it unmounts the player,
+  // which stops playback.
+  const openFilm = () => {
+    setFilmOpen(true);
+    dialogRef.current?.showModal();
+  };
+  const closeFilm = () => dialogRef.current?.close();
 
   // ─── Computed values ──────────────────────────────────────────────────────
 
-  const fullBio = (doctor.description || doctor.bio || "").trim();
-  const hasBio = fullBio.length > 0;
-  const PREVIEW_LEN = 460;
-  const needsTruncation = fullBio.length > PREVIEW_LEN;
-  const previewBio = needsTruncation
-    ? `${fullBio.slice(0, PREVIEW_LEN).trimEnd()}…`
-    : fullBio;
-  const pullQuote =
-    fullBio.split(/\.|\n/)[0]?.trim().replace(/^["']/, "") ?? doctor.bio;
+  const portrait = doctor.profileImage || doctor.doctorImage || doctor.imageUrl;
 
-  const shareText = encodeURIComponent(
-    `${doctor.name}, ${doctor.title}, is teaching at Legends of Medicine — learn directly from one of India's finest ophthalmologists.`
+  // "The Master at Work": the Legend's films from the admin, or, with none
+  // set, one film built from the intro video and their portrait.
+  // "The Master at Work" shows only the Legend's Film 1–3. A Legend with none
+  // has no films section.
+  const films = useMemo(
+    () =>
+      (doctor.films ?? []).map((film, i) => ({
+        title: film.title || `Film ${i + 1}`,
+        image: film.image || portrait,
+        video: film.video,
+        isPortrait: !film.image,
+      })),
+    [doctor.films, portrait],
   );
-  const shareUrlEnc = pageUrl ? encodeURIComponent(pageUrl) : "";
-  const whatsappHref = `https://wa.me/?text=${shareText}${shareUrlEnc ? `%20${shareUrlEnc}` : ""}`;
-  const linkedinHref = shareUrlEnc
-    ? `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrlEnc}`
-    : "#";
-  const twitterHref = shareUrlEnc
-    ? `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrlEnc}`
-    : "#";
+  const hasFilms = films.length > 0;
+  const stage = films[Math.min(shownFilm, films.length - 1)] ?? {
+    title: "",
+    image: undefined as string | undefined,
+    video: undefined as string | undefined,
+    isPortrait: true,
+  };
+  const fullBio = (doctor.description || doctor.bio || "").trim();
+  const intro = (doctor.bio || doctor.description || "").trim();
+  const columns = useMemo(() => editorialColumns(fullBio), [fullBio]);
+  // The story columns from the admin. With none set, the biography is laid out
+  // across the columns instead, as before.
+  const hasStory = Boolean(
+    doctor.storyColumn1 || doctor.storyQuote || doctor.storyColumn2 ||
+      doctor.storyColumn3 || doctor.storyHighlight || doctor.storyColumn3After,
+  );
+  const showStory = hasStory || Boolean(fullBio);
 
-  const primarySpecialties = doctor.specialty.filter((s) => s !== "all").slice(0, 2);
+  const specialtyLabels = doctor.specialty
+    .filter((s) => s !== "all")
+    .map((s) => SPECIALTY_LABELS[s] ?? s);
+  const mainSpecialty = specialtyLabels[0];
+
+  // The breadcrumb names the specialty the reader filtered by on the Legends
+  // page, when this Legend has it; otherwise their first specialty.
+  const crumbKey =
+    fromSpecialty && doctor.specialty.includes(fromSpecialty as Doctor["specialty"][number])
+      ? fromSpecialty
+      : doctor.specialty.find((s) => s !== "all");
+  const crumbLabel = crumbKey ? SPECIALTY_LABELS[crumbKey] ?? crumbKey : undefined;
+
+  // The strip under the hero. The admin can write each box; an empty one
+  // falls back to specialty, experience and title, then city and qualification.
+  const highlight1 = doctor.profileHighlight1 || specialtyLabels.slice(0, 2).join(" · ");
+  const highlight2Title =
+    doctor.profileHighlight2Title ||
+    (doctor.experienceYears > 0 ? `${doctor.experienceYears}+ years` : doctor.qualification || "");
+  const highlight2Text = doctor.profileHighlight2Text || doctor.title;
+  const highlight3Title = doctor.profileHighlight3Title || doctor.city || "";
+  const highlight3Text =
+    doctor.profileHighlight3Text || (doctor.city ? doctor.qualification || "India" : doctor.qualification || "");
+
+  // A Legend can be linked to the same course more than once; show it once.
+  const ownPrograms = programs.filter(
+    (p, i) => programs.findIndex((q) => q.slug === p.slug) === i,
+  );
+  const leadProgram = ownPrograms[0];
+  const programHref = leadProgram
+    ? `/programs/${leadProgram.slug}`
+    : doctor.courseSlug
+      ? `/programs/${doctor.courseSlug}`
+      : null;
+
+  const courseName = leadProgram?.name || doctor.courseName || "";
+  const plainCourseName = courseName.replace(/s*|s*/g, " ");
+  const cardInner = (
+    <>
+      {leadProgram?.isNew && <span className="new-pill">New</span>}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={doctor.programmeImage || leadProgram?.cardImage || leadProgram?.heroImage || portrait}
+        alt={doctor.name}
+      />
+      <span className="programme-shade" />
+      <span className="programme-card-copy">
+        <h3>
+          {courseName.split("|").map((line, i) => (
+            <span key={i}>
+              {i > 0 && <br />}
+              {line.trim()}
+            </span>
+          ))}
+        </h3>
+        <i aria-hidden="true" />
+        <p>
+          with <strong>{doctor.name}</strong>
+        </p>
+      </span>
+    </>
+  );
 
   return (
       <>
       <Navbar />
-      <main className="bg-black pb-20 text-white">
+      <div ref={rootRef} className="lom-legend">
+      <main className="pb-20 text-white">
 
-        {/* ════════════════════════════════════════════════════════════
-            § 1 — HERO   Full-viewport cinematic identity
-        ════════════════════════════════════════════════════════════ */}
-        <section
-          aria-labelledby="legend-name"
-          className="relative min-h-[100svh] overflow-hidden"
-        >
-          {/* Portrait — full-bleed background. Mobile fills the section;
-              desktop is constrained to the right ~62% so the face isn't blown
-              up and the text column on the left stays readable. */}
-          <div
-            ref={heroImgRef}
-            className="absolute inset-y-0 left-0 right-0 will-change-transform lg:left-auto lg:w-[62%]"
-            style={{ top: "-4%", bottom: "-4%" }}
-          >
-            <Image
-              src={doctor.doctorImage ?? doctor.imageUrl}
-              alt={doctor.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 62vw"
-              className="object-cover object-right-top"
-            />
-            {/* Tone the photo background into the dark theme */}
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-black/30 mix-blend-multiply"
-            />
-            {/* Soft left feather — kills the hard vertical edge on desktop */}
-            <div
-              aria-hidden
-              className="absolute inset-y-0 left-0 hidden w-32 bg-gradient-to-r from-black to-transparent lg:block"
-            />
-            {/* Subtle bottom fade so the page flows into the next section */}
-            <div
-              aria-hidden
-              className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent"
-            />
-          </div>
-
-          {/* Mobile: full-image dim + bottom-up fade so text at bottom is readable */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/35 lg:hidden" />
-
-          {/* Desktop: long left→right fade carrying the dark over the image edge */}
-          <div className="absolute inset-0 hidden bg-gradient-to-r from-black from-35% via-black/60 via-55% to-transparent to-85% lg:block" />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(50% 65% at 12% 75%, rgba(183,90,68,0.18) 0%, transparent 65%)",
-            }}
-          />
-
-          {/* Content — two-column grid on desktop: text + portrait card */}
-          <div className="relative mx-auto flex min-h-[100svh] max-w-[1440px] flex-col justify-end px-5 pb-20 pt-36 sm:px-10 lg:justify-center lg:px-[120px] lg:pb-0 lg:pt-24">
-            <div className="max-w-2xl">
-
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-accent-soft">
-                <span aria-hidden>★</span> LEGEND. OPHTHALMOLOGY
-              </div>
-
-              {/* Name */}
-              <h1
-                id="legend-name"
-                className="mt-5 font-display text-[clamp(2.5rem,5.5vw,4.5rem)] uppercase leading-[0.98] tracking-[-0.01em]"
-              >
-                {doctor.name}
-              </h1>
-
-              {/* Title */}
-              <div className="mt-5 flex items-start gap-3">
-                <span className="mt-[11px] h-px w-10 shrink-0 bg-accent" aria-hidden />
-                <p className="text-lg leading-snug text-white/70 sm:text-xl">
-                  {doctor.title}
-                </p>
-              </div>
-
-              {/* Location */}
-              {doctor.city && (
-                <p className="mt-2 flex items-center gap-1.5 text-sm text-white/45">
-                  <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {doctor.city}, India
-                </p>
+        {/* § 1 — HERO   Copy column beside the portrait */}
+        <section className="legend-hero" aria-labelledby="legend-name">
+          <div className="hero-copy reveal">
+            <p className="eyebrow">
+              <Link href="/doctors">Legends</Link>
+              {crumbKey && crumbLabel && (
+                <>
+                  <span>/</span>
+                  <Link href={`/doctors?specialty=${crumbKey}`}>{CRUMB_LABELS[crumbKey] ?? shortSpecialty(crumbLabel)}</Link>
+                </>
               )}
-
-              {/* Bio excerpt */}
-              {doctor.bio && (
-                <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/60 line-clamp-3">
-                  {doctor.bio}
-                </p>
-              )}
-
-              {/* CTAs */}
-              {/* A profile with no way through to what the Legend actually
-                  teaches is a dead end, so the program leads and the trailer
-                  becomes the second choice. */}
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                {doctor.courseSlug && (
-                  <Link
-                    href={`/programs/${doctor.courseSlug}`}
-                    className="inline-flex items-center justify-center rounded-[10px] bg-accent px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                  >
-                    View Programme
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={scrollToVideo}
-                  className="inline-flex items-center gap-2 rounded-[10px] bg-ink-800 px-7 py-3.5 text-[15px] font-medium text-white/85 backdrop-blur-sm transition hover:bg-ink-700 hover:text-white"
-                >
-                  <Play className="h-4 w-4 fill-current" aria-hidden />
-                  Watch Intro
-                </button>
-              </div>
-
-              {/* Stats strip */}
-              {(doctor.experienceYears > 0 || primarySpecialties.length > 0) && (
-                <div className="mt-14 flex flex-wrap gap-8 border-t border-white/10 pt-8">
-                  {doctor.experienceYears > 0 && (
-                    <div>
-                      <p className="font-display text-[2.6rem] leading-none text-white">
-                        {doctor.experienceYears}+
-                      </p>
-                      <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
-                        Years
-                      </p>
-                    </div>
-                  )}
-                  {primarySpecialties.map((s) => (
-                    <div key={s}>
-                      <p className="font-display text-[2.6rem] leading-none text-accent">
-                        ★
-                      </p>
-                      <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/40">
-                        {SPECIALTY_LABELS[s] ?? s}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════════
-            § 2 — VIDEO   Full-width cinematic trailer
-        ════════════════════════════════════════════════════════════ */}
-        <section
-          ref={videoSectionRef}
-          aria-labelledby="video-title"
-          className="bg-black py-16 sm:py-20"
-        >
-          <div className="mx-auto max-w-5xl px-5 sm:px-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-soft">
-              From the Legend
             </p>
-            <h2
-              id="video-title"
-              className="mt-3 text-[clamp(1.75rem,3.1vw,2.6rem)] font-extrabold leading-[1.25] tracking-[-0.015em] text-white"
-            >
-              Introduction
-            </h2>
-
-            <div className="mt-8 overflow-hidden rounded-xl border border-white/15">
-              {doctor.trailerVideoUrl ? (
-                <TrailerPlayer
-                  src={doctor.trailerVideoUrl}
-                  poster={doctor.doctorImage ?? doctor.imageUrl}
-                  title={`${doctor.name} — Introduction`}
-                  className="aspect-video w-full"
-                />
-              ) : (
-                <div className="flex aspect-video items-center justify-center bg-ink-850">
-                  <div className="text-center">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-accent/30 bg-accent/10">
-                      <Play className="h-6 w-6 text-accent" aria-hidden />
-                    </div>
-                    <p className="mt-3 text-sm text-white/40">Intro video coming soon</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════════
-            § 3 — ABOUT   Editorial bio with pull-quote + at-a-glance
-        ════════════════════════════════════════════════════════════ */}
-        <section
-          aria-labelledby="about-heading"
-          className="bg-ink-900 py-16 sm:py-20"
-        >
-          <div className="mx-auto max-w-[1440px] px-5 sm:px-10 lg:px-[120px]">
-
-            {/* Section headline */}
-            <div className="max-w-4xl">
-              <h2 className="text-[clamp(1.75rem,3.1vw,2.6rem)] font-extrabold leading-[1.25] tracking-[-0.015em] text-white">
-                Making of the Legend
-              </h2>
-            </div>
-
-            {/* Two-column: bio + at-a-glance card */}
-            <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-16">
-
-              {/* Bio */}
-              <div className="lg:col-span-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-soft">
-                  Bio
-                </p>
-                <div
-                  id="about-heading"
-                  className="mt-5 whitespace-pre-line text-[15px] leading-relaxed text-white/70"
-                >
-                  {hasBio
-                    ? bioExpanded || !needsTruncation
-                      ? fullBio
-                      : previewBio
-                    : "Biography coming soon."}
-                </div>
-                {hasBio && needsTruncation && (
-                  <button
-                    type="button"
-                    onClick={() => setBioExpanded((v) => !v)}
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent-soft transition hover:text-accent-tint"
-                  >
-                    {bioExpanded ? "Show less" : "Read full biography"}
-                    <span
-                      aria-hidden
-                      className={`inline-block transition-transform duration-300 ${bioExpanded ? "rotate-180" : ""}`}
-                    >
-                      ↓
-                    </span>
-                  </button>
-                )}
-              </div>
-
-              {/* At-a-glance card */}
-              <div className="rounded-xl border border-white/15 bg-ink-850 p-7">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-soft">
-                  At a Glance
-                </p>
-                <dl className="mt-5 space-y-5">
-                  {doctor.experienceYears > 0 && (
-                    <div className="border-b border-white/10 pb-5">
-                      <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-                        Experience
-                      </dt>
-                      <dd className="mt-1.5 font-display text-3xl leading-none text-white">
-                        {doctor.experienceYears}+{" "}
-                        <span className="font-sans text-base font-normal text-white/55">
-                          years
-                        </span>
-                      </dd>
-                    </div>
-                  )}
-                  {primarySpecialties.map((s, i) => (
-                    <div
-                      key={s}
-                      className={`pb-5 ${i < primarySpecialties.length - 1 ? "border-b border-white/10" : ""}`}
-                    >
-                      <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-                        Specialty
-                      </dt>
-                      <dd className="mt-1.5 text-base font-medium text-white">
-                        {SPECIALTY_LABELS[s] ?? s}
-                      </dd>
-                    </div>
-                  ))}
-                  {doctor.city && (
-                    <div>
-                      <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-                        Based in
-                      </dt>
-                      <dd className="mt-1.5 flex items-center gap-1.5 text-base font-medium text-white">
-                        <MapPin className="h-4 w-4 shrink-0 text-accent" aria-hidden />
-                        {doctor.city}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════════
-            § 4 — SHARE   "Spread the word" section
-        ════════════════════════════════════════════════════════════ */}
-        <section
-          aria-labelledby="share-title"
-          className="relative overflow-hidden border-y border-white/10 bg-black py-16 sm:py-20"
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(55% 65% at 50% 55%, rgba(183,90,68,0.12) 0%, transparent 70%)",
-            }}
-          />
-
-          <div className="relative mx-auto max-w-2xl px-5 text-center sm:px-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-soft">
-              Spread the Word
-            </p>
-            <h2
-              id="share-title"
-              className="mt-3 text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.25] tracking-[-0.015em] text-white"
-            >
-              Know someone who should learn from{" "}
-              {doctor.name.split(" ").at(-1)}?
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-white/55">
-              Share this page with colleagues, juniors and anyone you believe
-              deserves to learn from the best in Indian ophthalmology.
-            </p>
-
-            {/* Share preview card */}
-            <div className="mx-auto mt-8 max-w-sm rounded-xl border border-white/15 bg-ink-850 p-5 text-left shadow-xl">
-              <div className="flex items-center gap-3">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-white/15">
-                  <Image
-                    src={doctor.imageUrl}
-                    alt={doctor.name}
-                    fill
-                    sizes="44px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-white">{doctor.name}</p>
-                  <p className="truncate text-xs text-white/50">
-                    {doctor.title} · Legends of Medicine
-                  </p>
-                </div>
-              </div>
-              {doctor.bio && (
-                <p className="mt-3 text-sm leading-relaxed text-white/60 line-clamp-2">
-                  {doctor.bio}
-                </p>
-              )}
-              <p className="mt-3 text-xs text-accent-soft">legendsofmedicine.com</p>
-            </div>
-
-            {/* Share buttons */}
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <button
-                type="button"
-                onClick={handleShare}
-                className="inline-flex items-center gap-2 rounded-[10px] bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-deep"
-              >
-                <Share2 className="h-4 w-4" aria-hidden /> Share
-              </button>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="inline-flex items-center gap-2 rounded-[10px] bg-ink-800 px-6 py-3 text-sm font-medium text-white/85 transition hover:bg-ink-700 hover:text-white"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-400" aria-hidden />
+            <div className="hero-narrative">
+              <h1 id="legend-name">{doctor.name}</h1>
+              <p className="hero-subtitle">
+                {doctor.profileTagline || doctor.profileTaglineHighlight ? (
+                  <>
+                    {doctor.profileTagline}{" "}
+                    {doctor.profileTaglineHighlight && <em>{doctor.profileTaglineHighlight}</em>}
+                  </>
+                ) : doctor.specialistTitle ? (
+                  doctor.specialistTitle
+                ) : mainSpecialty ? (
+                  <>
+                    A Legend in <em>{mainSpecialty}.</em>
+                  </>
                 ) : (
-                  <Link2 className="h-4 w-4" aria-hidden />
+                  doctor.title
                 )}
-                {copied ? "Copied!" : "Copy Link"}
-              </button>
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-[10px] bg-ink-800 px-6 py-3 text-sm font-medium text-white/85 transition hover:bg-ink-700 hover:text-white"
-              >
-                WhatsApp
-              </a>
-              <a
-                href={linkedinHref}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-[10px] bg-ink-800 px-6 py-3 text-sm font-medium text-white/85 transition hover:bg-ink-700 hover:text-white"
-              >
-                LinkedIn
-              </a>
+              </p>
+              {intro && <p className="legend-intro">{intro}</p>}
+              <div className="hero-cta-row">
+                {fullBio && (
+                  <a className="story-link" href="#making">
+                    The Legend’s Story <span>↓</span>
+                  </a>
+                )}
+                {programHref && (
+                  <a className="hero-primary-cta" href="#programmes">
+                    Learn from the Legend <span>→</span>
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="authority-strip" aria-label={`About ${doctor.name}`}>
+              {highlight1 && (
+                <article>
+                  <p>{highlight1}</p>
+                </article>
+              )}
+              {(highlight2Title || highlight2Text) && (
+                <article>
+                  {highlight2Title && <strong>{highlight2Title}</strong>}
+                  {highlight2Text && <p>{highlight2Text}</p>}
+                </article>
+              )}
+              {(highlight3Title || highlight3Text) && (
+                <article>
+                  {highlight3Title && <strong>{highlight3Title}</strong>}
+                  {highlight3Text && <p>{highlight3Text}</p>}
+                </article>
+              )}
             </div>
           </div>
+          <div className="hero-portrait reveal" ref={portraitRef}>
+            <div className="portrait-field" aria-hidden="true" />
+            {portrait && (
+              /* eslint-disable-next-line @next/next/no-img-element -- the
+                 reference animates this element's mask and transform. */
+              <img
+                className="portrait-illustration"
+                src={portrait}
+                alt={doctor.name}
+                fetchPriority="high"
+              />
+            )}
+          </div>
+          {hasFilms && (
+          <a className="hero-scroll" href="#films" aria-label="Scroll to the Legend’s film">
+            <i aria-hidden="true"><b /></i>
+            <span>Scroll into the Legend’s genius</span>
+          </a>
+          )}
         </section>
 
-        {/* ════════════════════════════════════════════════════════════
-            § 5 — OTHER LEGENDS RAIL
-        ════════════════════════════════════════════════════════════ */}
-        {otherDoctors.length > 0 && (
-          <section
-            aria-labelledby="other-legends-title"
-            className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-[120px]"
-          >
-            <div className="flex items-end justify-between">
-              <div>
-                <h2
-                  id="other-legends-title"
-                  className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-extrabold leading-[1.25] tracking-[-0.015em] text-white"
-                >
-                  More Legends
-                </h2>
-                <p className="mt-2 text-sm text-white/45">
-                  {otherDoctors.length} mentors across every specialty
-                </p>
-              </div>
-              <div className="hidden gap-2 sm:flex">
-                <button
-                  type="button"
-                  aria-label="Scroll legends left"
-                  onClick={() =>
-                    railRef.current?.scrollBy({
-                      left: -(railRef.current.clientWidth * 0.8),
-                      behavior: "smooth",
-                    })
-                  }
-                  className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full bg-ink-800 text-white transition hover:bg-ink-700"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Scroll legends right"
-                  onClick={() =>
-                    railRef.current?.scrollBy({
-                      left: railRef.current.clientWidth * 0.8,
-                      behavior: "smooth",
-                    })
-                  }
-                  className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-full bg-white text-black transition hover:bg-white/85"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div
-              ref={railRef}
-              className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+        {/* § 2 — FILM   The Legend's introduction film */}
+        {hasFilms && (
+        <section className="films" id="films" aria-labelledby="films-title">
+          <div className="film-showcase reveal">
+            <header className="section-heading section-heading-centered section-shell film-heading">
+              <p className="section-kicker">The Legend Anthology</p>
+              <h2 id="films-title">
+                The Master <em>at Work</em>
+              </h2>
+              <p>A lifetime of insight, distilled.</p>
+            </header>
+            <button
+              className={`film-feature${stage.isPortrait ? " is-portrait" : ""}${filmChanging ? " is-changing" : ""}`}
+              type="button"
+              onClick={openFilm}
+              aria-label={`Open film: ${stage.title}`}
             >
-              {otherDoctors.map((d) => (
-                <Link
-                  key={d.id}
-                  href={`/doctors/${d.slug}`}
-                  className="group relative aspect-[306/482] w-[200px] shrink-0 snap-start overflow-hidden rounded-xl border border-white/15 bg-ink-850 transition duration-300 hover:border-accent/60 sm:w-[248px]"
-                >
-                  <Image
-                    src={d.imageUrl}
-                    alt={d.name}
-                    fill
-                    sizes="(max-width: 640px) 200px, 248px"
-                    className="object-cover object-top transition duration-500 group-hover:scale-[1.04]"
+              <span className="film-poster-frame">
+                {stage.image && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    className="film-poster"
+                    src={stage.image}
+                    alt={`${stage.title} film poster featuring ${doctor.name}`}
                   />
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-[linear-gradient(to_top,rgba(0,0,0,0.95)_0%,rgba(0,0,0,0.72)_38%,rgba(0,0,0,0)_100%)]"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-12 text-center">
-                    <p className="line-clamp-2 font-serif text-[22px] font-medium leading-[1.12] text-white">
-                      {d.name}
-                    </p>
-                    {d.title && (
-                      <>
-                        <span
-                          className="mx-auto mt-3 block h-px w-5 bg-white/70 transition-all duration-300 group-hover:w-10"
-                          aria-hidden
-                        />
-                        <p className="mt-3 line-clamp-1 text-[13px] text-white/70">
-                          {d.title}
-                        </p>
-                      </>
-                    )}
+                )}
+              </span>
+              <span className="feature-play" aria-hidden="true">
+                <i>▶</i>
+                <b>{stage.video ? "Watch now" : "Coming soon"}</b>
+              </span>
+            </button>
+            {films.length > 1 && (
+              <>
+                <div className="film-dots" role="group" aria-label="Choose a film">
+                  {films.map((film, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={i === activeFilm ? "is-active" : ""}
+                      aria-label={film.title}
+                      aria-pressed={i === activeFilm}
+                      onClick={() => selectFilm(i)}
+                    />
+                  ))}
+                </div>
+                <div className="film-rail">
+                  <p>The Legend Anthology</p>
+                  <div className="film-selectors" role="tablist" aria-label="Choose a film">
+                    {films.map((film, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        role="tab"
+                        className={`film-selector${i === activeFilm ? " is-active" : ""}`}
+                        aria-selected={i === activeFilm}
+                        aria-label={film.title}
+                        onClick={() => selectFilm(i)}
+                      >
+                        {film.image && (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={film.image} alt="" />
+                        )}
+                        <span>{String(i + 1).padStart(2, "0")}</span>
+                      </button>
+                    ))}
                   </div>
-                </Link>
-              ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+        )}
+
+        {/* § 3 — MAKING   The biography as a three-column spread */}
+        {showStory && (
+          <section className="making" id="making" aria-labelledby="making-title">
+            <div className="section-shell editorial-shell">
+              <header className="editorial-heading reveal">
+                <p className="section-kicker">The Legend’s Story</p>
+                <h2 id="making-title">
+                  Making of <em>the Legend</em>
+                </h2>
+              </header>
+              <div className="editorial-rule" aria-hidden="true" />
+              {hasStory ? (
+              <article className="legend-editorial reveal" aria-label={`The story of ${doctor.name}`}>
+                <div className="editorial-column editorial-column-one">
+                  {paragraphsOf(doctor.storyColumn1).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+                <div className="editorial-column editorial-column-two">
+                  {doctor.storyQuote && <blockquote>{doctor.storyQuote}</blockquote>}
+                  {paragraphsOf(doctor.storyColumn2).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+                <div className="editorial-column editorial-column-three">
+                  {paragraphsOf(doctor.storyColumn3).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                  {doctor.storyHighlight && <p className="editorial-highlight">{doctor.storyHighlight}</p>}
+                  {paragraphsOf(doctor.storyColumn3After).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              </article>
+              ) : (
+              <article
+                className={`legend-editorial reveal${columns.length === 1 ? " is-single" : ""}`}
+                aria-label={`The story of ${doctor.name}`}
+              >
+                {columns.map((paragraphs, c) => (
+                  <div
+                    key={c}
+                    className={`editorial-column editorial-column-${["one", "two", "three"][c]}`}
+                  >
+                    {paragraphs.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                ))}
+              </article>
+              )}
+              <footer className="editorial-footer">
+                <span>The Legend’s Story</span>
+                <span>{doctor.name}</span>
+              </footer>
             </div>
           </section>
         )}
+
+        {/* § 4 — PROGRAMMES   What the Legend teaches */}
+        {programHref && (
+          <section
+            className="programmes section-shell"
+            id="programmes"
+            aria-labelledby="programmes-title"
+          >
+            <div className="programme-copy reveal">
+              <p className="section-kicker">Legacy Transfer Programmes</p>
+              <h2 id="programmes-title">
+                From the Legend, <em>directly.</em>
+              </h2>
+              <p>
+                {doctor.programmeIntro ||
+                  `A structured journey shaped and led by ${doctor.name}, carrying the judgement, methods and standards built across a lifetime into your practice.`}
+              </p>
+              <Link className="programme-cta" href={programHref}>
+                Explore the Programme <span>→</span>
+              </Link>
+            </div>
+            <div className="programme-shelf reveal" aria-label={`Programmes by ${doctor.name}`}>
+              {doctor.programmeVideo && programmePlaying ? (
+                <div className="programme-card is-playing">
+                  <video
+                    ref={programmeVideoRef}
+                    src={doctor.programmeVideo}
+                    controls
+                    playsInline
+                    autoPlay
+                    className="programme-video"
+                  />
+                  <button
+                    type="button"
+                    onClick={closeProgrammeVideo}
+                    aria-label="Close video"
+                    className="programme-video-close"
+                  >
+                    <X className="h-5 w-5" aria-hidden />
+                  </button>
+                </div>
+              ) : doctor.programmeVideo ? (
+                <button
+                  ref={programmeCardRef}
+                  type="button"
+                  className="programme-card"
+                  onClick={() => setProgrammePlaying(true)}
+                  aria-label={`Play the video for ${plainCourseName} with ${doctor.name}`}
+                >
+                  {cardInner}
+                  <span className="programme-card-play" aria-hidden="true">
+                    <Play className="h-4 w-4" />
+                  </span>
+                </button>
+              ) : (
+                <Link className="programme-card" href={programHref}>
+                  {cardInner}
+                </Link>
+              )}
+            </div>
+          </section>
+        )}
+
+        <dialog
+          ref={dialogRef}
+          className="film-dialog"
+          aria-labelledby="film-dialog-title"
+          onClose={() => setFilmOpen(false)}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeFilm();
+          }}
+        >
+          <button className="dialog-close" type="button" onClick={closeFilm} aria-label="Close film">
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+          <div className="film-stage">
+            {filmOpen && stage.video ? (
+              <TrailerPlayer
+                src={stage.video}
+                poster={stage.image}
+                title={`${doctor.name} — ${stage.title}`}
+                className="h-full w-full"
+              />
+            ) : (
+              <>
+                {stage.image && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={stage.image} alt="" />
+                )}
+                <span className="film-stage-shade" />
+              </>
+            )}
+          </div>
+          <div className="film-meta">
+            <p>{stage.video ? "Curiosity film" : "Video coming soon"}</p>
+            <h2 id="film-dialog-title">{stage.title}</h2>
+            <span>With {doctor.name}</span>
+          </div>
+        </dialog>
       </main>
+      </div>
 
       <Footer />
     </>

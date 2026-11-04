@@ -185,12 +185,26 @@ export async function signIn(input: {
       return {
         ok: false,
         needsVerification: true,
-        error: "Verify your email to log in.",
+        error: "Your email isn't verified yet. Open the verification link we emailed you, or send a new one below.",
       };
     }
-    // Never repeat the platform's distinction between "user not found" and
-    // "wrong password": that tells a stranger which addresses have accounts.
-    return { ok: false, error: "That email and password do not match." };
+    // Telling "no account" apart from "wrong password" was asked for, so a
+    // doctor knows whether to sign up or reset. The cost is that the page now
+    // shows which addresses are registered; the login rate limit (8 tries per
+    // address, 20 per IP, per 15 minutes) is what keeps that from being farmed.
+    if (/not found/i.test(message)) {
+      return {
+        ok: false,
+        error: "No account found with this email. Check the spelling, or create an account.",
+      };
+    }
+    if (/password/i.test(message)) {
+      return {
+        ok: false,
+        error: "Incorrect password. Try again, or use Forgot password to reset it.",
+      };
+    }
+    return { ok: false, error: "We couldn't log you in. Please check your email and password." };
   }
 
   const data = body?.data ?? {};

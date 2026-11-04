@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchAllDoctorsFromBackend, fetchDoctorsFromBackend } from "@/lib/courses";
+import {
+  fetchAllDoctorsFromBackend,
+  fetchCoursesFromBackend,
+  fetchDoctorsFromBackend,
+} from "@/lib/courses";
 import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { DoctorDetailClient } from "./DoctorDetailClient";
 
@@ -54,8 +58,10 @@ export async function generateMetadata({
 
 export default async function DoctorDetailPage({
   params,
+  searchParams,
 }: {
   params: { slug: string };
+  searchParams?: { specialty?: string };
 }) {
   // Looked up in the unfiltered list so a Legend switched off the index is
   // still reachable by the link someone already has, but only active Legends
@@ -64,6 +70,11 @@ export default async function DoctorDetailPage({
   const d = doctors.find((x) => x.slug === params.slug);
   if (!d) notFound();
   const others = doctors.filter((x) => x.id !== d.id && x.isActive !== false);
+  // The Legend's own programmes, matched the same way the home rail does:
+  // the course row points at the doctor by slug or by row id.
+  const programs = (await fetchCoursesFromBackend()).filter(
+    (p) => p.doctorSlug && (String(p.doctorSlug) === d.slug || String(p.doctorSlug) === String(d.id)),
+  );
 
   const personLd = {
     "@context": "https://schema.org",
@@ -86,7 +97,9 @@ export default async function DoctorDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
       />
-      <DoctorDetailClient doctor={d} otherDoctors={others} />
+      <DoctorDetailClient doctor={d} otherDoctors={others} programs={programs}
+        fromSpecialty={searchParams?.specialty}
+      />
     </>
   );
 }
