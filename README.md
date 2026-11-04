@@ -4,7 +4,7 @@ Live, cohort-based mentorship for practising ophthalmologists and final-year MBB
 
 Built with **Next.js 14 (App Router) · TypeScript · Tailwind CSS · framer-motion · lucide-react**, fully **SEO-friendly** out of the box (metadata, OpenGraph, Twitter cards, sitemap, robots, JSON-LD for Organization, WebSite, Course, Person).
 
----
+--- 
 
 ## Quick start
 
