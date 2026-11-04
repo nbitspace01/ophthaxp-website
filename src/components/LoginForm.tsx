@@ -17,6 +17,21 @@ type ResendStatus = "idle" | "sending" | "sent" | "failed" | "throttled";
  */
 const RESEND_COOLDOWN_SECONDS = 60;
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** The message for each field, or null when it is fine. */
+function validateEmail(value: string): string | null {
+  const email = value.trim();
+  if (!email) return "Please enter your email address.";
+  if (!EMAIL_RE.test(email)) return "Please enter a valid email address, like name@example.com.";
+  return null;
+}
+
+function validatePassword(value: string): string | null {
+  if (!value) return "Please enter your password.";
+  return null;
+}
+
 /**
  * Signing in through the platform's own `/auth/signin`.
  *
@@ -95,6 +110,17 @@ export function LoginForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // One message, in the same box the server's answers use: the first thing
+    // that needs fixing.
+    const issue = validateEmail(email) ?? validatePassword(password);
+    if (issue) {
+      setStatus("error");
+      setErrorMsg(issue);
+      setNeedsVerification(false);
+      return;
+    }
+
     setStatus("signing-in");
     setErrorMsg(null);
     setNeedsVerification(false);
@@ -146,7 +172,7 @@ export function LoginForm({
         </p>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
+      <form onSubmit={handleSubmit} noValidate className="mt-6 grid gap-4">
         <label className="block">
           <span className="mb-1.5 block text-xs font-semibold text-white/70">
             Email Address<span className="ml-1 text-accent">*</span>
@@ -205,6 +231,7 @@ export function LoginForm({
 
         {status === "error" && errorMsg ? (
           <div
+            role="alert"
             className={`rounded-xl px-3 py-2 text-sm ring-1 ${
               needsVerification
                 ? "bg-amber-500/10 text-amber-200 ring-amber-500/30"

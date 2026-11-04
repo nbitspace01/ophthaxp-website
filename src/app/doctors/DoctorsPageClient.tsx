@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import {
@@ -39,6 +39,13 @@ const SHORT_LABELS: Partial<Record<Specialty, string>> = {
 export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
   const [specialty, setSpecialty] = useState<Specialty>("all");
   const [nameQuery, setNameQuery] = useState("");
+
+  /* Open on the specialty in the URL, so the breadcrumb on a profile page can
+     link straight back to the filter the reader came from. */
+  useEffect(() => {
+    const key = new URLSearchParams(window.location.search).get("specialty");
+    if (key && SPECIALTY_TABS.some((t) => t.key === key)) setSpecialty(key as Specialty);
+  }, []);
 
   const filtered = useMemo(() => {
     const q = nameQuery.trim().toLowerCase();
@@ -164,7 +171,11 @@ export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
                 return (
                   <CatalogCard
                     key={d.id}
-                    href={`/doctors/${d.slug}`}
+                    href={
+                      specialty !== "all"
+                        ? `/doctors/${d.slug}?specialty=${specialty}`
+                        : `/doctors/${d.slug}`
+                    }
                     imageUrl={d.imageUrl}
                     imageAlt={d.name}
                     title={d.name}

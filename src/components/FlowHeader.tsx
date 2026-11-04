@@ -62,7 +62,7 @@ export function FlowHeader({ showAccount = true }: { showAccount?: boolean }) {
             name={name}
             email={user.email}
             links={[
-              { href: "/account", label: "Growth Lab" },
+              { href: "/account", label: "Your space" },
               { href: "/account#applications", label: "Your applications" },
             ]}
           />

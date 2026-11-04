@@ -547,6 +547,33 @@ function mapRecordToDoctor(rec: RawRecord): Doctor | null {
     ),
     isFeatured: pickBool(rec, "isFeatured", "is_featured"),
     isNew: pickBool(rec, "isNew", "is_new"),
+    // Profile page hero. Every one is optional; the page falls back to the
+    // fields above when one is empty.
+    profileImage: absoluteUrl(pickString(rec, "profileImage", "profile_image")),
+    profileTagline: pickString(rec, "profileTagline", "profile_tagline"),
+    profileTaglineHighlight: pickString(rec, "profileTaglineHighlight", "profile_tagline_highlight"),
+    profileHighlight1: pickString(rec, "profileHighlight1", "profile_highlight_1"),
+    profileHighlight2Title: pickString(rec, "profileHighlight2Title", "profile_highlight_2_title"),
+    profileHighlight2Text: pickString(rec, "profileHighlight2Text", "profile_highlight_2_text"),
+    profileHighlight3Title: pickString(rec, "profileHighlight3Title", "profile_highlight_3_title"),
+    profileHighlight3Text: pickString(rec, "profileHighlight3Text", "profile_highlight_3_text"),
+    // "The Master at Work": up to three films, each a title, poster and video.
+    films: [1, 2, 3]
+      .map((n) => ({
+        title: pickString(rec, `film${n}Title`, `film_${n}_title`) ?? "",
+        image: absoluteUrl(pickString(rec, `film${n}Image`, `film_${n}_image`)),
+        video: absoluteUrl(pickString(rec, `film${n}Video`, `film_${n}_video`)),
+      }))
+      .filter((f) => f.image || f.video),
+    storyColumn1: pickString(rec, "storyColumn1", "story_column_1"),
+    storyQuote: pickString(rec, "storyQuote", "story_quote"),
+    storyColumn2: pickString(rec, "storyColumn2", "story_column_2"),
+    storyColumn3: pickString(rec, "storyColumn3", "story_column_3"),
+    storyHighlight: pickString(rec, "storyHighlight", "story_highlight"),
+    storyColumn3After: pickString(rec, "storyColumn3After", "story_column_3_after"),
+    programmeIntro: pickString(rec, "programmeIntro", "programme_intro"),
+    programmeImage: absoluteUrl(pickString(rec, "programmeImage", "programme_image")),
+    programmeVideo: absoluteUrl(pickString(rec, "programmeVideo", "programme_video")),
     // Merged course-side fields
     qualification: pickString(rec, "qualification"),
     email: pickString(rec, "email"),
@@ -912,7 +939,9 @@ export async function fetchHeroImagesFromBackend(): Promise<HeroImage[]> {
   const out: HeroImage[] = [];
   for (const d of doctors) {
     if (!d.showInHeroSection) continue;
-    const list = d.heroImages?.length ? d.heroImages : d.imageUrl ? [d.imageUrl] : [];
+    // The Card Photo is the home hero image; the old hero image list is only
+    // the fallback for a Legend with no Card Photo.
+    const list = d.imageUrl ? [d.imageUrl] : d.heroImages ?? [];
     list.forEach((src, i) => {
       if (!src) return;
       // A hand-set focus point means the face crop got this photo wrong, so it
