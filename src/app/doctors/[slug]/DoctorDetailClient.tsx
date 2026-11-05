@@ -88,7 +88,7 @@ export function DoctorDetailClient({
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const portraitRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const filmVideoRef = useRef<HTMLVideoElement>(null);
   const programmeVideoRef = useRef<HTMLVideoElement>(null);
   const programmeCardRef = useRef<HTMLButtonElement>(null);
   // The programme card plays its video in place, like the featured video on
@@ -173,7 +173,8 @@ export function DoctorDetailClient({
     };
   }, [programmePlaying, closeProgrammeVideo]);
 
-  const [filmOpen, setFilmOpen] = useState(false);
+  // The selected film plays in place, in the stage, rather than in a popup.
+  const [filmPlaying, setFilmPlaying] = useState(false);
   // The selected film (cards and dots move at once) and the one on stage,
   // which follows after the poster has faded out.
   const startFilm = doctor.films && doctor.films.length === 3 ? 1 : 0;
@@ -184,6 +185,7 @@ export function DoctorDetailClient({
   useEffect(() => () => window.clearTimeout(filmTimer.current), []);
   const selectFilm = (index: number) => {
     if (index === activeFilm) return;
+    setFilmPlaying(false);
     setActiveFilm(index);
     window.clearTimeout(filmTimer.current);
     setFilmChanging(true);
@@ -247,13 +249,21 @@ export function DoctorDetailClient({
     };
   }, []);
 
-  // The intro film plays in a native dialog; closing it unmounts the player,
-  // which stops playback.
-  const openFilm = () => {
-    setFilmOpen(true);
-    dialogRef.current?.showModal();
-  };
-  const closeFilm = () => dialogRef.current?.close();
+  // Clicking the stage plays its film right there; closing unmounts the player,
+  // which stops playback. Esc closes it too, except in fullscreen, where Esc
+  // only leaves fullscreen.
+  const openFilm = () => setFilmPlaying(true);
+  const closeFilm = useCallback(() => setFilmPlaying(false), []);
+  useEffect(() => {
+    if (!filmPlaying) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || document.fullscreenElement) return;
+      closeFilm();
+    };
+    window.addEventListener("keydown", onKey);
+    filmVideoRef.current?.play().catch(() => {});
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filmPlaying, closeFilm]);
 
   // ─── Computed values ──────────────────────────────────────────────────────
 
@@ -448,7 +458,7 @@ export function DoctorDetailClient({
         {/* § 2 — FILM   The Legend's introduction film */}
         {hasFilms && (
         <section className="films" id="films" aria-labelledby="films-title">
-          <div className="film-showcase reveal">
+          <div className={`film-showcase reveal${filmPlaying && stage.video ? " is-playing" : ""}`}>
             <header className="section-heading section-heading-centered section-shell film-heading">
               <p className="section-kicker">The Legend Anthology</p>
               <h2 id="films-title">
@@ -456,27 +466,53 @@ export function DoctorDetailClient({
               </h2>
               <p>A lifetime of insight, distilled.</p>
             </header>
-            <button
-              className={`film-feature${stage.isPortrait ? " is-portrait" : ""}${filmChanging ? " is-changing" : ""}`}
-              type="button"
-              onClick={openFilm}
-              aria-label={`Open film: ${stage.title}`}
-            >
-              <span className="film-poster-frame">
-                {stage.image && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    className="film-poster"
-                    src={stage.image}
-                    alt={`${stage.title} film poster featuring ${doctor.name}`}
+            {filmPlaying && stage.video ? (
+              <div className="film-feature is-playing">
+                {/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(stage.video) ? (
+                  <video
+                    ref={filmVideoRef}
+                    className="film-inline-video"
+                    src={stage.video}
+                    poster={stage.image}
+                    controls
+                    autoPlay
+                    playsInline
+                  />
+                ) : (
+                  <TrailerPlayer
+                    src={stage.video}
+                    poster={stage.image}
+                    title={`${doctor.name} — ${stage.title}`}
+                    className="film-inline-video"
                   />
                 )}
-              </span>
-              <span className="feature-play" aria-hidden="true">
-                <i>▶</i>
-                <b>{stage.video ? "Watch now" : "Coming soon"}</b>
-              </span>
-            </button>
+                <button type="button" className="film-inline-close" onClick={closeFilm} aria-label="Close film">
+                  <X className="h-5 w-5" aria-hidden />
+                </button>
+              </div>
+            ) : (
+              <button
+                className={`film-feature${stage.isPortrait ? " is-portrait" : ""}${filmChanging ? " is-changing" : ""}`}
+                type="button"
+                onClick={openFilm}
+                aria-label={`Open film: ${stage.title}`}
+              >
+                <span className="film-poster-frame">
+                  {stage.image && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      className="film-poster"
+                      src={stage.image}
+                      alt={`${stage.title} film poster featuring ${doctor.name}`}
+                    />
+                  )}
+                </span>
+                <span className="feature-play" aria-hidden="true">
+                  <i>▶</i>
+                  <b>{stage.video ? "Watch now" : "Coming soon"}</b>
+                </span>
+              </button>
+            )}
             {films.length > 1 && (
               <>
                 <div className="film-dots" role="group" aria-label="Choose a film">
@@ -640,42 +676,6 @@ export function DoctorDetailClient({
           </section>
         )}
 
-        <dialog
-          ref={dialogRef}
-          className="film-dialog"
-          aria-labelledby="film-dialog-title"
-          onClose={() => setFilmOpen(false)}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeFilm();
-          }}
-        >
-          <button className="dialog-close" type="button" onClick={closeFilm} aria-label="Close film">
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-          <div className="film-stage">
-            {filmOpen && stage.video ? (
-              <TrailerPlayer
-                src={stage.video}
-                poster={stage.image}
-                title={`${doctor.name} — ${stage.title}`}
-                className="h-full w-full"
-              />
-            ) : (
-              <>
-                {stage.image && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={stage.image} alt="" />
-                )}
-                <span className="film-stage-shade" />
-              </>
-            )}
-          </div>
-          <div className="film-meta">
-            <p>{stage.video ? "Curiosity film" : "Video coming soon"}</p>
-            <h2 id="film-dialog-title">{stage.title}</h2>
-            <span>With {doctor.name}</span>
-          </div>
-        </dialog>
       </main>
       </div>
 
