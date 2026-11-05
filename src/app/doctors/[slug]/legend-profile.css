@@ -918,3 +918,11 @@
 .lom-legend .programme-card.is-playing>.programme-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
 .lom-legend .programme-video-close{position:absolute;z-index:6;right:16px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.6);color:#fff;backdrop-filter:blur(8px);cursor:pointer;transition:background .25s ease,border-color .25s ease}
 .lom-legend .programme-video-close:hover{background:var(--copper);border-color:var(--copper)}
+/* The film plays in place, inside the curved stage, instead of a popup. The
+   heading and dots that sit over the poster step aside while it plays; the
+   film cards below stay, so another film can be picked straight away. */
+.lom-legend .films .film-showcase .film-feature.is-playing{background:#000;cursor:default}
+.lom-legend .films .film-showcase .film-feature.is-playing .film-inline-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:0}
+.lom-legend .films .film-showcase.is-playing .film-heading,.lom-legend .films .film-showcase.is-playing .film-dots{opacity:0;pointer-events:none}
+.lom-legend .film-inline-close{position:absolute;z-index:20;right:18px;top:18px;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.6);color:#fff;backdrop-filter:blur(8px);cursor:pointer;transition:background .25s ease,border-color .25s ease}
+.lom-legend .film-inline-close:hover{background:var(--copper);border-color:var(--copper)}
