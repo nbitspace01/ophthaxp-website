@@ -324,6 +324,21 @@ function parseDoctorReference(v: unknown): {
  * Program shape this app already uses. Field names map flexibly so the user
  * can name them either camelCase or snake_case in the admin panel.
  */
+/**
+ * The course's Page Link as the admin typed it, made safe for a URL:
+ * "Building Models of Impact" → "building-models-of-impact". An already-clean
+ * slug comes back unchanged, so existing links keep working.
+ */
+export function toUrlSlug(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function mapRecordToProgram(rec: RawRecord): Program | null {
   if (process.env.NODE_ENV !== "production") {
     const thumb = rec["filmThumbnail"] ?? rec["filmThumbnailUrl"] ?? rec["thumbnailUrl"];
@@ -332,7 +347,8 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
   }
   // Merged module: prefer the course-specific slug/name when present, fall
   // back to the doctor-level slug/name for legacy single-purpose `courses` modules.
-  const slug = pickString(rec, "courseSlug", "course_slug", "slug", "Slug");
+  const rawSlug = pickString(rec, "courseSlug", "course_slug", "slug", "Slug");
+  const slug = rawSlug ? toUrlSlug(rawSlug) : undefined;
   const name = pickString(
     rec,
     "courseName",
@@ -798,14 +814,16 @@ export async function fetchCourseFromBackend(slug: string): Promise<Program | nu
     const rows = extractRows(json);
     if (rows[0]) {
       const mapped = mapRecordToProgram(rows[0]);
-      if (mapped) return await attachFaculty(mapped);
+      if (mapped && mapped.slug === toUrlSlug(slug)) return await attachFaculty(mapped);
     }
   }
 
   // Fallback: list all + find by slug. Deliberately the unfiltered list — see
-  // listAllPrograms.
+  // listAllPrograms. Compared normalised, so a Page Link typed with spaces or
+  // capitals still opens its page.
+  const wanted = toUrlSlug(slug);
   const all = await listAllPrograms();
-  const found = all.find((p) => p.slug === slug);
+  const found = all.find((p) => p.slug === wanted);
   return found ? await attachFaculty(found) : null;
 }
 

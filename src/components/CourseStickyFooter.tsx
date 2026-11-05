@@ -103,7 +103,7 @@ export function CourseStickyFooter({
             )}
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white sm:text-[15px]">
-                {facultyTitle || courseName}
+                {courseName || facultyTitle}
               </p>
               {facultyName ? (
                 <p className="truncate text-xs text-white/60 sm:text-sm">
