@@ -304,7 +304,7 @@ export function ProgramsSection({
               return (
                 <Link
                   key={d.id}
-                  href={`/programs/${courseSlug}`}
+                  href={`/programmes/${courseSlug}`}
                   className="group relative aspect-[306/482] w-[248px] shrink-0 snap-start overflow-hidden rounded-xl border border-white/15 bg-ink-850 transition duration-300 hover:-translate-y-1 hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-[306px]"
                 >
                   {isNew && (
@@ -378,13 +378,13 @@ export function ProgramsSection({
 
       <div className="mt-9 flex flex-wrap justify-center gap-3 sm:mt-12">
         <Link
-          href="/programs"
+          href="/programmes"
           className="rounded-[10px] bg-accent px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >
           Explore Programmes
         </Link>
         <Link
-          href="/doctors"
+          href="/legends"
           className="rounded-[10px] bg-ink-700 px-7 py-3.5 text-[15px] font-medium text-white/85 transition hover:bg-ink-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         >
           Explore Legends

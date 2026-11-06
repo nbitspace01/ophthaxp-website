@@ -35,7 +35,7 @@ export function CertificatesPromo() {
             a Legend into your own practice.
           </p>
           <Link
-            href="/programs"
+            href="/programmes"
             className="mt-7 inline-block rounded-full bg-[#B05A3A] px-6 py-3 text-[14px] font-semibold text-white hover:opacity-90"
           >
             Explore Programmes

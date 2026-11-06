@@ -331,9 +331,9 @@ export function DoctorDetailClient({
   );
   const leadProgram = ownPrograms[0];
   const programHref = leadProgram
-    ? `/programs/${leadProgram.slug}`
+    ? `/programmes/${leadProgram.slug}`
     : doctor.courseSlug
-      ? `/programs/${doctor.courseSlug}`
+      ? `/programmes/${doctor.courseSlug}`
       : null;
 
   const courseName = leadProgram?.name || doctor.courseName || "";
@@ -374,11 +374,11 @@ export function DoctorDetailClient({
         <section className="legend-hero" aria-labelledby="legend-name">
           <div className="hero-copy reveal">
             <p className="eyebrow">
-              <Link href="/doctors">Legends</Link>
+              <Link href="/legends">Legends</Link>
               {crumbKey && crumbLabel && (
                 <>
                   <span>/</span>
-                  <Link href={`/doctors?specialty=${crumbKey}`}>{CRUMB_LABELS[crumbKey] ?? shortSpecialty(crumbLabel)}</Link>
+                  <Link href={`/legends?specialty=${crumbKey}`}>{CRUMB_LABELS[crumbKey] ?? shortSpecialty(crumbLabel)}</Link>
                 </>
               )}
             </p>

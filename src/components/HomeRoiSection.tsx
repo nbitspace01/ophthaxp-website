@@ -46,7 +46,7 @@ export function HomeRoiSection() {
             Speak To Concierge
           </button>
           <Link
-            href="/programs"
+            href="/programmes"
             className="rounded-[10px] bg-ink-850 px-7 py-3.5 text-[15px] font-semibold text-white transition hover:bg-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             Explore Programmes

@@ -62,7 +62,7 @@ export async function generateMetadata({
   return buildMetadata({
     title: p.headline ? `${plainName(p.name)} — ${p.headline}` : plainName(p.name),
     description: p.tagline || p.description,
-    alternates: { canonical: `/programs/${p.slug}` },
+    alternates: { canonical: `/programmes/${p.slug}` },
   });
 }
 
@@ -271,7 +271,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           price: p.priceInr,
           priceCurrency: "INR",
           availability: "https://schema.org/InStock",
-          url: `${SITE_URL}/programs/${p.slug}`,
+          url: `${SITE_URL}/programmes/${p.slug}`,
         }
       : undefined,
   };
@@ -341,7 +341,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
               {faculty?.name ? (
                 <Link
-                  href={`/doctors/${faculty.slug}`}
+                  href={`/legends/${faculty.slug}`}
                   className="inline-flex items-center gap-1 text-[15px] text-[#a7a7aa] transition hover:text-white"
                 >
                   with{" "}
@@ -629,7 +629,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {related.map((d) => (
                 <li key={d.id}>
                   <Link
-                    href={`/doctors/${d.slug}`}
+                    href={`/legends/${d.slug}`}
                     className="group block overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-ink-800 transition hover:border-white/25"
                   >
                     <div className="aspect-[3/4] w-full overflow-hidden">
@@ -653,7 +653,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
 
         <div className={`${SHELL} pb-24`}>
           <Link
-            href="/programs"
+            href="/programmes"
             className="inline-flex items-center gap-2 text-sm text-[#A5A5A5] transition hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
