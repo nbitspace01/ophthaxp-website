@@ -1,5 +1,6 @@
 # OphthaXP — Frontend (Next.js 14) 
 
+
 Live, cohort-based mentorship for practising ophthalmologists and final-year MBBS students. This repo is the **frontend only** — the API routes under `/api/*` are stubs that you can either replace by proxying to your real backend or implement directly with Next.js route handlers.
 
 Built with **Next.js 14 (App Router) · TypeScript · Tailwind CSS · framer-motion · lucide-react**, fully **SEO-friendly** out of the box (metadata, OpenGraph, Twitter cards, sitemap, robots, JSON-LD for Organization, WebSite, Course, Person).
