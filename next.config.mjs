@@ -28,6 +28,16 @@ const nextConfig = {
       ...(nocodeRemotePattern ? [nocodeRemotePattern] : []),
     ],
   },
+  // The Legends and Programmes pages moved from /doctors and /programs.
+  // Old links (shared, bookmarked, indexed) go to the same page at the new URL.
+  async redirects() {
+    return [
+      { source: "/doctors", destination: "/legends", permanent: true },
+      { source: "/doctors/:slug*", destination: "/legends/:slug*", permanent: true },
+      { source: "/programs", destination: "/programmes", permanent: true },
+      { source: "/programs/:slug*", destination: "/programmes/:slug*", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

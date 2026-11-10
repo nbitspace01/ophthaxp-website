@@ -26,12 +26,12 @@ export async function generateMetadata({
 
   const descSnippet = ((d.description ?? d.bio) || "").slice(0, 200);
   const ogImage = d.doctorImage ?? d.imageUrl;
-  const pageUrl = `${SITE_URL}/doctors/${d.slug}`;
+  const pageUrl = `${SITE_URL}/legends/${d.slug}`;
 
   const base = buildMetadata({
     title: `${d.name} — ${d.title}`,
     description: descSnippet,
-    alternates: { canonical: `/doctors/${d.slug}` },
+    alternates: { canonical: `/legends/${d.slug}` },
   });
 
   return {
@@ -83,7 +83,7 @@ export default async function DoctorDetailPage({
     jobTitle: d.title,
     description: d.bio,
     image: d.imageUrl,
-    url: `${SITE_URL}/doctors/${d.slug}`,
+    url: `${SITE_URL}/legends/${d.slug}`,
     address: {
       "@type": "PostalAddress",
       addressLocality: d.city,

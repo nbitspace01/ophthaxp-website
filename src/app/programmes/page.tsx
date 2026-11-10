@@ -9,7 +9,7 @@ export const metadata: Metadata = buildMetadata({
   title: "Programmes",
   description:
     "Explore Legends of Medicine cohort-based mentorship programmes across cataract, retina, glaucoma, cornea, paediatric, neuro and refractive ophthalmology.",
-  alternates: { canonical: "/programs" },
+  alternates: { canonical: "/programmes" },
 });
 
 export default async function ProgramsIndexPage({

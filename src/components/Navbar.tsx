@@ -9,8 +9,8 @@ import { HeaderTools } from "./HeaderTools";
 
 /** Centre nav — the three destinations shown in the Figma header. */
 const LINKS: { label: string; href: string }[] = [
-  { label: "Legends", href: "/doctors" },
-  { label: "Programmes", href: "/programs" },
+  { label: "Legends", href: "/legends" },
+  { label: "Programmes", href: "/programmes" },
   // Points at the four-step walkthrough — "Every Step Towards Becoming
   // Legendary" — not at the outlook calculator. That one has its own way in,
   // the horizon chip in HeaderTools.

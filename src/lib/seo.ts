@@ -133,7 +133,7 @@ export function courseListJsonLd(
         name: c.name,
         description: c.description,
         provider: { "@type": "Organization", name: SITE_NAME, sameAs: SITE_URL },
-        url: `${SITE_URL}/programs/${c.slug}`,
+        url: `${SITE_URL}/programmes/${c.slug}`,
       },
     })),
   };

@@ -124,7 +124,7 @@ function Discovery({ match }: { match: PathwayMatch | null }) {
       </p>
       <h2 className="mt-3 font-serif text-xl leading-tight text-white">{match.name}</h2>
       <p className="mt-4 text-sm leading-relaxed text-white/55">{match.blurb}</p>
-      <Cta href={`/programs/${match.slug}`} label="View pathway" />
+      <Cta href={`/programmes/${match.slug}`} label="View pathway" />
     </>
   );
 }
@@ -174,7 +174,7 @@ function Record({ record }: { record: PathwayRecord }) {
  *
  * `#explore-programmes` is the Explore Programmes card sitting beside this one
  * — the single sanctioned way from the dashboard onto the programmes site. A
- * CTA here that went to `/programs` itself would be a second front door.
+ * CTA here that went to `/programmes` itself would be a second front door.
  */
 function Cta({ href, label }: { href: string; label: string }) {
   return (

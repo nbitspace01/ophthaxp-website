@@ -60,16 +60,16 @@ export function AccountMenu() {
   // /programs/[slug]; both routes share the slug, so they map straight across.
   const resumeHref = (() => {
     const path = account?.application?.return_path;
-    if (!path || !path.startsWith("/") || path.startsWith("//")) return "/programs";
+    if (!path || !path.startsWith("/") || path.startsWith("//")) return "/programmes";
 
     const base = path.split("?")[0];
     const target = base.startsWith("/apply/")
       ? base
-      : base.startsWith("/programs/")
-        ? base.replace("/programs/", "/apply/")
+      : /^\/program(me)?s\//.test(base)
+        ? base.replace(/^\/program(me)?s\//, "/apply/")
         : "";
 
-    if (!target) return "/programs";
+    if (!target) return "/programmes";
     return `${target}?step=${Number(account?.application?.current_step) || 1}`;
   })();
 

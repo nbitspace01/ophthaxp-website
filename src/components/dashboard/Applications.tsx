@@ -24,7 +24,7 @@ import { LEGAL } from "@/lib/legal";
  * Where "carry on" goes.
  *
  * The application is a page now, so this is `/apply/[slug]?step=N`. Rows saved
- * while the form was still a popup carry a `/programs/[slug]` return path;
+ * while the form was still a popup carry a `/programmes/[slug]` return path;
  * those map straight across, because both routes are keyed by the same slug.
  */
 function resumeHref(returnPath: string | undefined, step: number): string {
@@ -33,11 +33,11 @@ function resumeHref(returnPath: string | undefined, step: number): string {
       ? returnPath.split("?")[0]
       : "";
 
-  let base = "/programs";
+  let base = "/programmes";
   if (safe.startsWith("/apply/")) base = safe;
-  else if (safe.startsWith("/programs/")) base = safe.replace("/programs/", "/apply/");
+  else if (/^\/program(me)?s\//.test(safe)) base = safe.replace(/^\/program(me)?s\//, "/apply/");
 
-  return base === "/programs" ? base : `${base}?step=${step}`;
+  return base === "/programmes" ? base : `${base}?step=${step}`;
 }
 
 function formatDate(value: string | null | undefined): string | null {

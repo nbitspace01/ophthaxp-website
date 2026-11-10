@@ -159,7 +159,7 @@ export default async function AccountPage() {
               "browse programmes" now points here instead of leaving. */}
           <Link
             id="explore-programmes"
-            href="/programs"
+            href="/programmes"
             /* Same hover as the Growth Lab cards: the light that follows the
                cursor, a step up, a warmed outline. It is the same kind of
                object — a whole card that is one link — so it should answer the

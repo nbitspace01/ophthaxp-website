@@ -35,7 +35,7 @@ export function MatchedPathwayPane({ match }: { match: PathwayMatch | null }) {
       title="Pathways"
       pill={{ label: "Matched", tone: "ready" }}
       footnote="Matched to what you have not applied for yet."
-      cta={{ label: "View matched pathway", href: `/programs/${match.slug}` }}
+      cta={{ label: "View matched pathway", href: `/programmes/${match.slug}` }}
     >
       <div className="relative h-full overflow-hidden rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/[0.06] sm:p-7">
         <span

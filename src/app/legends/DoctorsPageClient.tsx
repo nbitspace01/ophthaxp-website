@@ -173,8 +173,8 @@ export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
                     key={d.id}
                     href={
                       specialty !== "all"
-                        ? `/doctors/${d.slug}?specialty=${specialty}`
-                        : `/doctors/${d.slug}`
+                        ? `/legends/${d.slug}?specialty=${specialty}`
+                        : `/legends/${d.slug}`
                     }
                     imageUrl={d.imageUrl}
                     imageAlt={d.name}

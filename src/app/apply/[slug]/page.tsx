@@ -84,7 +84,7 @@ export default async function ApplyPage({
       <FlowHeader />
       <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:py-16">
       <Link
-        href={`/programs/${params.slug}`}
+        href={`/programmes/${params.slug}`}
         className="text-xs font-semibold uppercase tracking-[0.16em] text-white/40 transition hover:text-white/70"
       >
         ← Back to {plainName(course.name)}
@@ -172,7 +172,7 @@ function JourneyFinished({
           View your application
         </Link>
         <Link
-          href="/programs"
+          href="/programmes"
           className="inline-flex rounded-full border border-white/15 px-6 py-3 text-[15px] font-medium text-white/80 transition hover:border-white/25 hover:text-white"
         >
           Browse other programmes

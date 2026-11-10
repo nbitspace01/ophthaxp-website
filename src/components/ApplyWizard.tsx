@@ -819,7 +819,7 @@ export function ApplyWizard({
                 a navigation, and nothing here is worth saving unfinished.
               */}
               <Link
-                href={`/programs/${courseSlug}`}
+                href={`/programmes/${courseSlug}`}
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden /> Back
