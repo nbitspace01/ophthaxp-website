@@ -78,8 +78,11 @@ export function DoctorDetailClient({
   doctor,
   programs = [],
   fromSpecialty,
+  supportEmail,
 }: {
   doctor: Doctor;
+  /** Where "Register your interest" writes to when the Legend has no course yet. */
+  supportEmail?: string;
   /** Still passed by the page; the "More Legends" rail that used it is gone. */
   otherDoctors?: Doctor[];
   programs?: Program[];
@@ -271,18 +274,20 @@ export function DoctorDetailClient({
 
   // "The Master at Work": the Legend's films from the admin, or, with none
   // set, one film built from the intro video and their portrait.
-  // "The Master at Work" shows only the Legend's Film 1–3. A Legend with none
-  // has no films section.
-  const films = useMemo(
-    () =>
-      (doctor.films ?? []).map((film, i) => ({
-        title: film.title || `Film ${i + 1}`,
-        image: film.image || portrait,
-        video: film.video,
-        isPortrait: !film.image,
-      })),
-    [doctor.films, portrait],
-  );
+  // "The Master at Work" shows the Legend's Film 1–3. A Legend with none still
+  // gets the section: one "Coming soon" stage built from their portrait, until
+  // films are added in the admin.
+  const films = useMemo(() => {
+    const own = (doctor.films ?? []).map((film, i) => ({
+      title: film.title || `Film ${i + 1}`,
+      image: film.image || portrait,
+      video: film.video,
+      isPortrait: !film.image,
+    }));
+    return own.length > 0
+      ? own
+      : [{ title: "Coming Soon", image: portrait, video: undefined as string | undefined, isPortrait: true }];
+  }, [doctor.films, portrait]);
   const hasFilms = films.length > 0;
   const stage = films[Math.min(shownFilm, films.length - 1)] ?? {
     title: "",
@@ -291,7 +296,7 @@ export function DoctorDetailClient({
     isPortrait: true,
   };
   const fullBio = (doctor.description || doctor.bio || "").trim();
-  const intro = (doctor.bio || doctor.description || "").trim();
+  const ownIntro = (doctor.bio || doctor.description || "").trim();
   const columns = useMemo(() => editorialColumns(fullBio), [fullBio]);
   // The story columns from the admin. With none set, the biography is laid out
   // across the columns instead, as before.
@@ -299,12 +304,21 @@ export function DoctorDetailClient({
     doctor.storyColumn1 || doctor.storyQuote || doctor.storyColumn2 ||
       doctor.storyColumn3 || doctor.storyHighlight || doctor.storyColumn3After,
   );
-  const showStory = hasStory || Boolean(fullBio);
+  // "Making of the Legend" is always shown. With neither story columns nor a
+  // biography, it holds one "being written" line until the admin fills them.
+  const storyComingSoon = !hasStory && !fullBio;
+  const showStory = true;
 
   const specialtyLabels = doctor.specialty
     .filter((s) => s !== "all")
     .map((s) => SPECIALTY_LABELS[s] ?? s);
   const mainSpecialty = specialtyLabels[0];
+
+  // The hero intro is the Short Bio. With none set, a short "coming soon" line
+  // keeps the hero from looking empty until the admin writes one.
+  const intro =
+    ownIntro ||
+    `${doctor.name} is a Legend of Medicine${mainSpecialty ? ` in ${mainSpecialty}` : ""}. The full profile is coming soon.`;
 
   // The breadcrumb names the specialty the reader filtered by on the Legends
   // page, when this Legend has it; otherwise their first specialty.
@@ -316,14 +330,25 @@ export function DoctorDetailClient({
 
   // The strip under the hero. The admin can write each box; an empty one
   // falls back to specialty, experience and title, then city and qualification.
-  const highlight1 = doctor.profileHighlight1 || specialtyLabels.slice(0, 2).join(" · ");
-  const highlight2Title =
+  // A box with nothing at all to show gets a neutral placeholder, so the strip
+  // always has its three boxes instead of a gap.
+  const highlight1 =
+    doctor.profileHighlight1 || specialtyLabels.slice(0, 2).join(" · ") || "Ophthalmology";
+  let highlight2Title =
     doctor.profileHighlight2Title ||
     (doctor.experienceYears > 0 ? `${doctor.experienceYears}+ years` : doctor.qualification || "");
-  const highlight2Text = doctor.profileHighlight2Text || doctor.title;
-  const highlight3Title = doctor.profileHighlight3Title || doctor.city || "";
-  const highlight3Text =
+  let highlight2Text = doctor.profileHighlight2Text || doctor.title;
+  if (!highlight2Title && !highlight2Text) {
+    highlight2Title = "Mentor";
+    highlight2Text = "Profile details coming soon";
+  }
+  let highlight3Title = doctor.profileHighlight3Title || doctor.city || "";
+  let highlight3Text =
     doctor.profileHighlight3Text || (doctor.city ? doctor.qualification || "India" : doctor.qualification || "");
+  if (!highlight3Title && !highlight3Text) {
+    highlight3Title = "Legends of Medicine";
+    highlight3Text = "Faculty";
+  }
 
   // A Legend can be linked to the same course more than once; show it once.
   const ownPrograms = programs.filter(
@@ -336,11 +361,28 @@ export function DoctorDetailClient({
       ? `/programmes/${doctor.courseSlug}`
       : null;
 
-  const courseName = leadProgram?.name || doctor.courseName || "";
+  // A Legend with no course yet still gets § 4, as a "Coming Soon" card: the
+  // card reads "Programme | Coming Soon", and the call to action asks the
+  // visitor to register their interest by email instead of exploring a course.
+  // Linking a course to the Legend turns it into the normal card by itself.
+  const comingSoon = !programHref;
+  const interestHref = supportEmail
+    ? `mailto:${supportEmail}?subject=${encodeURIComponent(
+        `Interest: Programme with ${doctor.name}`,
+      )}&body=${encodeURIComponent(
+        `Hello,\n\nI would like to know when the programme with ${doctor.name} opens.\n\nName:\nCity:\nPhone:\n`,
+      )}`
+    : "/contact";
+
+  const courseName = comingSoon ? "Programme | Coming Soon" : leadProgram?.name || doctor.courseName || "";
   const plainCourseName = courseName.replace(/s*|s*/g, " ");
   const cardInner = (
     <>
-      {leadProgram?.isNew && <span className="new-pill">New</span>}
+      {comingSoon ? (
+        <span className="new-pill">Coming Soon</span>
+      ) : (
+        leadProgram?.isNew && <span className="new-pill">New</span>
+      )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={doctor.programmeImage || leadProgram?.cardImage || leadProgram?.heroImage || portrait}
@@ -407,7 +449,7 @@ export function DoctorDetailClient({
                     The Legend’s Story <span>↓</span>
                   </a>
                 )}
-                {programHref && (
+                {(
                   <a className="hero-primary-cta" href="#programmes">
                     Learn from the Legend <span>→</span>
                   </a>
@@ -589,6 +631,15 @@ export function DoctorDetailClient({
                   ))}
                 </div>
               </article>
+              ) : storyComingSoon ? (
+              <article className="legend-editorial reveal is-single" aria-label={`The story of ${doctor.name}`}>
+                <div className="editorial-column editorial-column-one">
+                  <p>
+                    The story of {doctor.name} is being written. Check back soon to read how this Legend
+                    shaped the field.
+                  </p>
+                </div>
+              </article>
               ) : (
               <article
                 className={`legend-editorial reveal${columns.length === 1 ? " is-single" : ""}`}
@@ -614,8 +665,9 @@ export function DoctorDetailClient({
           </section>
         )}
 
-        {/* § 4 — PROGRAMMES   What the Legend teaches */}
-        {programHref && (
+        {/* § 4 — PROGRAMMES   What the Legend teaches (always shown; "Coming
+            Soon" until a course is linked to the Legend) */}
+        {(
           <section
             className="programmes section-shell"
             id="programmes"
@@ -630,9 +682,15 @@ export function DoctorDetailClient({
                 {doctor.programmeIntro ||
                   `A structured journey shaped and led by ${doctor.name}, carrying the judgement, methods and standards built across a lifetime into your practice.`}
               </p>
-              <Link className="programme-cta" href={programHref}>
-                Explore the Programme <span>→</span>
-              </Link>
+              {programHref ? (
+                <Link className="programme-cta" href={programHref}>
+                  Explore the Programme <span>→</span>
+                </Link>
+              ) : (
+                <a className="programme-cta" href={interestHref}>
+                  Register Your Interest <span>→</span>
+                </a>
+              )}
             </div>
             <div className="programme-shelf reveal" aria-label={`Programmes by ${doctor.name}`}>
               {doctor.programmeVideo && programmePlaying ? (
@@ -667,10 +725,14 @@ export function DoctorDetailClient({
                     <Play className="h-4 w-4" />
                   </span>
                 </button>
-              ) : (
+              ) : programHref ? (
                 <Link className="programme-card" href={programHref}>
                   {cardInner}
                 </Link>
+              ) : (
+                <a className="programme-card" href={interestHref}>
+                  {cardInner}
+                </a>
               )}
             </div>
           </section>
