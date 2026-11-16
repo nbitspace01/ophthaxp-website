@@ -144,6 +144,8 @@ export interface Program {
   durationWeeks: number;
   cohortSize: number;
   startDate: string; // ISO
+  /** False when no start date was entered and `startDate` is today's placeholder. */
+  startDateSet?: boolean;
   priceInr: number;
   highlights: string[];
   // Detail page presentation

@@ -386,6 +386,7 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     startDate:
       pickString(rec, "startDate", "start_date", "starts_at") ||
       new Date().toISOString().slice(0, 10),
+    startDateSet: !!pickString(rec, "startDate", "start_date", "starts_at"),
     priceInr: pickNumber(rec, "priceInr", "price_inr", "price", "fee") ?? 0,
     highlights: pickStringArray(rec, "highlights", "Highlights"),
     headline: pickString(rec, "headline", "Headline"),
@@ -744,7 +745,12 @@ export async function fetchCoursesFromBackend(): Promise<Program[]> {
   if (active.length !== all.length) {
     console.log(`[courses] hiding ${all.length - active.length} inactive course(s)`);
   }
-  return active;
+  // `isFeatured` on -> the course leads every list, same rule as
+  // selectDisplayDoctors. A stable sort: otherwise the backend's order stays.
+  return active
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => Number(Boolean(b.p.isFeatured)) - Number(Boolean(a.p.isFeatured)) || a.i - b.i)
+    .map(({ p }) => p);
 }
 
 function doctorToFaculty(d: Doctor): Faculty {

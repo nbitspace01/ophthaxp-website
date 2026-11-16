@@ -75,10 +75,17 @@ function formatDuration(minutes?: number): string | null {
   return `${mins}mins`;
 }
 
-function formatLaunch(p: { launchMonth?: string; launchYear?: number; startDate?: string }) {
+function formatLaunch(p: {
+  launchMonth?: string;
+  launchYear?: number;
+  startDate?: string;
+  startDateSet?: boolean;
+}) {
   if (p.launchMonth && p.launchYear) return `${p.launchMonth} ${p.launchYear}`;
   if (p.launchMonth) return `${p.launchMonth}`;
-  if (p.startDate) {
+  // Only a start date that was entered: an empty one is today's placeholder,
+  // which made "Starting From" show the current month for every course.
+  if (p.startDate && p.startDateSet !== false) {
     const d = new Date(p.startDate);
     if (!Number.isNaN(d.getTime())) {
       return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
@@ -100,6 +107,9 @@ function formatLaunch(p: { launchMonth?: string; launchYear?: number; startDate?
  * programme - shorter, and the truer caption for a signature on its
  * certificate either way.
  */
+/** Shown wherever a programme value has not been entered yet. */
+const COMING_SOON = "Coming soon";
+
 const ROLE_FITS = 32;
 function signatureRole(title?: string): string {
   const first = String(title ?? "").split(/[|\u00b7\u2014]/)[0].trim();
@@ -219,6 +229,13 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         ]
       : []),
   ];
+
+  // The roadmap draws itself from the phases, or one step per month when there
+  // are none; with neither it has nothing to show, so a "coming soon" note
+  // stands in for it.
+  const roadmapMonths =
+    p.durationMonths ?? (p.durationWeeks ? Math.round(p.durationWeeks / 4.33) : undefined);
+  const hasRoadmap = roadmapItems.length > 0 || (!!roadmapMonths && roadmapMonths > 0);
 
   // The FAQ deck speaks q/a; the `faqs` column on the course row is
   // question/answer, so it is mapped rather than duplicated in two shapes.
@@ -359,9 +376,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 </p>
               ) : null}
 
-              {p.tagline && (
-                <p className="mt-[17px] max-w-[470px] text-[14px] leading-[1.6] text-[#b7b7bb] mb-[14px]">{p.tagline}</p>
-              )}
+              <p className="mt-[17px] max-w-[470px] text-[14px] leading-[1.6] text-[#b7b7bb] mb-[14px]">
+                {p.tagline || "The full programme details are coming soon."}
+              </p>
 
               {p.trailerVideoUrl && (
                 <a
@@ -374,16 +391,14 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               )}
 
               {/* Stat strip — duration · cohort · launch */}
-              {(heroDuration || p.cohortSize || launchLabel) && (
+              {/* Always all three; a value not entered yet reads "Coming soon". */}
+              {(
                 <div className="mt-[18px] mb-[16px] grid grid-cols-3 border-t border-b border-[#2b2b2b] py-[16px] text-left">
                   {[
-                    heroDuration && { value: heroDuration, label: "Duration" },
-                    p.cohortSize
-                      ? { value: String(p.cohortSize), label: "Cohort Size" }
-                      : null,
-                    launchLabel && { value: launchLabel, label: "Starting From" },
+                    { value: heroDuration || COMING_SOON, label: "Duration" },
+                    { value: p.cohortSize ? String(p.cohortSize) : COMING_SOON, label: "Cohort Size" },
+                    { value: launchLabel || COMING_SOON, label: "Starting From" },
                   ]
-                    .filter(Boolean)
                     .map((stat, i) => {
                       const s = stat as { value: string; label: string };
                       return (
@@ -438,12 +453,19 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             <h2 id="legend-title" className={`mt-3 ${HEADING}`}>
               What Becomes Possible
             </h2>
-            <div className="mt-5 sm:mt-7 mx-auto max-w-[85%]">
+            <div className="relative mt-5 sm:mt-7 mx-auto max-w-[85%]">
               <LegendTrailer
                 src={p.trailerVideoUrl}
                 poster={p.filmThumbnailUrl || heroImage}
                 name={legendName}
               />
+              {!p.trailerVideoUrl && (
+                <div className="pointer-events-none absolute inset-0 flex items-end justify-start rounded-[12px] bg-gradient-to-t from-black/80 via-black/20 to-transparent p-5 sm:p-8">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/50 px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur">
+                    Programme film coming soon
+                  </span>
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -471,11 +493,25 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         </div>
 
         {/* § 5 — THE ROADMAP */}
-        <CourseRoadmap
-          items={roadmapItems}
-          durationMonths={p.durationMonths ?? (p.durationWeeks ? Math.round(p.durationWeeks / 4.33) : undefined)}
-          subtitle={p.eligibility || undefined}
-        />
+        {hasRoadmap ? (
+          <CourseRoadmap
+            items={roadmapItems}
+            durationMonths={roadmapMonths}
+            subtitle={p.eligibility || undefined}
+          />
+        ) : (
+          <section aria-labelledby="arc-soon-title" className={SECTION}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+              Roadmap to Mastery
+            </p>
+            <h2 id="arc-soon-title" className={`mt-3 ${HEADING}`}>
+              The Programme Arc
+            </h2>
+            <p className="mt-4 max-w-[640px] text-[15px] leading-[1.7] text-[#A5A5A5]">
+              The phase-by-phase journey of this programme is being finalised and is coming soon.
+            </p>
+          </section>
+        )}
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
         <HowItWorks heading="Your Path into the Programme" align="left" />
@@ -514,7 +550,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                   <p className="mt-2 text-[11px] leading-[1.6] text-white/60">{p.headline || plainName(p.name)}</p>
                   <p className="mt-0.5 text-[10px] text-white/40">Guided by {signatory.name}</p>
                   <p className="mt-6 font-serif text-[1.35rem] italic leading-none text-[#C97B50]">{signatory.name}</p>
-                  {(p.launchYear || p.startDate) && (
+                  {(p.launchYear || (p.startDate && p.startDateSet !== false)) && (
                     <p className="mt-4 text-[8px] font-semibold uppercase tracking-[0.26em] text-white/30">
                       Cohort {p.launchYear ?? new Date(p.startDate).getFullYear()}
                     </p>
@@ -528,7 +564,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* ══════════════════════════════════════════════════════════════
             § 7 — INVESTMENT
         ══════════════════════════════════════════════════════════════ */}
-        {priceText && (
+        {(
           <section aria-labelledby="investment-title" className={SECTION}>
             <div className="rounded-[16px] border border-[#2A2A2A] bg-[#0F0F0F] lg:flex">
               {/* Left — fee + description */}
@@ -538,7 +574,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 </p>
                 <div className="flex flex-1 flex-col justify-center">
                   <p className="mt-2 text-[clamp(1.9rem,3.8vw,3rem)] font-bold leading-none text-white">
-                    ₹{priceText}
+                    {priceText ? `₹${priceText}` : "Fee announced soon"}
                   </p>
                   <p className="mt-3 text-[13px] leading-[1.6] text-[#888]">
                     Covers the complete {heroDuration ? heroDuration.toLowerCase() + " " : ""}programme journey, including all Legend-led engagements, and access to the LoM learning ecosystem.
@@ -551,25 +587,23 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {/* Right — stats grid + buttons */}
               <div className="flex flex-col justify-between p-5 sm:p-7 lg:w-[48%]">
                 <div className="grid grid-cols-2">
-                  {heroDuration && (
-                    <div className="py-5 pr-8">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
-                      <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration}</p>
-                      <div className="mt-4 h-px bg-[#2A2A2A]" />
-                    </div>
-                  )}
+                  <div className="py-5 pr-8">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Duration</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">{heroDuration || COMING_SOON}</p>
+                    <div className="mt-4 h-px bg-[#2A2A2A]" />
+                  </div>
                   <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Format</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">{p.format ?? "Hybrid · Live virtual & in-person"}</p>
                     <div className="mt-4 h-px bg-[#2A2A2A]" />
                   </div>
-                  {p.cohortSize && (
-                    <div className="py-5 pr-8">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
-                      <p className="mt-1.5 text-[14px] font-medium text-white">{p.cohortSize} doctors</p>
-                      <div className="mt-4 h-px bg-[#2A2A2A]" />
-                    </div>
-                  )}
+                  <div className="py-5 pr-8">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Cohort</p>
+                    <p className="mt-1.5 text-[14px] font-medium text-white">
+                      {p.cohortSize ? `${p.cohortSize} doctors` : COMING_SOON}
+                    </p>
+                    <div className="mt-4 h-px bg-[#2A2A2A]" />
+                  </div>
                   <div className="py-5 pl-8">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#666]">Admission</p>
                     <p className="mt-1.5 text-[14px] font-medium text-white">{p.admissionText ?? "Following a Dialogue with the Legend"}</p>
@@ -606,16 +640,24 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         {/* ══════════════════════════════════════════════════════════════
             § 7 — SUPPORTING DETAIL   FAQs · Certificate · other Legends
         ══════════════════════════════════════════════════════════════ */}
-        {faqItems.length > 0 && (
-          <section aria-labelledby="course-faq-title" className={SECTION}>
-            <h2 id="course-faq-title" className={`text-center ${HEADING}`}>
-              Frequently asked questions
-            </h2>
+        <section aria-labelledby="course-faq-title" className={SECTION}>
+          <h2 id="course-faq-title" className={`text-center ${HEADING}`}>
+            Frequently asked questions
+          </h2>
+          {faqItems.length > 0 ? (
             <div className="mt-10 sm:mt-16">
               <FaqGrid key={p.slug} items={faqItems} label={plainName(p.name)} />
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="mx-auto mt-6 max-w-[560px] text-center text-[15px] leading-[1.7] text-[#A5A5A5]">
+              Questions about this programme are coming soon. Until then,{" "}
+              <Link href="/contact" className="text-white underline-offset-4 hover:underline">
+                speak to our concierge
+              </Link>
+              .
+            </p>
+          )}
+        </section>
 
         <div className={`${SHELL} pb-24`}>
           <Link
