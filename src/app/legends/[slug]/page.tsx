@@ -6,6 +6,7 @@ import {
   fetchDoctorsFromBackend,
 } from "@/lib/courses";
 import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { LEGAL } from "@/lib/legal";
 import { DoctorDetailClient } from "./DoctorDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -99,6 +100,7 @@ export default async function DoctorDetailPage({
       />
       <DoctorDetailClient doctor={d} otherDoctors={others} programs={programs}
         fromSpecialty={searchParams?.specialty}
+        supportEmail={LEGAL.supportEmail}
       />
     </>
   );

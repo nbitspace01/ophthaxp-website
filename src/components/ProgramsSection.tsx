@@ -112,6 +112,7 @@ export function ProgramsSection({
       courseName: string;
       courseSlug: string;
       isNew?: boolean;
+      isFeatured?: boolean;
     }[] = [];
     for (const d of data) {
       // Split schema: the course row points at the doctor. Merged schema: the
@@ -121,9 +122,19 @@ export function ProgramsSection({
       const courseName = linked?.name || d.courseName;
       const courseSlug = linked?.slug || d.courseSlug;
       if (!courseName || !courseSlug) continue;
-      out.push({ doctor: d, courseName, courseSlug, isNew: linked?.isNew });
+      out.push({
+        doctor: d,
+        courseName,
+        courseSlug,
+        isNew: linked?.isNew,
+        isFeatured: linked?.isFeatured,
+      });
     }
-    return out;
+    // A featured course leads the rail; otherwise the Legends' order stays.
+    return out
+      .map((e, i) => ({ e, i }))
+      .sort((a, b) => Number(Boolean(b.e.isFeatured)) - Number(Boolean(a.e.isFeatured)) || a.i - b.i)
+      .map(({ e }) => e);
   }, [data, courseByDoctorSlug]);
 
   const filtered = useMemo(() => {
