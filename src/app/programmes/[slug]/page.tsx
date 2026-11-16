@@ -617,40 +617,6 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           </section>
         )}
 
-        {related.length > 0 && (
-          <section aria-labelledby="related-title" className={SECTION}>
-            <h2 id="related-title" className={HEADING}>
-              From Here, Go Anywhere
-            </h2>
-            <p className="mt-3 text-[15px] text-[#A5A5A5]">
-              Included with a membership. And {related.length}+ more
-            </p>
-            <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5">
-              {related.map((d) => (
-                <li key={d.id}>
-                  <Link
-                    href={`/legends/${d.slug}`}
-                    className="group block overflow-hidden rounded-[12px] border border-[#4A4A4A] bg-ink-800 transition hover:border-white/25"
-                  >
-                    <div className="aspect-[3/4] w-full overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={d.imageUrl}
-                        alt={d.name}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <p className="text-sm font-semibold text-white">{d.name}</p>
-                      <p className="mt-0.5 text-xs text-[#A5A5A5]">{d.title}</p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         <div className={`${SHELL} pb-24`}>
           <Link
             href="/programmes"
