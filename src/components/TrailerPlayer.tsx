@@ -116,7 +116,9 @@ export function TrailerPlayer({ src, poster, title = "Video", className }: Props
       <div className={className}>
         {poster ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={poster} alt={title} className="h-full w-full object-cover" />
+          // The poster is often the Legend's photo; a photo taller than the
+          // frame keeps its top (the head) in view. A 16:9 still is unaffected.
+          <img src={poster} alt={title} className="h-full w-full object-cover object-[center_15%]" />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-black/40 text-sm text-white/60">
             No video uploaded

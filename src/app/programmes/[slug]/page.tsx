@@ -317,7 +317,9 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           {/* Desktop: two-column grid — image left, content right */}
           <div className="lg:grid lg:grid-cols-[56%_44%] lg:h-[650px] lg:items-center overflow-hidden border-b border-[#181818]">
             {/* Image column — desktop only */}
-            <div className="hidden lg:grid lg:place-items-center relative overflow-hidden group bg-black" style={{ isolation: "isolate" }}>
+            {/* Fills the band and centres a photo that fits; a taller photo grows the
+                column from the top, so its top (the head) stays in view. */}
+            <div className="hidden lg:grid lg:place-items-center lg:self-start lg:min-h-full relative overflow-hidden group bg-black" style={{ isolation: "isolate" }}>
               {/* Radial glows (::before) — faint at rest, vivid on hover */}
               <span aria-hidden className="pointer-events-none absolute inset-0 z-[1] opacity-[.12] group-hover:opacity-100 transition-opacity duration-[650ms]" style={{ background: "radial-gradient(circle at 31% 43%,rgba(106,165,203,.2),transparent 29%),radial-gradient(circle at 69% 44%,rgba(183,90,68,.18),transparent 28%)" }} />
               {heroImage ? (
