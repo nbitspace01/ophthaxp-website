@@ -50,6 +50,38 @@ function pickNumber(rec: RawRecord, ...keys: string[]): number | undefined {
 }
 
 /**
+ * A link copied from a rendered page ("Copy image address") is a Next.js
+ * optimiser link, `…/_next/image?url=<original>&w=384&q=75`: a small, resized
+ * preview that looks blurred when shown large. Use the original it wraps.
+ */
+function unwrapNextImage(value: string): string {
+  for (let i = 0; i < 3; i++) {
+    let inner: string | null = null;
+    try {
+      const u = new URL(value, "http://x");
+      if (u.pathname.endsWith("/_next/image")) inner = u.searchParams.get("url");
+    } catch {
+      return value;
+    }
+    if (!inner) return value;
+    value = inner;
+  }
+  return value;
+}
+
+/**
+ * A link copied from the home page hero carries the crop this site adds there
+ * (HERO_FACE_CROP: a 640px face close-up). Stored as a Legend or course image
+ * it shows that close-up blown up. Drop only our own crop, so the original
+ * upload is used; any other Cloudinary transformation is kept as entered.
+ */
+function stripSiteCrop(value: string): string {
+  if (!/^https:\/\/res\.cloudinary\.com\//i.test(value)) return value;
+  const marker = `${CLOUDINARY_UPLOAD}${HERO_FACE_CROP}/`;
+  return value.includes(marker) ? value.replace(marker, CLOUDINARY_UPLOAD) : value;
+}
+
+/**
  * Normalise a media URL coming from the nocode backend. Public-file URLs
  * (relative or absolute) are routed through the same-origin `/_proxy/files/*`
  * rewrite defined in next.config.mjs — that lets HTTPS pages load assets from
@@ -60,6 +92,7 @@ function pickNumber(rec: RawRecord, ...keys: string[]): number | undefined {
 function absoluteUrl(value?: string): string | undefined {
   if (!value) return undefined;
   if (value.startsWith("data:")) return value;
+  value = stripSiteCrop(unwrapNextImage(value));
   const fileMatch = /\/api\/public\/files\/(.+)$/i.exec(value);
   if (fileMatch) return `/api/media/${fileMatch[1]}`;
   if (/^https?:\/\//i.test(value)) return value;
