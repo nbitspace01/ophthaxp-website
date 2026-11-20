@@ -934,3 +934,10 @@
 .lom-legend .editorial-column p,
 .lom-legend .editorial-highlight,
 .lom-legend .programme-copy p{white-space:pre-line;overflow-wrap:break-word}
+
+/* Admin-typed titles wrap instead of being cut off or running past their
+   box (programme card title, story quote, a long Legend name). Short text
+   still sits on one line exactly as before; only overflow wraps. */
+.lom-legend .programme-card-copy h3,
+.lom-legend .editorial-column blockquote,
+.lom-legend .hero-copy h1{white-space:normal;overflow-wrap:break-word;text-wrap:balance}

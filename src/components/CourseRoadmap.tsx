@@ -243,7 +243,7 @@ function ArcCard({
     <article className={cls}>
       {wire}
       <div className="phase-tile-copy absolute z-[3] left-[14px] top-0 bottom-0 flex flex-col justify-center" style={{ width: "64%" }}>
-        <h4 className="font-serif leading-[1.12] m-0 mb-[9px] whitespace-nowrap"
+        <h4 className="font-serif leading-[1.12] m-0 mb-[9px] break-words [text-wrap:balance]"
           style={{ fontSize: 16.5, fontWeight: 550, color: headColor }}>
           {heading}
         </h4>

@@ -492,6 +492,14 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     certificateNote: pickString(rec, "certificateNote", "certificate_note"),
     format: pickString(rec, "format"),
     admissionText: pickString(rec, "admissionText", "admission_text"),
+    certificateText: pickString(rec, "certificateText", "certificate_text"),
+    // Always the three cards; a blank input keeps that card's standard one.
+    pathSteps: [1, 2, 3].map((n) => ({
+      label: pickString(rec, `path${n}Label`),
+      title: pickString(rec, `path${n}Title`),
+      description: pickString(rec, `path${n}Description`),
+      image: absoluteUrl(pickString(rec, `path${n}Image`)),
+    })),
     sampleCertificateImage: absoluteUrl(
       pickString(
         rec,
