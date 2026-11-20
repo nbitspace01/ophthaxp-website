@@ -941,3 +941,19 @@
 .lom-legend .programme-card-copy h3,
 .lom-legend .editorial-column blockquote,
 .lom-legend .hero-copy h1{white-space:normal;overflow-wrap:break-word;text-wrap:balance}
+
+/* Legend name a size smaller, so a full name ("Dr. Srinivas K. Rao") sits
+   on one line in the hero column instead of breaking onto two. */
+.lom-legend .hero-copy h1{font-size:clamp(30px,2.7vw,44px)}
+@media (max-width:900px){.lom-legend .hero-copy h1{font-size:clamp(30px,7vw,44px)}}
+
+/* Long paragraphs (hero intro, Story columns, Programme intro): both edges
+   straight, like a printed page; words are never split with a hyphen. The
+   highlight box and the small kicker labels keep their own alignment. */
+.lom-legend .legend-intro,
+.lom-legend .editorial-column p:not(.editorial-highlight),
+.lom-legend .programme-copy p:not(.section-kicker){text-align:justify;hyphens:none;word-break:normal;overflow-wrap:break-word}
+
+/* Story highlight box: the same space on the right as on the left (it had
+   none, so the text ran into the edge), and justified like the story. */
+.lom-legend .editorial-highlight{padding-right:18px!important;text-align:justify;hyphens:none;word-break:normal;overflow-wrap:break-word}
