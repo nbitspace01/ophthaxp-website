@@ -545,7 +545,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               {/* Written per course in the admin (Certificate · Description);
                   "Coming soon" until it is filled in, like the other course
                   details. */}
-              <p className="mt-4 whitespace-pre-line break-words text-[17px] leading-[1.8] text-[#4A3F35]">
+              <p className="mt-4 whitespace-pre-line break-words text-justify hyphens-none text-[17px] leading-[1.8] text-[#4A3F35]">
                 {p.certificateText || COMING_SOON}
               </p>
             </div>
