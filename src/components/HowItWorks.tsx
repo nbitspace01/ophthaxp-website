@@ -240,8 +240,32 @@ function Chip({
   );
 }
 
-export function HowItWorks({ heading, align }: { heading?: string; align?: "left" | "center" } = {}) {
+/** A step written in the admin; any part left blank keeps the standard one. */
+export type PathStep = { label?: string; title?: string; description?: string; image?: string };
+
+export function HowItWorks({
+  heading,
+  align,
+  steps: custom,
+}: { heading?: string; align?: "left" | "center"; steps?: PathStep[] } = {}) {
   const isLeft = align === "left";
+  // Course page: the course's own steps when it has any. A blank part (or a
+  // step beyond the standard three) falls back to the standard step at that
+  // position, so a card is never left without a picture or a title.
+  const STEPS_SHOWN =
+    custom && custom.length > 0
+      ? custom.map((s, i) => {
+          const base = STEPS[i] ?? STEPS[STEPS.length - 1];
+          return {
+            n: i + 1,
+            label: s.label || base.label,
+            title: s.title || base.title,
+            description: s.description || base.description,
+            src: s.image || base.src,
+            position: s.image ? "center" : base.position,
+          };
+        })
+      : STEPS;
   return (
     <section
       id="how-it-works"
@@ -263,7 +287,7 @@ export function HowItWorks({ heading, align }: { heading?: string; align?: "left
           on hover, which a touch screen has no way to ask for. In the rail the
           card is taller and the description is simply shown. */}
       <ol className="no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory scroll-pl-5 gap-3.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-16 sm:grid sm:grid-cols-2 sm:overflow-x-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
-        {STEPS.map((step, i) => {
+        {STEPS_SHOWN.map((step, i) => {
           return (
             <li
               key={step.n}
@@ -292,7 +316,7 @@ export function HowItWorks({ heading, align }: { heading?: string; align?: "left
               {/* Step label — left, badge — right */}
               <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">{step.label}</span>
-                <StepBadge n={step.n} total={STEPS.length} />
+                <StepBadge n={step.n} total={STEPS_SHOWN.length} />
               </div>
 
               <div className="absolute inset-x-0 bottom-[6%] z-10 px-5 text-center">

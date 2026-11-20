@@ -516,7 +516,14 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
         )}
 
         {/* § 6 — YOUR PATH INTO THE PROGRAMME */}
-        <HowItWorks heading="Your Path into the Programme" align="left" />
+        {/* The three cards per course from the admin (Your Path Card 1-3);
+            each input left blank keeps the standard one. The heading and
+            the note under the cards are fixed. */}
+        <HowItWorks
+          heading="Your Path into the Programme"
+          align="left"
+          steps={p.pathSteps}
+        />
         <p className={`${SHELL} -mt-8 mb-6 text-center text-[14px] font-sans text-[#888]`}>
           The Dialogue carries a fee. If you join the cohort, it is adjusted in full against the programme fee.
         </p>
@@ -535,8 +542,11 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 Among the{" "}
                 <em className="font-normal not-italic" style={{ fontFamily: "var(--font-playfair), serif", fontStyle: "italic" }}>Few</em>
               </h2>
-              <p className="mt-4 text-[17px] leading-[1.8] text-[#4A3F35]">
-                Take your place among a select group of ophthalmologists from around the world, guided directly by {signatory.name} and carry his depth of judgement and clinical standards into your own practice.
+              {/* Written per course in the admin (Certificate · Description);
+                  "Coming soon" until it is filled in, like the other course
+                  details. */}
+              <p className="mt-4 whitespace-pre-line break-words text-[17px] leading-[1.8] text-[#4A3F35]">
+                {p.certificateText || COMING_SOON}
               </p>
             </div>
             {/* Right — dark certificate card */}

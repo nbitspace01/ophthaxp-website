@@ -444,11 +444,12 @@ export function DoctorDetailClient({
               </p>
               {intro && <p className="legend-intro">{intro}</p>}
               <div className="hero-cta-row">
-                {fullBio && (
-                  <a className="story-link" href="#making">
-                    The Legend’s Story <span>↓</span>
-                  </a>
-                )}
+                {/* Always shown: the "Making of the Legend" section below is
+                    always rendered (the story, the bio, or a "being written"
+                    note), so the link always has somewhere to go. */}
+                <a className="story-link" href="#making">
+                  The Legend’s Story <span>↓</span>
+                </a>
                 {(
                   <a className="hero-primary-cta" href="#programmes">
                     Learn from the Legend <span>→</span>

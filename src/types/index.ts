@@ -178,6 +178,10 @@ export interface Program {
   faqs?: CourseFaq[];
   format?: string;
   admissionText?: string;
+  /** The sentence beside the certificate ("Among the Few"); blank = Coming soon. */
+  certificateText?: string;
+  /** "Your Path into the Programme", per course; each blank part keeps the standard one. */
+  pathSteps?: { label?: string; title?: string; description?: string; image?: string }[];
   certificateNote?: string;
   sampleCertificateImage?: string;
   // CTA / flags
