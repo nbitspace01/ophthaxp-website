@@ -15,7 +15,7 @@ import { User } from "lucide-react";
 
 interface Account {
   user: { email: string; firstName: string } | null;
-  application: { return_path?: string; current_step?: number } | null;
+  application: { id?: number; return_path?: string; current_step?: number } | null;
 }
 
 export function AccountMenu() {
@@ -56,22 +56,12 @@ export function AccountMenu() {
 
   const signedIn = Boolean(account?.user);
 
-  // The application is a page now. Rows from the popup era point at
-  // /programs/[slug]; both routes share the slug, so they map straight across.
-  const resumeHref = (() => {
-    const path = account?.application?.return_path;
-    if (!path || !path.startsWith("/") || path.startsWith("//")) return "/programmes";
-
-    const base = path.split("?")[0];
-    const target = base.startsWith("/apply/")
-      ? base
-      : /^\/program(me)?s\//.test(base)
-        ? base.replace(/^\/program(me)?s\//, "/apply/")
-        : "";
-
-    if (!target) return "/programmes";
-    return `${target}?step=${Number(account?.application?.current_step) || 1}`;
-  })();
+  // Resolved on the server at click time (app/account/continue/route.ts): the
+  // course is looked up live, so a renamed or removed one lands on the account
+  // page instead of a 404.
+  const resumeHref = account?.application?.id
+    ? `/account/continue?id=${account.application.id}`
+    : "/account/continue";
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);

@@ -380,7 +380,7 @@ function ArcPanelMobile({
         {item.title}{item.subtitle ? ` ${item.subtitle}` : ""}
       </h3>
       {item.description && (
-        <p className="font-serif italic mt-2 text-[13px] text-[#aaa8aa] leading-[1.6]">{item.description}</p>
+        <p className="font-serif italic mt-2 whitespace-pre-line break-words text-[13px] text-[#aaa8aa] leading-[1.6]">{item.description}</p>
       )}
       <div className="mt-5">
         <PhaseAxis left="WITH THE LEGEND" right="THE EXPERIENCE" />
@@ -443,7 +443,7 @@ function ArcRoadmap({ items, title, subtitle }: { items: Item[]; title: string; 
           </h2>
         </div>
         <div style={{ width: "min(410px,100%)" }} className="mt-6 sm:mt-0">
-          <p className="m-0 text-[14px] leading-[1.65] text-[#a9a9ad]">{subtitle}</p>
+          <p className="m-0 whitespace-pre-line break-words text-[14px] leading-[1.65] text-[#a9a9ad]">{subtitle}</p>
           <div className="flex items-center gap-[25px] mt-[18px] text-[11px] text-[#b8b8bc]">
             <span className="inline-flex items-center gap-[9px] whitespace-nowrap">
               <i style={{ width:12,height:12,borderRadius:"50%",background:"#469cf2",boxShadow:"0 0 16px #469cf2",display:"inline-block" }}/>
@@ -595,7 +595,7 @@ function AccordionRoadmap({ items, title, subtitle }: { items: Item[]; title: st
                 <span className="min-w-0 flex-1">
                   <span className="block text-lg font-semibold leading-snug text-white sm:text-2xl">{item.title}</span>
                   {item.description && (
-                    <span className={`mt-2 block text-sm leading-[1.6] tracking-[0.01em] text-[#A5A5A5] sm:text-[15px] ${open || !expandable ? "" : "line-clamp-1"}`}>
+                    <span className={`mt-2 block whitespace-pre-line break-words text-sm leading-[1.6] tracking-[0.01em] text-[#A5A5A5] sm:text-[15px] ${open || !expandable ? "" : "line-clamp-1"}`}>
                       {item.description}
                     </span>
                   )}

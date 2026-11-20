@@ -123,7 +123,11 @@ export async function loadApplications(email: string): Promise<ApplicationRow[]>
       currentStep: app.current_step,
       leadStatus: leadStatuses[index],
     }),
-    resumeTo: resumeHref(app.return_path, Number(app.current_step) || 1),
+    // Through the server-side resolver so a renamed course cannot 404.
+    resumeTo:
+      app.id != null
+        ? `/account/continue?id=${app.id}`
+        : resumeHref(app.return_path, Number(app.current_step) || 1),
     currentStep: Number(app.current_step) || 1,
     payments: payments[index],
   }));
