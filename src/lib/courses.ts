@@ -866,6 +866,31 @@ export async function fetchCourseFromBackend(slug: string): Promise<Program | nu
   return found ? await attachFaculty(found) : null;
 }
 
+/**
+ * The live slug of the course an application belongs to.
+ *
+ * "Continue where you left off" used to trust the path saved on the
+ * application, so a course whose Page Link was renamed (or a draft saved from
+ * an old URL) sent the applicant to a 404. Looked up by id first, then by the
+ * saved slug, and null when neither still exists.
+ */
+export async function resolveCourseSlug(
+  courseId?: string | number | null,
+  slugHint?: string | null,
+): Promise<string | null> {
+  const all = await listAllPrograms();
+  if (courseId != null && String(courseId) !== "") {
+    const byId = all.find((p) => String(p.id) === String(courseId));
+    if (byId) return byId.slug;
+  }
+  if (slugHint) {
+    const wanted = toUrlSlug(slugHint);
+    const bySlug = all.find((p) => p.slug === wanted);
+    if (bySlug) return bySlug.slug;
+  }
+  return null;
+}
+
 export async function fetchCourseSlugsFromBackend(): Promise<string[]> {
   const all = await fetchCoursesFromBackend();
   return all.map((p) => p.slug);

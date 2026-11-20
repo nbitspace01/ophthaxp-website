@@ -926,3 +926,11 @@
 .lom-legend .films .film-showcase.is-playing .film-heading,.lom-legend .films .film-showcase.is-playing .film-dots{opacity:0;pointer-events:none}
 .lom-legend .film-inline-close{position:absolute;z-index:20;right:18px;top:18px;display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.6);color:#fff;backdrop-filter:blur(8px);cursor:pointer;transition:background .25s ease,border-color .25s ease}
 .lom-legend .film-inline-close:hover{background:var(--copper);border-color:var(--copper)}
+
+/* Long text typed in the admin (Short Bio, Story, Highlight Box, Programme
+   Intro): keep the line breaks it was written with, and wrap a long word or
+   link inside its column instead of letting it run past the edge. */
+.lom-legend .legend-intro,
+.lom-legend .editorial-column p,
+.lom-legend .editorial-highlight,
+.lom-legend .programme-copy p{white-space:pre-line;overflow-wrap:break-word}

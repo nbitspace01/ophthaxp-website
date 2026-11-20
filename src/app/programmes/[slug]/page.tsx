@@ -378,7 +378,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
                 </p>
               ) : null}
 
-              <p className="mt-[17px] max-w-[470px] text-[14px] leading-[1.6] text-[#b7b7bb] mb-[14px]">
+              <p className="mt-[17px] max-w-[470px] whitespace-pre-line break-words text-[14px] leading-[1.6] text-[#b7b7bb] mb-[14px]">
                 {p.tagline || "The full programme details are coming soon."}
               </p>
 
