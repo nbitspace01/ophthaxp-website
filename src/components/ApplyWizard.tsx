@@ -48,15 +48,18 @@ function passwordProblem(password: string): string | null {
   return null;
 }
 
+// Internally the steps keep the platform's numbers (1 details, 3 slot, 4 pay,
+// 5 done) so saved applications and the backend are untouched. The old step 2
+// ("Your cases") only held the Submit button, which now runs at the end of
+// step 1, so it is no longer shown or counted.
 const STEP_LABELS = [
   "Your details",
-  "Your cases",
   "Pick a slot",
   "Confirm & pay",
 ] as const;
 
 /** Past the last form step: the journey is finished. */
-const DONE_STEP = STEP_LABELS.length + 1;
+const DONE_STEP = 5;
 
 interface WizardUser {
   id: string;
@@ -149,9 +152,16 @@ export function ApplyWizard({
     application?.id ?? null,
   );
   const [step, setStep] = useState<number>(() => {
-    if (requestedStep && requestedStep >= 1 && requestedStep <= 5) return requestedStep;
-    return Number(application?.current_step) || 1;
+    // A saved step 2 means details were saved but never submitted; step 2 no
+    // longer exists, so that person finishes (and submits) from step 1.
+    const normalise = (n: number) => (n === 2 ? 1 : n);
+    if (requestedStep && requestedStep >= 1 && requestedStep <= 5) return normalise(requestedStep);
+    return normalise(Number(application?.current_step) || 1);
   });
+  // Already past submit (lead raised): step 1 must not post the form again.
+  const [submitted, setSubmitted] = useState<boolean>(
+    application?.status === "submitted",
+  );
 
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -249,6 +259,12 @@ export function ApplyWizard({
       if (password !== confirmPassword) return setErrorMsg("The two passwords do not match.");
     }
 
+    // Details were already submitted; they are locked, so just move on.
+    if (submitted && applicationId) {
+      goTo(3);
+      return;
+    }
+
     setBusy(true);
     setErrorMsg(null);
 
@@ -305,9 +321,15 @@ export function ApplyWizard({
       }
 
       setApplicationId(body.applicationId);
-      if (body.user) setUser(body.user);
       setJustSignedUp(Boolean(body.signedUp));
-      goTo(2);
+
+      // Details saved — submit straight away (this used to be step 2's button).
+      // `user` is set only afterwards: setting it now would swap the form's
+      // fields for the "Applying as" card for the second the submit takes,
+      // which looked like another step flashing past.
+      const ok = await submitApplication(body.applicationId);
+      if (body.user) setUser(body.user);
+      if (ok) goTo(3);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -317,26 +339,21 @@ export function ApplyWizard({
 
   // ─── step 2 → submit ───────────────────────────────────────────────────────
 
-  const submitApplication = async () => {
-    if (!applicationId) return setErrorMsg("Your application could not be found.");
-
-    setBusy(true);
-    setErrorMsg(null);
-
+  /** Raises the lead and moves the row to step 3. True when it worked. */
+  const submitApplication = async (id: number): Promise<boolean> => {
     try {
       const res = await fetch("/api/applications/submit", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id: applicationId }),
+        body: JSON.stringify({ id }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body?.error ?? "Submission failed");
-      // The server has already moved the row to step 3.
-      goTo(3);
+      setSubmitted(true);
+      return true;
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setBusy(false);
+      return false;
     }
   };
 
@@ -699,7 +716,7 @@ export function ApplyWizard({
 
       {step <= 4 ? <Stepper current={step} /> : null}
 
-      {justSignedUp && step === 2 ? (
+      {justSignedUp && step === 3 ? (
         <p className="mt-6 rounded-xl bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-200 ring-1 ring-amber-500/30">
           We&rsquo;ve emailed you a link to verify your address. You can carry on now — but
           you&rsquo;ll need to verify before you can log back in later.
@@ -841,24 +858,6 @@ export function ApplyWizard({
         </Panel>
       ) : null}
 
-      {step === 2 ? (
-        <Panel>
-          <h2 className="font-serif text-[22px] leading-[1.25] tracking-[-0.01em] text-white">A few cases you&rsquo;ve seen</h2>
-          <p className="mt-3 text-sm text-white/65">
-            We&rsquo;ll go through your cases together on the session. Send your application
-            when you&rsquo;re ready.
-          </p>
-          <div className="mt-6 flex items-center gap-3">
-            <SecondaryButton onClick={() => { void saveStep(1); goTo(1); }} disabled={busy}>
-              <ArrowLeft className="h-4 w-4" aria-hidden /> Back
-            </SecondaryButton>
-            <PrimaryButton busy={busy} busyLabel="Submitting…" onClick={submitApplication} type="button">
-              Submit application
-            </PrimaryButton>
-          </div>
-        </Panel>
-      ) : null}
-
       {step === 3 ? (
         <Panel>
           {booked ? (
@@ -885,7 +884,7 @@ export function ApplyWizard({
 
               <div className="mt-6 flex items-center gap-3">
                 {/* The hold is not spent by looking back at the form. */}
-                <SecondaryButton onClick={() => { void saveStep(2); goTo(2); }} disabled={busy}>
+                <SecondaryButton onClick={() => { void saveStep(1); goTo(1); }} disabled={busy}>
                   <ArrowLeft className="h-4 w-4" aria-hidden /> Back
                 </SecondaryButton>
                 <PrimaryButton busy={false} busyLabel="" onClick={() => goTo(4)} type="button">
@@ -933,8 +932,19 @@ export function ApplyWizard({
                 </div>
               ) : null}
 
-              {loadingSlots ? (
-                <p className="mt-5 text-sm text-white/50">Checking their calendar…</p>
+              {/* Covers the gap before the request starts as well as the request. */}
+              {loadingSlots || (slots === null && !slotsError) ? (
+                <div role="status" aria-live="polite">
+                  <p className="mt-5 text-sm text-white/50">Checking their calendar…</p>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2" aria-hidden>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-[62px] animate-pulse rounded-xl bg-ink-800 ring-1 ring-white/10"
+                      />
+                    ))}
+                  </div>
+                </div>
               ) : null}
 
               {!loadingSlots && slots && slotRows.length === 0 && !slotsError ? (
@@ -1008,7 +1018,7 @@ export function ApplyWizard({
                   ) : null
                 ) : (
                   <>
-                    <SecondaryButton onClick={() => { void saveStep(2); goTo(2); }} disabled={busy}>
+                    <SecondaryButton onClick={() => { void saveStep(1); goTo(1); }} disabled={busy}>
                       <ArrowLeft className="h-4 w-4" aria-hidden /> Back
                     </SecondaryButton>
                     <PrimaryButton
@@ -1155,7 +1165,9 @@ export function ApplyWizard({
 
 // ─── small pieces ────────────────────────────────────────────────────────────
 
-function Stepper({ current }: { current: number }) {
+function Stepper({ current: internal }: { current: number }) {
+  // Internal step 2 no longer exists, so 3 and 4 show as 2 and 3.
+  const current = internal >= 3 ? internal - 1 : internal;
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
@@ -1180,7 +1192,9 @@ function Stepper({ current }: { current: number }) {
 
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <section className="mt-6 rounded-[22px] bg-ink-900/70 p-6 ring-1 ring-white/[0.08] sm:p-8">
+    <section
+      className="mt-6 rounded-[22px] bg-ink-900/70 p-6 ring-1 ring-white/[0.08] sm:p-8"
+    >
       {children}
     </section>
   );
