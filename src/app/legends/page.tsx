@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DoctorsPageClient } from "./DoctorsPageClient";
 import { buildMetadata } from "@/lib/seo";
-import { fetchDoctorsFromBackend } from "@/lib/courses";
+import { fetchDoctorsFromBackend, selectDisplayDoctors } from "@/lib/courses";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function DoctorsIndexPage() {
-  const doctors = await fetchDoctorsFromBackend();
+  // Featured Legends first (the admin's "Featured" switch), same rule as the home page.
+  const doctors = selectDisplayDoctors(await fetchDoctorsFromBackend());
   return <DoctorsPageClient doctors={doctors} />;
 }

@@ -7,6 +7,8 @@
  */
 
 import { useRef, useState } from "react";
+import { ImageBackdrop } from "@/components/ImageBackdrop";
+import { useShowWhole } from "@/components/SmartFitImage";
 
 type Props = {
   src?: string;
@@ -69,6 +71,7 @@ function DirectVideo({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {!started && <ImageBackdrop src={poster} />}
       <video
         ref={videoRef}
         playsInline
@@ -78,7 +81,7 @@ function DirectVideo({
         // object-contain so the entire poster (and the playing video) is
         // visible — letterbox bars sit on the black wrapper background and
         // read as normal video-player behaviour.
-         className="absolute inset-0 h-full w-full object-cover object-top"
+         className="absolute inset-0 h-full w-full object-contain"
       >
         <source src={src} />
         Your browser does not support the video tag.
@@ -111,14 +114,24 @@ function DirectVideo({
 }
 
 export function TrailerPlayer({ src, poster, title = "Video", className }: Props) {
+  // Poster-only frame: fills unless that would cut most of the poster.
+  const posterBoxRef = useRef<HTMLDivElement>(null);
+  const posterWhole = useShowWhole(src ? null : poster, posterBoxRef);
   if (!src) {
     return (
       <div className={className}>
         {poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          // The poster is often the Legend's photo; a photo taller than the
-          // frame keeps its top (the head) in view. A 16:9 still is unaffected.
-          <img src={poster} alt={title} className="h-full w-full object-cover object-[center_15%]" />
+          // Fills the frame (head kept towards the top); a poster too different
+          // in shape is shown whole over a blurred copy of itself instead.
+          <div ref={posterBoxRef} className="relative h-full w-full overflow-hidden">
+            {posterWhole && <ImageBackdrop src={poster} />}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={poster}
+              alt={title}
+              className={`relative h-full w-full ${posterWhole ? "object-contain" : "object-cover object-[center_15%]"}`}
+            />
+          </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-black/40 text-sm text-white/60">
             No video uploaded

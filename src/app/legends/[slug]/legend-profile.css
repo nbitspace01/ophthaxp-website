@@ -957,3 +957,27 @@
 /* Story highlight box: the same space on the right as on the left (it had
    none, so the text ran into the edge), and justified like the story. */
 .lom-legend .editorial-highlight{padding-right:18px!important;text-align:justify;hyphens:none;word-break:normal;overflow-wrap:break-word}
+
+/* Programme card and film poster, chosen per picture (useShowWhole): a
+   rectangle close to the frame's shape fills it (is-fill); one of a very
+   different shape is shown whole over a blurred copy of itself (is-whole). */
+.lom-legend .programme-card>img{z-index:1}
+.lom-legend .programme-card>img.is-fill{object-fit:cover;object-position:center 18%}
+.lom-legend .programme-card>img.is-whole{object-fit:contain;object-position:50% 50%}
+.lom-legend .programme-card:hover>img.is-whole,.lom-legend .programme-card:focus-visible>img.is-whole{transform:none}
+.lom-legend .films .film-showcase .film-feature .film-poster.is-fill{object-fit:cover;object-position:50% 40%}
+.lom-legend .films .film-showcase .film-feature .film-poster.is-whole{object-fit:contain;object-position:50% 50%;background:transparent}
+.lom-legend .film-poster-frame .film-poster{z-index:1}
+
+/* A hero photo of a very different shape from the hero (set by useShowWhole):
+   shown whole, centred, over its blurred copy; no zoom, so no edge is cut. */
+.lom-legend .hero-portrait.is-whole .portrait-illustration{object-fit:contain;object-position:50% 50%;transform:translate3d(var(--portrait-x,0px),calc(var(--portrait-y,0px) + var(--portrait-scroll-y,0px)),0) scale(1)}
+@media(max-width:900px){.lom-legend .hero-portrait.is-whole .portrait-illustration{transform:translate3d(var(--portrait-x,0px),var(--portrait-y,0px),0) scale(1)}}
+
+/* Hero, desktop: the text and the portrait sit close together. The copy
+   column keeps only a small right padding, and the portrait's left fade is a
+   thin edge (was 13% of the portrait, a wide dark band in the middle). */
+@media (min-width:901px){
+  .lom-legend .hero-copy{padding-right:24px}
+  .lom-legend .hero-portrait::after{background:linear-gradient(90deg,#020203 0,transparent 4%),linear-gradient(0deg,#020203 0,transparent 19%)}
+}

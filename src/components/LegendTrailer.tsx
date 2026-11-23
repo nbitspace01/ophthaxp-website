@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize, MoreVertical, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { TrailerPlayer } from "@/components/TrailerPlayer";
+import { ImageBackdrop } from "@/components/ImageBackdrop";
+import { useShowWhole } from "@/components/SmartFitImage";
 
 const VIDEO_EXT = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
 
@@ -72,6 +74,9 @@ export function LegendTrailer({
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [playing, setPlaying] = useState(false);
+  // The poster fills the frame unless that would cut most of it (size-based,
+  // see useShowWhole). Once the film has been played it is always shown whole.
+  const posterWhole = useShowWhole(poster, wrapRef);
   const [muted, setMuted] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -164,6 +169,9 @@ export function LegendTrailer({
           object-fit: contain !important;
         }
       `}</style>
+      {/* A poster too different in shape to fill the frame is shown whole over
+          a blurred copy of itself. */}
+      {!playing && time === 0 && posterWhole && <ImageBackdrop src={poster} />}
       <video
         ref={videoRef}
         src={src}
@@ -177,7 +185,9 @@ export function LegendTrailer({
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onDurationChange={(e) => setDuration(e.currentTarget.duration)}
         onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
-        className="absolute inset-0 h-full w-full cursor-pointer object-cover object-center"
+        className={`absolute inset-0 h-full w-full cursor-pointer ${
+          playing || time > 0 || posterWhole ? "object-contain" : "object-cover object-center"
+        }`}
       />
 
       {badge}

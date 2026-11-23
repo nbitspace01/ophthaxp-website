@@ -3,9 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Sparkle, X } from "lucide-react";
 import { HERO_VIDEO_POSTER } from "@/lib/data";
+import type { FeaturedProgramme } from "@/lib/courses";
+import { ImageBackdrop } from "@/components/ImageBackdrop";
 
-/** The featured programme. Swap these to feature another programme or Legend. */
-const FEATURED = {
+/**
+ * Shown until a course is switched on as "Featured Programme" in the admin;
+ * from then on the section takes that course's name, Legend, film and poster.
+ */
+const FALLBACK = {
   programme: "Building a Modern Cornea Practice",
   legend: "Dr. Srinivas K. Rao",
   cta: "What Becomes Possible",
@@ -17,9 +22,16 @@ const FEATURED = {
  * component: Next inlines the value at build time, so a change needs a
  * rebuild/redeploy. Without it the play button is left out.
  */
-const VIDEO_SRC = process.env.NEXT_PUBLIC_FEATURED_VIDEO_SRC || "";
+const FALLBACK_VIDEO_SRC = process.env.NEXT_PUBLIC_FEATURED_VIDEO_SRC || "";
 
-export function LegendsVideo() {
+export function LegendsVideo({ featured }: { featured?: FeaturedProgramme | null }) {
+  const FEATURED = {
+    programme: featured?.programme || FALLBACK.programme,
+    legend: featured ? featured.legend : FALLBACK.legend,
+    cta: FALLBACK.cta,
+  };
+  const VIDEO_SRC = featured ? featured.videoSrc || "" : FALLBACK_VIDEO_SRC;
+  const POSTER_SRC = featured?.posterSrc || HERO_VIDEO_POSTER;
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -160,18 +172,33 @@ const onFullscreenChange = () => {
           </>
         ) : (
           <>
+            {/* An uploaded poster is never cropped: it is shown whole at every
+                size, over a bright blurred copy of itself that fills any spare
+                edge, so a poster of another shape shows no dark strips. On a
+                phone the box is tall, so the poster sits at the top. */}
+            {featured?.posterSrc && <ImageBackdrop src={POSTER_SRC} tone="bright" />}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={HERO_VIDEO_POSTER}
-              alt="Senior ophthalmology consultant introducing the Legends of Medicine mentorship cohorts"
-              className="h-full w-full object-cover"
+              src={POSTER_SRC}
+              alt={
+                featured
+                  ? `${FEATURED.programme}${FEATURED.legend ? ` with ${FEATURED.legend}` : ""}`
+                  : "Senior ophthalmology consultant introducing the Legends of Medicine mentorship cohorts"
+              }
+              className={`relative h-full w-full ${featured?.posterSrc ? "object-contain object-top sm:object-center" : "object-cover"}`}
             />
 
             {/* Scrim — heaviest on the right so the overlay copy stays legible;
-                from the bottom on phones, where the copy sits there. */}
+                from the bottom on phones, where the copy sits there. A course's own
+                poster gets a light one from sm up, so the picture is not blacked
+                out on the right; the copy carries a soft shadow instead. */}
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.9)_30%,rgba(0,0,0,0.55)_55%,rgba(0,0,0,0.12)_78%,rgba(0,0,0,0)_92%)] sm:bg-[linear-gradient(to_left,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.9)_20%,rgba(0,0,0,0.55)_45%,rgba(0,0,0,0.12)_75%,rgba(0,0,0,0)_92%)]"
+              className={`pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.9)_30%,rgba(0,0,0,0.55)_55%,rgba(0,0,0,0.12)_78%,rgba(0,0,0,0)_92%)] ${
+                featured?.posterSrc
+                  ? "sm:bg-[linear-gradient(to_left,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.4)_22%,rgba(0,0,0,0.15)_45%,rgba(0,0,0,0)_65%)]"
+                  : "sm:bg-[linear-gradient(to_left,rgba(0,0,0,0.97)_0%,rgba(0,0,0,0.9)_20%,rgba(0,0,0,0.55)_45%,rgba(0,0,0,0.12)_75%,rgba(0,0,0,0)_92%)]"
+              }`}
             />
 
             <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-medium text-black sm:right-8 sm:top-8">
@@ -179,20 +206,22 @@ const onFullscreenChange = () => {
               Featured Programme
             </span>
 
-            <div className="absolute inset-0 flex w-full flex-col items-center justify-end px-6 pb-8 text-center sm:left-auto sm:max-w-[26rem] sm:justify-center sm:px-10 sm:pb-0">
+            <div className={`absolute inset-0 flex w-full flex-col items-center justify-end px-6 pb-8 text-center sm:left-auto sm:max-w-[26rem] sm:justify-center sm:px-10 sm:pb-0 ${featured?.posterSrc ? "sm:[text-shadow:0_2px_14px_rgba(0,0,0,0.75)]" : ""}`}>
               <h3 className="font-serif text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.25] text-white">
                 {FEATURED.programme}
               </h3>
               <span className="mt-5 block h-px w-6 bg-white/70" aria-hidden />
+              {FEATURED.legend && (
               <p className="mt-5 text-sm text-white/70">
                 with <span className="font-semibold text-white">{FEATURED.legend}</span>
               </p>
+              )}
               {VIDEO_SRC && (
               <button
                 ref={triggerRef}
                 type="button"
                 onClick={() => setPlaying(true)}
-                aria-label={`Play ‘${FEATURED.cta}’ for ${FEATURED.programme} with ${FEATURED.legend}.`}
+                aria-label={`Play ‘${FEATURED.cta}’ for ${FEATURED.programme}${FEATURED.legend ? ` with ${FEATURED.legend}` : ""}.`}
                 className="mt-6 inline-flex items-center gap-2.5 whitespace-nowrap rounded-[10px] border border-white/25 bg-black/40 px-5 py-3 text-[15px] font-medium text-white backdrop-blur-sm transition hover:border-accent hover:bg-accent sm:px-6"
               >
                 <Play className="h-4 w-4" aria-hidden />

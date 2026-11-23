@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SmartFitFill } from "@/components/SmartFitImage";
 
 /**
  * The four-step path from browsing to enrolment. Each card is a portrait photo
@@ -293,14 +294,15 @@ export function HowItWorks({
               key={step.n}
               className="group/card relative isolate aspect-[4/5] w-[80vw] max-w-[360px] shrink-0 snap-start overflow-hidden rounded-[10px] border border-[#4A4A4A] bg-ink-850 transition-[border-color,transform,box-shadow] duration-500 hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-[0_30px_84px_rgba(0,0,0,.34)] sm:aspect-[4/3] sm:w-auto sm:max-w-none sm:shrink"
             >
-              <Image
+              {/* Always fills the whole card, whatever the picture's shape (a
+                  tall picture keeps its middle, or the step's own position). */}
+              <SmartFitFill
                 src={step.src}
-                alt=""
-                fill
                 priority={i === 0}
                 sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 30vw"
-                style={{ objectPosition: step.position ?? "center" }}
-                className="object-cover transition-[filter,transform] duration-[1.2s] ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:scale-[1.026]"
+                coverPosition={step.position ?? "center"}
+                minCoverShown={0}
+                className="transition-[filter,transform] duration-[1.2s] ease-[cubic-bezier(.2,.75,.2,1)] group-hover/card:scale-[1.026]"
               />
 
               <div aria-hidden className="absolute inset-0 bg-black/25" />

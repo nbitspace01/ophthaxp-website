@@ -4,6 +4,7 @@ import {
   fetchAllDoctorsFromBackend,
   fetchCoursesFromBackend,
   fetchDoctorsFromBackend,
+  selectDisplayDoctors,
 } from "@/lib/courses";
 import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { LEGAL } from "@/lib/legal";
@@ -70,7 +71,7 @@ export default async function DoctorDetailPage({
   const doctors = await fetchAllDoctorsFromBackend();
   const d = doctors.find((x) => x.slug === params.slug);
   if (!d) notFound();
-  const others = doctors.filter((x) => x.id !== d.id && x.isActive !== false);
+  const others = selectDisplayDoctors(doctors.filter((x) => x.id !== d.id));
   // The Legend's own programmes, matched the same way the home rail does:
   // the course row points at the doctor by slug or by row id.
   const programs = (await fetchCoursesFromBackend()).filter(

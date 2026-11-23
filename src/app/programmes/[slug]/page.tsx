@@ -12,6 +12,8 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { FaqGrid } from "@/components/FaqGrid";
 import { CourseStickyFooter } from "@/components/CourseStickyFooter";
 import { CourseApplyButton } from "@/components/CourseApplyButton";
+import { ImageBackdrop } from "@/components/ImageBackdrop";
+import { SmartFitImage } from "@/components/SmartFitImage";
 import {
   certificateName,
   HOUSE_SIGNATORY,
@@ -305,11 +307,12 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             § 1 — HERO   Portrait column left, copy column right
         ══════════════════════════════════════════════════════════════ */}
         <section aria-labelledby="program-title" className="relative bg-black">
-          {/* Mobile: image as full-bleed backdrop with bottom scrim */}
+          {/* Mobile: the whole picture at the top over its blurred copy, with a bottom scrim */}
           {heroImage && (
             <div className="absolute inset-0 lg:hidden">
+              <ImageBackdrop src={heroImage} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroImage} alt="" className="h-full w-full object-cover" aria-hidden />
+              <img src={heroImage} alt="" className="relative h-full w-full object-contain object-top" aria-hidden />
               <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
             </div>
           )}
@@ -317,21 +320,18 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
           {/* Desktop: two-column grid — image left, content right */}
           <div className="lg:grid lg:grid-cols-[56%_44%] lg:h-[650px] lg:items-center overflow-hidden border-b border-[#181818]">
             {/* Image column — desktop only */}
-            {/* Fills the band and centres a photo that fits; a taller photo grows the
-                column from the top, so its top (the head) stays in view. */}
-            <div className="hidden lg:grid lg:place-items-center lg:self-start lg:min-h-full relative overflow-hidden group bg-black" style={{ isolation: "isolate" }}>
+            {/* A photo shaped like the column fills it (head kept in view); one of a
+                very different shape, e.g. a tall portrait, is shown whole over its
+                blurred copy instead of being cut down to a zoomed face. */}
+            <div className="hidden lg:grid lg:place-items-center lg:self-stretch lg:h-full relative overflow-hidden group bg-black" style={{ isolation: "isolate" }}>
               {/* Radial glows (::before) — faint at rest, vivid on hover */}
               <span aria-hidden className="pointer-events-none absolute inset-0 z-[1] opacity-[.12] group-hover:opacity-100 transition-opacity duration-[650ms]" style={{ background: "radial-gradient(circle at 31% 43%,rgba(106,165,203,.2),transparent 29%),radial-gradient(circle at 69% 44%,rgba(183,90,68,.18),transparent 28%)" }} />
               {heroImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <SmartFitImage
                   src={heroImage}
                   alt={legendName}
-                  className="relative z-0 w-[112%] max-w-none h-auto scale-[1.02] group-hover:scale-[1.095] brightness-[1.01] contrast-[1.025] group-hover:brightness-[1.13] group-hover:contrast-[1.07]"
+                  className="absolute inset-0 z-0 h-full w-full brightness-[1.01] contrast-[1.025] group-hover:brightness-[1.13] group-hover:contrast-[1.07]"
                   style={{
-                    objectFit: "contain",
-                    objectPosition: "center",
-                    maxHeight: "none",
                     transformOrigin: "50% 48%",
                     transition: "transform .85s cubic-bezier(.22,.61,.36,1), filter .7s ease",
                   }}

@@ -14,6 +14,7 @@ import { courseListJsonLd } from "@/lib/seo";
 import {
   fetchCoursesFromBackend,
   fetchDoctorsFromBackend,
+  fetchFeaturedProgrammeFromBackend,
   fetchHeroImagesFromBackend,
   selectDisplayDoctors,
 } from "@/lib/courses";
@@ -21,10 +22,11 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [programs, doctors, heroImages] = await Promise.all([
+  const [programs, doctors, heroImages, featuredProgramme] = await Promise.all([
     fetchCoursesFromBackend(),
     fetchDoctorsFromBackend(),
     fetchHeroImagesFromBackend(),
+    fetchFeaturedProgrammeFromBackend(),
   ]);
 
   const courseLd = courseListJsonLd(
@@ -41,7 +43,7 @@ export default async function HomePage() {
       <main>
         <Hero images={heroImages} />
         <JourneySection />
-        <LegendsVideo />
+        <LegendsVideo featured={featuredProgramme} />
         <ProgramsSection doctors={selectDisplayDoctors(doctors)} programs={programs} />
         <HowItWorks />
         <HomeRoiSection />

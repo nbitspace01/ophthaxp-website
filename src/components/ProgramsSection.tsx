@@ -15,7 +15,7 @@ import {
 } from "@/components/SpecialtyIcons";
 import { DOCTORS } from "@/lib/data";
 import type { Doctor, Program, Specialty } from "@/types";
-import { cn } from "@/lib/utils";
+import { byFeaturedStamp, cn, featuredStamp } from "@/lib/utils";
 
 /**
  * The filter chips, in display order, each with its mark from the Figma icon
@@ -113,6 +113,7 @@ export function ProgramsSection({
       courseSlug: string;
       isNew?: boolean;
       isFeatured?: boolean;
+      featuredAt?: string;
     }[] = [];
     for (const d of data) {
       // Split schema: the course row points at the doctor. Merged schema: the
@@ -128,12 +129,18 @@ export function ProgramsSection({
         courseSlug,
         isNew: linked?.isNew,
         isFeatured: linked?.isFeatured,
+        featuredAt: linked?.featuredAt,
       });
     }
     // A featured course leads the rail; otherwise the Legends' order stays.
     return out
       .map((e, i) => ({ e, i }))
-      .sort((a, b) => Number(Boolean(b.e.isFeatured)) - Number(Boolean(a.e.isFeatured)) || a.i - b.i)
+      .sort(
+        (a, b) =>
+          Number(Boolean(b.e.isFeatured)) - Number(Boolean(a.e.isFeatured)) ||
+          byFeaturedStamp(featuredStamp(a.e.isFeatured, a.e.featuredAt), featuredStamp(b.e.isFeatured, b.e.featuredAt)) ||
+          a.i - b.i,
+      )
       .map(({ e }) => e);
   }, [data, courseByDoctorSlug]);
 

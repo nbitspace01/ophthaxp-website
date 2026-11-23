@@ -7,6 +7,7 @@ import type {
   Program,
 } from "@/types";
 import { DOCTORS, PROGRAMS } from "@/lib/data";
+import { byFeaturedStamp, featuredStamp } from "@/lib/utils";
 
 const NOCODE_BASE = process.env.NOCODE_API_BASE_URL || "";
 const NOCODE_APP_ID = process.env.NOCODE_APP_ID || "";
@@ -31,13 +32,22 @@ function pickString(rec: RawRecord, ...keys: string[]): string | undefined {
 }
 
 /**
- * A person's name as shown on the site: a bare middle initial gets its full
- * stop, so "Dr. Srinivas K Rao" from the admin panel reads "Dr. Srinivas K. Rao".
+ * A person's name as shown on the site, so every Legend reads the same way
+ * whatever was typed in the admin panel:
+ *   - a bare middle initial gets its full stop ("Dr. Srinivas K Rao" -> "Dr. Srinivas K. Rao")
+ *   - the title is always "Dr. " ("Dr Amar Agarwal", "Dr.Rajanarayanan" -> "Dr. ...")
+ *   - stray and doubled spaces go.
+ * Only the display changes; the stored value is left as entered.
  */
 function formatPersonName(name: string): string;
 function formatPersonName(name: string | undefined): string | undefined;
 function formatPersonName(name: string | undefined): string | undefined {
-  return name?.replace(/(^|\s)([A-Z])(?=\s)/g, "$1$2.");
+  return name
+    ?.replace(/\s+/g, " ")
+    .trim()
+    // "Dr" then a full stop or a space; a name that merely starts "Dr" (Drishti) is left alone.
+    .replace(/^dr(?:\.\s*|\s+)(?=\S)/i, "Dr. ")
+    .replace(/(^|\s)([A-Z])(?=\s)/g, "$1$2.");
 }
 
 function pickNumber(rec: RawRecord, ...keys: string[]): number | undefined {
@@ -513,6 +523,8 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
     brochureUrl: absoluteUrl(pickString(rec, "brochureUrl", "brochure_url", "brochure")),
     isNew: pickBool(rec, "isNew", "is_new"),
     isFeatured: pickBool(rec, "isFeatured", "is_featured"),
+    isFeaturedProgramme: pickBool(rec, "isFeaturedProgramme", "is_featured_programme"),
+    featuredAt: pickString(rec, "featuredAt", "featured_at"),
     isActive: pickBool(rec, "isActive", "is_active"),
     // The backend stores `doctorSlug` (a `type: reference` field) as the
     // doctor's numeric row id — not the slug string — so coerce whatever
@@ -604,6 +616,7 @@ function mapRecordToDoctor(rec: RawRecord): Doctor | null {
       pickString(rec, "trailerVideoUrl", "trailer_video_url", "trailerVideo", "trailer_video"),
     ),
     isFeatured: pickBool(rec, "isFeatured", "is_featured"),
+    featuredAt: pickString(rec, "featuredAt", "featured_at"),
     isNew: pickBool(rec, "isNew", "is_new"),
     // Profile page hero. Every one is optional; the page falls back to the
     // fields above when one is empty.
@@ -786,11 +799,17 @@ export async function fetchCoursesFromBackend(): Promise<Program[]> {
   if (active.length !== all.length) {
     console.log(`[courses] hiding ${all.length - active.length} inactive course(s)`);
   }
-  // `isFeatured` on -> the course leads every list, same rule as
-  // selectDisplayDoctors. A stable sort: otherwise the backend's order stays.
+  // `isFeatured` on -> the course leads every list, the one switched on most
+  // recently first (featuredAt), same rule as selectDisplayDoctors. Otherwise
+  // the backend's order stays.
   return active
     .map((p, i) => ({ p, i }))
-    .sort((a, b) => Number(Boolean(b.p.isFeatured)) - Number(Boolean(a.p.isFeatured)) || a.i - b.i)
+    .sort(
+      (a, b) =>
+        Number(Boolean(b.p.isFeatured)) - Number(Boolean(a.p.isFeatured)) ||
+        byFeaturedStamp(featuredStamp(a.p.isFeatured, a.p.featuredAt), featuredStamp(b.p.isFeatured, b.p.featuredAt)) ||
+        a.i - b.i,
+    )
     .map(({ p }) => p);
 }
 
@@ -966,10 +985,19 @@ export async function fetchDoctorsFromBackend(): Promise<Doctor[]> {
  * but its own.
  */
 export function selectDisplayDoctors(doctors: Doctor[]): Doctor[] {
+  // Featured first, and among them the one switched on most recently first
+  // (featuredAt, stamped by the admin). Featured rows with no stamp follow,
+  // in the module's own order; so does everyone else.
   return doctors
     .filter((d) => d.isActive !== false)
-    .slice()
-    .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
+    .map((d, i) => ({ d, i }))
+    .sort(
+      (a, b) =>
+        Number(Boolean(b.d.isFeatured)) - Number(Boolean(a.d.isFeatured)) ||
+        byFeaturedStamp(featuredStamp(a.d.isFeatured, a.d.featuredAt), featuredStamp(b.d.isFeatured, b.d.featuredAt)) ||
+        a.i - b.i,
+    )
+    .map(({ d }) => d);
 }
 
 /**
@@ -1055,4 +1083,41 @@ export async function fetchRelatedDoctors(slugs: string[]): Promise<Doctor[]> {
   const all = await fetchDoctorsFromBackend();
   const set = new Set(slugs);
   return all.filter((d) => set.has(d.slug));
+}
+
+/** What the home page's "Featured Programme" video section shows. */
+export type FeaturedProgramme = {
+  slug: string;
+  /** Course name as one line ("|" line breaks in the admin become spaces). */
+  programme: string;
+  /** The Legend who teaches it, or "" when none is linked. */
+  legend: string;
+  /** The course film; empty means no play button. */
+  videoSrc?: string;
+  /** Still shown before play: film poster, else hero image, else card image. */
+  posterSrc?: string;
+};
+
+/**
+ * The course switched on as "Featured Programme" in the admin, for the home
+ * page's section 3. The admin allows one at a time; should two ever be on
+ * (e.g. set outside the client panel), the first in the listing order wins.
+ * Null when none is chosen: the section then keeps its standard content.
+ */
+export async function fetchFeaturedProgrammeFromBackend(): Promise<FeaturedProgramme | null> {
+  const programs = await fetchCoursesFromBackend(); // active courses only
+  const chosen = programs.find((p) => p.isFeaturedProgramme);
+  if (!chosen) return null;
+  const p = await attachFaculty(chosen);
+  return {
+    slug: p.slug,
+    programme: plainCourseName(p.name),
+    legend: formatPersonName(p.faculty?.name || p.mentorName || "") ?? "",
+    videoSrc: p.trailerVideoUrl || undefined,
+    posterSrc: p.filmThumbnailUrl || p.heroImage || p.cardImage || undefined,
+  };
+}
+
+function plainCourseName(name: string): string {
+  return name.split("|").map((s) => s.trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
 }

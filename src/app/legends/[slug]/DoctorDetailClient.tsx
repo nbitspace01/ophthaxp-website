@@ -6,6 +6,8 @@ import { Play, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { TrailerPlayer } from "@/components/TrailerPlayer";
+import { ImageBackdrop } from "@/components/ImageBackdrop";
+import { useShowWhole } from "@/components/SmartFitImage";
 import type { Doctor, Program } from "@/types";
 import "./legend-profile.css";
 
@@ -271,6 +273,10 @@ export function DoctorDetailClient({
   // ─── Computed values ──────────────────────────────────────────────────────
 
   const portrait = doctor.profileImage || doctor.doctorImage || doctor.imageUrl;
+  // Same rule as the programme hero: a photo shaped like the hero fills it
+  // (anchored to the top); one of a very different shape (square, tall) is
+  // shown whole over a blurred copy of itself instead of a zoomed-in crop.
+  const portraitWhole = useShowWhole(portrait, portraitRef);
 
   // "The Master at Work": the Legend's films from the admin, or, with none
   // set, one film built from the intro video and their portrait.
@@ -374,6 +380,19 @@ export function DoctorDetailClient({
       )}`
     : "/contact";
 
+  // Programme card and film poster: a rectangular picture close to its frame's
+  // shape fills the frame; one of a very different shape is shown whole over a
+  // blurred copy of itself (same rule as the hero, see useShowWhole).
+  const cardImage = doctor.programmeImage || leadProgram?.cardImage || leadProgram?.heroImage || portrait;
+  const cardImgRef = useRef<HTMLImageElement>(null);
+  // Card, 0.6: any ordinary rectangle (3:2, 16:9) fills it; only a square or
+  // tall picture is shown whole.
+  const cardWhole = useShowWhole(cardImage, cardImgRef, 0.6);
+  const posterImgRef = useRef<HTMLImageElement>(null);
+  // Film stage, 0.7: it is very wide, so only a wide film poster (16:9) fills
+  // it; a 3:2 headshot filled would lose the head, so it is shown whole.
+  const posterWhole = useShowWhole(stage.image, posterImgRef, 0.7);
+
   const courseName = comingSoon ? "Programme | Coming Soon" : leadProgram?.name || doctor.courseName || "";
   const plainCourseName = courseName.replace(/s*|s*/g, " ");
   const cardInner = (
@@ -383,11 +402,9 @@ export function DoctorDetailClient({
       ) : (
         leadProgram?.isNew && <span className="new-pill">New</span>
       )}
+      {cardWhole && <ImageBackdrop src={cardImage} />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={doctor.programmeImage || leadProgram?.cardImage || leadProgram?.heroImage || portrait}
-        alt={doctor.name}
-      />
+      <img ref={cardImgRef} className={cardWhole ? "is-whole" : "is-fill"} src={cardImage} alt={doctor.name} />
       <span className="programme-shade" />
       <span className="programme-card-copy">
         <h3>
@@ -477,8 +494,9 @@ export function DoctorDetailClient({
               )}
             </div>
           </div>
-          <div className="hero-portrait reveal" ref={portraitRef}>
+          <div className={`hero-portrait reveal${portraitWhole ? " is-whole" : ""}`} ref={portraitRef}>
             <div className="portrait-field" aria-hidden="true" />
+            {portraitWhole && <ImageBackdrop src={portrait} className="portrait-backdrop" />}
             {portrait && (
               /* eslint-disable-next-line @next/next/no-img-element -- the
                  reference animates this element's mask and transform. */
@@ -541,10 +559,12 @@ export function DoctorDetailClient({
                 aria-label={`Open film: ${stage.title}`}
               >
                 <span className="film-poster-frame">
+                  {posterWhole && <ImageBackdrop src={stage.image} className="film-poster-backdrop" />}
                   {stage.image && (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
-                      className="film-poster"
+                      ref={posterImgRef}
+                      className={`film-poster ${posterWhole ? "is-whole" : "is-fill"}`}
                       src={stage.image}
                       alt={`${stage.title} film poster featuring ${doctor.name}`}
                     />

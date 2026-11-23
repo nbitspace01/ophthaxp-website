@@ -50,3 +50,19 @@ export function formatINRShort(n: number): string {
   if (n >= 1_00_000) return `₹${(n / 1_00_000).toFixed(2)} L`;
   return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
+
+/**
+ * Sort key for "Featured" rows: the time Featured was last switched on
+ * (`featuredAt`, stamped by the admin), so the newest-featured leads. A row
+ * that is not featured, or was featured before stamping existed, gets
+ * -Infinity and keeps its place behind the stamped ones.
+ */
+export function featuredStamp(isFeatured?: boolean, featuredAt?: string): number {
+  const t = isFeatured && featuredAt ? Date.parse(featuredAt) : NaN;
+  return Number.isNaN(t) ? -Infinity : t;
+}
+
+/** Compare two featured stamps, newest first; equal (incl. both unstamped) is 0. */
+export function byFeaturedStamp(a: number, b: number): number {
+  return a === b ? 0 : b > a ? 1 : -1;
+}

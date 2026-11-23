@@ -56,6 +56,8 @@ export interface Doctor {
   programmeImage?: string;
   programmeVideo?: string;
   isFeatured?: boolean;
+  /** When Featured was last switched on (ISO); newest Featured leads. */
+  featuredAt?: string;
   isNew?: boolean;
   // Course-side fields (1:1 doctor↔course in the merged module)
   qualification?: string;
@@ -189,6 +191,10 @@ export interface Program {
   brochureUrl?: string;
   isNew?: boolean;
   isFeatured?: boolean;
+  /** When Featured was last switched on (ISO); newest Featured leads. */
+  featuredAt?: string;
+  /** Shown in the home page "Featured Programme" video section (one course at a time). */
+  isFeaturedProgramme?: boolean;
   isActive?: boolean;
   // Faculty resolved from `doctorSlug` reference
   doctorSlug?: string;
