@@ -13,6 +13,7 @@ import {
   SearchField,
 } from "@/components/CatalogUI";
 import type { Doctor, Program } from "@/types";
+import { UpdatingNotice } from "@/components/UpdatingNotice";
 import { plainName } from "@/lib/utils";
 
 const DURATION_BUCKETS: { key: string; label: string; matches: (months: number) => boolean }[] = [
@@ -162,9 +163,11 @@ export function ProgramsPageClient({
 
         <div className="mt-10">
           {programs.length === 0 ? (
-            <CatalogEmpty
-              title="No programmes available yet"
-              body="Check back soon — new cohorts are added regularly."
+            <UpdatingNotice
+              title="Our programmes are"
+              accent="being updated."
+              body="New cohorts with the Legends are being prepared. Please check back shortly, or talk to us about the next intake."
+              secondary={{ href: "/legends", label: "Meet the Legends" }}
             />
           ) : filtered.length === 0 ? (
             <CatalogEmpty

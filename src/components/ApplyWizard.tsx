@@ -107,7 +107,7 @@ export function ApplyWizard({
   courseSlug,
   courseName,
   mentorName,
-  mentorEmail,
+  hasLegendCalendar,
   feeInr,
   user: initialUser,
   application,
@@ -120,8 +120,8 @@ export function ApplyWizard({
   courseSlug: string;
   courseName: string;
   mentorName?: string;
-  /** Which Legend's calendar to book. Blank means the course has none set up. */
-  mentorEmail?: string;
+  /** Whether this course has a Legend calendar to book (the address stays on the server). */
+  hasLegendCalendar?: boolean;
   /** The booking fee, in rupees, from the server's configuration. */
   feeInr?: string;
   user: WizardUser | null;
@@ -368,7 +368,7 @@ export function ApplyWizard({
    * than trusting what was clicked.
    */
   const loadSlots = useCallback(async () => {
-    if (!mentorEmail) {
+    if (!hasLegendCalendar) {
       setSlotsError(
         "This programme has no Legend calendar set up yet. Our team will be in touch to " +
           "arrange your call.",
@@ -381,7 +381,7 @@ export function ApplyWizard({
 
     try {
       const res = await fetch(
-        `/api/booking/slots?legendEmail=${encodeURIComponent(mentorEmail)}`,
+        `/api/booking/slots?course=${encodeURIComponent(courseSlug)}`,
       );
       const data = await res.json();
 
@@ -399,7 +399,7 @@ export function ApplyWizard({
     } finally {
       setLoadingSlots(false);
     }
-  }, [mentorEmail]);
+  }, [hasLegendCalendar, courseSlug]);
 
   // Only when the Star is actually looking at step 3, and only while nothing
   // is booked — a Legend's diary is a live thing and there is no sense reading
@@ -471,7 +471,7 @@ export function ApplyWizard({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           applicationId,
-          legendEmail: mentorEmail,
+          course: courseSlug,
           legendName: mentorName,
           start: slot.start,
           end: slot.end,
@@ -586,6 +586,7 @@ export function ApplyWizard({
       // The hold lapsed while they sat on this panel. Back to the times.
       if (res.status === 409 && !data?.alreadyPaid) {
         setErrorMsg(data?.error || "That time is no longer available. Please pick another.");
+        setPaying(false);
         setBooked(null);
         setSlots(null);
         goTo(3);
@@ -600,6 +601,8 @@ export function ApplyWizard({
 
       if (!res.ok || !data?.url) {
         setErrorMsg(data?.error || "We could not open the payment page. Please try again.");
+        // The button comes back, so they can try again instead of a spinner forever.
+        setPaying(false);
         return;
       }
 
@@ -810,7 +813,7 @@ export function ApplyWizard({
                 <Field label="Password" required>
                   <div className="relative">
                     <input type={showPassword ? "text" : "password"} required autoComplete="new-password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80" tabIndex={-1}>
+                    <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 after:absolute after:-inset-3 after:content-['']" tabIndex={-1}>
                       {showPassword ? <Eye size={16} /> : <EyeClosed size={16} />}
                     </button>
                   </div>
@@ -821,7 +824,7 @@ export function ApplyWizard({
                 <Field label="Confirm Password" required>
                   <div className="relative">
                     <input type={showConfirm ? "text" : "password"} required autoComplete="new-password" className={inputCls} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                    <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80" tabIndex={-1}>
+                    <button type="button" onClick={() => setShowConfirm((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 after:absolute after:-inset-3 after:content-['']" tabIndex={-1}>
                       {showConfirm ? <Eye size={16} /> : <EyeClosed size={16} />}
                     </button>
                   </div>

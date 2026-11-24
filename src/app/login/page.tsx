@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/LoginForm";
 import { FlowHeader } from "@/components/FlowHeader";
 import { getSessionUser } from "@/lib/session";
 import { buildMetadata } from "@/lib/seo";
+import { safeRedirectPath } from "@/lib/utils";
 
 export const metadata: Metadata = buildMetadata({
   title: "Log In",
@@ -17,8 +18,7 @@ export const metadata: Metadata = buildMetadata({
 export const dynamic = "force-dynamic";
 
 function safePath(raw: string | undefined): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "";
-  return raw;
+  return safeRedirectPath(raw);
 }
 
 export default function LoginPage({

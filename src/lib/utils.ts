@@ -66,3 +66,15 @@ export function featuredStamp(isFeatured?: boolean, featuredAt?: string): number
 export function byFeaturedStamp(a: number, b: number): number {
   return a === b ? 0 : b > a ? 1 : -1;
 }
+
+/**
+ * A same-site path that is safe to redirect to, or "" when it is not.
+ * "Starts with / but not //" is not enough: browsers read a backslash as a
+ * slash, so "/\\evil.com" leaves the site, and a tab or newline inside "//" is
+ * dropped by the URL parser. Both are refused.
+ */
+export function safeRedirectPath(raw: string | null | undefined): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "";
+  if (/[\\\u0000-\u001f\u007f]/.test(raw)) return "";
+  return raw;
+}

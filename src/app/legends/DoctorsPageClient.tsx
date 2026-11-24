@@ -12,10 +12,13 @@ import {
   ResultCount,
   SearchField,
 } from "@/components/CatalogUI";
-import { SPECIALTY_TABS } from "@/lib/data";
+import { SPECIALTY_TABS, hasSpecialty } from "@/lib/data";
 import type { Doctor, Specialty } from "@/types";
+import { UpdatingNotice } from "@/components/UpdatingNotice";
 
 const SPECIALTY_LABELS: Record<string, string> = {
+  cataract: "Cataract Surgery",
+  refractive: "Refractive Surgery",
   "cornea-ocular-surface": "Cornea & Ocular Surface",
   "phaco-refractive-surgery": "Phaco & Refractive Surgery",
   "retina-vitreo-retinal-surgery": "Vitreo-Retinal Surgery",
@@ -27,13 +30,15 @@ const SPECIALTY_LABELS: Record<string, string> = {
 
 /* The chip row has to hold eight filters on one or two lines, so the pills use
    the short clinical name the home rail uses rather than the full title. */
+/* Same names as the home page programme filters and the admin dropdown. */
 const SHORT_LABELS: Partial<Record<Specialty, string>> = {
   all: "All",
+  cataract: "Cataract",
   "cornea-ocular-surface": "Cornea",
-  "phaco-refractive-surgery": "Refractive Surgery",
   "retina-vitreo-retinal-surgery": "Retina",
+  refractive: "Refractive",
   "pediatric-ophthalmology": "Paediatric",
-  "ophthalmology-practice-mastery": "Practice Management",
+  "ophthalmology-practice-mastery": "Practice Mastery",
 };
 
 export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
@@ -50,7 +55,7 @@ export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
   const filtered = useMemo(() => {
     const q = nameQuery.trim().toLowerCase();
     return DOCTORS.filter((d) => {
-      if (specialty !== "all" && !d.specialty.includes(specialty)) return false;
+      if (specialty !== "all" && !hasSpecialty(d.specialty, specialty)) return false;
       if (!q) return true;
       /* Search the whole card, not just the name — a reader who types "cornea"
          or "Chennai" means it as a search, not as a failed name lookup. */
@@ -70,9 +75,9 @@ export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
   /* Only offer a specialty the roster can actually answer for. An empty filter
      is worse than a missing one. */
   const availableTabs = useMemo(() => {
-    const present = new Set<string>();
-    for (const d of DOCTORS) for (const s of d.specialty) present.add(s);
-    return SPECIALTY_TABS.filter((t) => t.key === "all" || present.has(t.key));
+    return SPECIALTY_TABS.filter(
+      (t) => t.key === "all" || DOCTORS.some((d) => hasSpecialty(d.specialty, t.key)),
+    );
   }, [DOCTORS]);
 
   const cityCount = useMemo(
@@ -90,9 +95,11 @@ export function DoctorsPageClient({ doctors: DOCTORS }: { doctors: Doctor[] }) {
           subtitle="The senior ophthalmologists who lead every cohort."
         />
         <main className="mx-auto max-w-[1440px] px-5 py-12 sm:px-10 sm:py-14 lg:px-[120px]">
-          <CatalogEmpty
-            title="No legends yet"
-            body="Add doctor records in the admin panel and they will appear here."
+          <UpdatingNotice
+            title="Our Legends are"
+            accent="being updated."
+            body="We are refreshing the profiles of the senior ophthalmologists who lead every cohort. Please check back shortly to meet the Legends of Medicine."
+            secondary={{ href: "/programmes", label: "See programmes" }}
           />
         </main>
         <Footer />

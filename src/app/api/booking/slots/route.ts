@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchSlots, isBookingConfigured } from "@/lib/bookingApi";
 import { getSessionUser } from "@/lib/session";
+import { legendEmailForCourse } from "@/lib/courses";
 
 /**
  * The times a Star can pick from.
@@ -23,7 +24,9 @@ export async function GET(req: Request) {
   }
 
   const params = new URL(req.url).searchParams;
-  const legendEmail = (params.get("legendEmail") || "").trim();
+  // The page names the course; the Legend's calendar address is looked up here
+  // on the server, so it is never sent to (or chosen by) the browser.
+  const legendEmail = await legendEmailForCourse(params.get("course"));
 
   if (!legendEmail) {
     // The course has no Legend email on it, which is a setup problem rather

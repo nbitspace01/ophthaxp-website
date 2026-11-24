@@ -1,15 +1,30 @@
 import type { Doctor, Program, Specialty } from "@/types";
 
+/* The Legends page filters, in the same order and with the same choices as the
+   admin's Specialty dropdown and the home page programme filters. */
 export const SPECIALTY_TABS: { key: Specialty; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "cataract", label: "Cataract" },
   { key: "cornea-ocular-surface", label: "Cornea & Ocular Surface" },
-  { key: "phaco-refractive-surgery", label: "Phaco & Refractive Surgery" },
-  { key: "retina-vitreo-retinal-surgery", label: "Retina & Vitreo-Retinal Surgery" },
   { key: "glaucoma", label: "Glaucoma" },
+  { key: "retina-vitreo-retinal-surgery", label: "Retina & Vitreo-Retinal Surgery" },
+  { key: "refractive", label: "Refractive" },
+  { key: "ophthalmology-practice-mastery", label: "Ophthalmology Practice Mastery" },
   { key: "pediatric-ophthalmology", label: "Pediatric Ophthalmology" },
   { key: "oculoplasty", label: "Oculoplasty" },
-  { key: "ophthalmology-practice-mastery", label: "Ophthalmology Practice Mastery" },
 ];
+
+/**
+ * Cataract and Refractive used to be one saved value. A record that still has
+ * it counts as both, until the admin re-picks Cataract and/or Refractive.
+ */
+export const LEGACY_CATARACT_REFRACTIVE = "phaco-refractive-surgery";
+
+/** Does a record's specialty list belong under this filter key? */
+export function hasSpecialty(list: readonly string[], key: string): boolean {
+  if (list.includes(key)) return true;
+  return (key === "cataract" || key === "refractive") && list.includes(LEGACY_CATARACT_REFRACTIVE);
+}
 
 // Placeholder portraits — replace with /public/doctors/*.jpg once assets are ready.
 const PORTRAIT_M =

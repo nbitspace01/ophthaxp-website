@@ -371,5 +371,18 @@ export async function listPaymentsForLead(leadId: number): Promise<PaymentRecord
  */
 export async function findPaidPaymentForLead(leadId: number): Promise<PaymentRecord | null> {
   const payments = await listPaymentsForLead(leadId);
-  return payments.find((payment) => isPaidStatus(payment.status)) ?? null;
+  // A paid status alone is not proof of the fee: the platform's checkout is
+  // reachable without the site, so a lead could carry a small payment the site
+  // never asked for. Only a payment of at least the exploratory fee, in INR,
+  // counts. The platform stores amounts in rupees (major units).
+  const fee = exploratoryFeeInr();
+  return (
+    payments.find(
+      (payment) =>
+        isPaidStatus(payment.status) &&
+        payment.currency.toUpperCase() === "INR" &&
+        payment.amountPaid > 0 &&
+        (fee === null || payment.amountPaid >= fee),
+    ) ?? null
+  );
 }

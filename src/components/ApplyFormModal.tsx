@@ -903,7 +903,7 @@ export function ApplyFormModal({
                         <button
                           type="button"
                           onClick={() => setShowPassword((v) => !v)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 after:absolute after:-inset-3 after:content-['']"
                           tabIndex={-1}
                         >
                           {showPassword ? <Eye size={16} /> : <EyeClosed size={16} />}
@@ -928,7 +928,7 @@ export function ApplyFormModal({
                         <button
                           type="button"
                           onClick={() => setShowConfirm((v) => !v)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 after:absolute after:-inset-3 after:content-['']"
                           tabIndex={-1}
                         >
                           {showConfirm ? <Eye size={16} /> : <EyeClosed size={16} />}

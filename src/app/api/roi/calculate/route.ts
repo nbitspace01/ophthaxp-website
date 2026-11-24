@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const pincode = String(body.pincode ?? "");
+  const pincode = String(body?.pincode ?? "").trim();
 
   // Counts this calculation and says whether it was allowed. `spend: true`
   // means a blocked attempt still lands on the ledger, so hammering the sliders

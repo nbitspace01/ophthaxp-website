@@ -1,4 +1,23 @@
 import { NextResponse } from "next/server";
+import { clientKey, emailKey, rateLimit } from "@/lib/rateLimit";
+import { findCourseByIdOrSlug } from "@/lib/courses";
+import { plainName } from "@/lib/utils";
+
+/**
+ * Limits per hour. The form needs no sign-in and every lead sends a WhatsApp
+ * message (and a brochure email) from the company's accounts, so a script must
+ * not be able to send thousands. A real visitor submits once or twice.
+ */
+const HOUR_MS = 60 * 60_000;
+const PER_IP_PER_HOUR = 10;
+const PER_CONTACT_PER_HOUR = 3;
+/** Saving the lead never hangs the form. */
+const SAVE_TIMEOUT_MS = 15_000;
+
+/** A first name as it may appear in a message we send: short, and no links. */
+function safeFirstName(name: string): string {
+  return name.replace(/(https?:\/\/|www\.)\S*/gi, "").replace(/\s+/g, " ").trim().slice(0, 60);
+}
 
 const NOCODE_BASE = process.env.NOCODE_API_BASE_URL || "";
 // The key is the whole identity: the platform resolves the organisation and
@@ -256,6 +275,28 @@ export async function POST(req: Request) {
     );
   }
 
+  const limits = [
+    rateLimit(`leads:ip:${clientKey(req)}`, PER_IP_PER_HOUR, HOUR_MS),
+    rateLimit(`leads:email:${emailKey(email)}`, PER_CONTACT_PER_HOUR, HOUR_MS),
+    rateLimit(`leads:phone:${phone.replace(/\D/g, "")}`, PER_CONTACT_PER_HOUR, HOUR_MS),
+  ];
+  const blocked = limits.find((l) => !l.ok);
+  if (blocked) {
+    return NextResponse.json(
+      { error: "We have already received your details. Please try again a little later." },
+      { status: 429, headers: { "retry-after": String(blocked.retryAfter) } },
+    );
+  }
+
+  // The course, its brochure and its Legend come from the course record, not
+  // from the request: what we send people on WhatsApp and by email must only
+  // ever be our own links and names.
+  const course = await findCourseByIdOrSlug(payload.courseId);
+  const courseName = course ? plainName(course.name) : "";
+  const mentorName = course?.mentorName || course?.faculty?.name || "";
+  const brochureUrl = course?.brochureUrl || "";
+  const greetName = safeFirstName(firstName);
+
   const record: Record<string, unknown> = {
     firstName,
     lastName,
@@ -263,8 +304,8 @@ export async function POST(req: Request) {
     email,
     phone,
     courseId: payload.courseId ?? "",
-    courseName: payload.courseName ?? "",
-    mentorName: payload.mentorName ?? "",
+    courseName: courseName || (payload.courseName ?? "").slice(0, 200),
+    mentorName: mentorName || (payload.mentorName ?? "").slice(0, 120),
     intent,
     source:
       payload.source ??
@@ -272,7 +313,7 @@ export async function POST(req: Request) {
   };
 
   if (isBrochure) {
-    record.brochureUrl = payload.brochureUrl ?? "";
+    record.brochureUrl = brochureUrl;
   } else {
     record.qualification = payload.qualification ?? "";
     record.state = payload.state ?? "";
@@ -301,6 +342,7 @@ export async function POST(req: Request) {
         // Wrapped, so our column names can never collide with the fields the
         // platform injects into the same body.
         body: JSON.stringify({ data: record }),
+        signal: AbortSignal.timeout(SAVE_TIMEOUT_MS),
       });
       const bodyText = await res.text().catch(() => "");
       if (!res.ok) {
@@ -308,7 +350,7 @@ export async function POST(req: Request) {
           `[leads] nocode insert FAILED status=${res.status} module=${moduleTitle} body=${bodyText}`,
         );
         return NextResponse.json(
-          { error: "Failed to save lead", upstreamStatus: res.status, upstream: bodyText },
+          { error: "Your details could not be saved just now. Please try again." },
           { status: 502 },
         );
       }
@@ -337,22 +379,17 @@ export async function POST(req: Request) {
           reason: "apply leads are welcomed by the application flow, not by email",
         };
       } else if (leadId) {
-        welcome = await requestBrochureEmail(leadId, { ...payload, intent });
+        welcome = await requestBrochureEmail(leadId, { ...payload, courseName, mentorName, brochureUrl, intent });
       } else {
         const reason = "the insert returned no lead id, and the brochure is addressed by lead id";
         console.error(`[leads] ${reason} — no brochure email requested`);
         welcome = { attempted: false, ok: false, reason };
       }
 
-      const whatsapp = await sendWhatsApp(
-        intent,
-        phone,
-        firstName,
-        payload.courseName ?? "",
-        payload.brochureUrl,
-      );
+      const whatsapp = await sendWhatsApp(intent, phone, greetName, courseName, brochureUrl);
 
-      return NextResponse.json({ ok: true, intent, data, leadId: leadId ?? null, welcome, whatsapp });
+      // Only what the form reads; the stored row is not echoed back.
+      return NextResponse.json({ ok: true, intent, leadId: leadId ?? null, welcome, whatsapp });
     } catch (err) {
       console.error("[leads] nocode insert threw", err);
       return NextResponse.json(
@@ -382,19 +419,12 @@ export async function POST(req: Request) {
   // id — so this path can only do WhatsApp.
   const echoReason = "echo path — the lead was never stored, so there is no lead id to email";
   console.warn(`[leads] ${echoReason}`);
-  const whatsapp = await sendWhatsApp(
-    intent,
-    phone,
-    firstName,
-    payload.courseName ?? "",
-    payload.brochureUrl,
-  );
+  const whatsapp = await sendWhatsApp(intent, phone, greetName, courseName, brochureUrl);
 
   return NextResponse.json({
     ok: true,
     intent,
     id: `lead_${Date.now()}`,
-    received: record,
     welcome: { attempted: false, ok: false, reason: echoReason } satisfies WelcomeDiagnostic,
     whatsapp,
   });

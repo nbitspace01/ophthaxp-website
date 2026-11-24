@@ -15,6 +15,7 @@ import {
 } from "@/components/SpecialtyIcons";
 import { DOCTORS } from "@/lib/data";
 import type { Doctor, Program, Specialty } from "@/types";
+import { UpdatingNotice } from "@/components/UpdatingNotice";
 import { byFeaturedStamp, cn, featuredStamp } from "@/lib/utils";
 
 /**
@@ -32,11 +33,13 @@ const FILTERS: {
   specialties: Specialty[];
 }[] = [
   { key: "all", label: "All", icon: AllSpecialtiesIcon, specialties: [] },
-  { key: "cataract", label: "Cataract", icon: CataractIcon, specialties: ["phaco-refractive-surgery"] },
+  // "phaco-refractive-surgery" is the old combined value: it still shows under
+  // both Cataract and Refractive until the admin re-picks.
+  { key: "cataract", label: "Cataract", icon: CataractIcon, specialties: ["cataract", "phaco-refractive-surgery"] },
   { key: "cornea", label: "Cornea", icon: CorneaIcon, specialties: ["cornea-ocular-surface"] },
   { key: "glaucoma", label: "Glaucoma", icon: GlaucomaIcon, specialties: ["glaucoma"] },
   { key: "retina", label: "Retina", icon: RetinaIcon, specialties: ["retina-vitreo-retinal-surgery"] },
-  { key: "refractive", label: "Refractive", icon: RefractiveSurgeryIcon, specialties: ["phaco-refractive-surgery"] },
+  { key: "refractive", label: "Refractive", icon: RefractiveSurgeryIcon, specialties: ["refractive", "phaco-refractive-surgery"] },
   {
     key: "practice-mastery",
     label: "Practice Mastery",
@@ -56,37 +59,6 @@ export function ProgramsSection({
   // Only fall back to static data when the prop is omitted entirely (e.g. preview mode).
   const data: Doctor[] = doctors !== undefined ? doctors : DOCTORS;
 
-  // Build a doctor -> course map so the rail card can link directly to the
-  // course detail page. `p.doctorSlug` is stored on the backend as the doctor's
-  // numeric row id (reference field), so key the map by both the raw reference
-  // and the resolved doctor.slug — that way lookups by `d.slug` still find a
-  // match even when the underlying reference is an id like "5".
-  const courseByDoctorSlug = useMemo(() => {
-    const map = new Map<string, Program>();
-    const doctorById = new Map<string, Doctor>();
-    for (const d of data) doctorById.set(String(d.id), d);
-    for (const p of programs ?? []) {
-      const ref = p.doctorSlug;
-      if (!ref) continue;
-      const refStr = String(ref);
-      if (!map.has(refStr)) map.set(refStr, p);
-      const resolved = doctorById.get(refStr);
-      if (resolved && !map.has(resolved.slug)) map.set(resolved.slug, p);
-    }
-    return map;
-  }, [programs, data]);
-  // Every specialty a Legend's programmes are filed under. One Legend can teach
-  // across several, and a programme's own specialty need not be on their row.
-  const courseSpecialtiesByDoctor = useMemo(() => {
-    const map = new Map<string, Specialty[]>();
-    for (const p of programs ?? []) {
-      const own = p.specialties?.length ? p.specialties : p.specialty ? [p.specialty] : [];
-      if (!p.doctorSlug || own.length === 0) continue;
-      const ref = String(p.doctorSlug);
-      map.set(ref, [...(map.get(ref) ?? []), ...own]);
-    }
-    return map;
-  }, [programs]);
   const [active, setActive] = useState<string>("all");
   const [pageCount, setPageCount] = useState(1);
   const [activePage, setActivePage] = useState(0);
@@ -114,47 +86,64 @@ export function ProgramsSection({
       isNew?: boolean;
       isFeatured?: boolean;
       featuredAt?: string;
+      /** What the filter chips match: the course's own Specialty. */
+      specialties: string[];
+      /** Card photo, in the same order as the Programmes page cards. */
+      image?: string;
     }[] = [];
+    // `p.doctorSlug` is the Legend's row id (reference field) or slug.
+    const doctorByRef = new Map<string, Doctor>();
     for (const d of data) {
-      // Split schema: the course row points at the doctor. Merged schema: the
-      // doctor row carries the course itself. Either one is a programme.
-      const linked =
-        courseByDoctorSlug.get(d.slug) || courseByDoctorSlug.get(String(d.id));
-      const courseName = linked?.name || d.courseName;
-      const courseSlug = linked?.slug || d.courseSlug;
-      if (!courseName || !courseSlug) continue;
+      doctorByRef.set(String(d.id), d);
+      doctorByRef.set(d.slug, d);
+    }
+    // Split schema: every course row that points at a Legend is a card, so a
+    // Legend with two programmes has two cards.
+    const withCourse = new Set<Doctor>();
+    for (const p of programs ?? []) {
+      const d = p.doctorSlug ? doctorByRef.get(String(p.doctorSlug)) : undefined;
+      if (!d || !p.name || !p.slug) continue;
+      withCourse.add(d);
+      const own = p.specialties?.length ? p.specialties : p.specialty ? [p.specialty] : [];
       out.push({
         doctor: d,
-        courseName,
-        courseSlug,
-        isNew: linked?.isNew,
-        isFeatured: linked?.isFeatured,
-        featuredAt: linked?.featuredAt,
+        courseName: p.name,
+        courseSlug: p.slug,
+        isNew: p.isNew,
+        isFeatured: p.isFeatured,
+        featuredAt: p.featuredAt,
+        // The course's Specialty decides its filters; the Legend's is only
+        // a fallback for a course with none.
+        specialties: own.length ? own : d.specialty,
+        // Course Card Image first, as on /programmes, so one course shows the
+        // same photo in both places; the Legend's photo is the last fallback.
+        image: p.cardImage || p.heroImage || p.doctorImage || d.imageUrl,
       });
     }
+    // Merged schema: the Legend row carries the course itself.
+    for (const d of data) {
+      if (withCourse.has(d) || !d.courseName || !d.courseSlug) continue;
+      out.push({ doctor: d, courseName: d.courseName, courseSlug: d.courseSlug, specialties: d.specialty, image: d.imageUrl });
+    }
     // A featured course leads the rail; otherwise the Legends' order stays.
+    const legendOrder = new Map(data.map((d, i) => [d, i]));
     return out
       .map((e, i) => ({ e, i }))
       .sort(
         (a, b) =>
           Number(Boolean(b.e.isFeatured)) - Number(Boolean(a.e.isFeatured)) ||
           byFeaturedStamp(featuredStamp(a.e.isFeatured, a.e.featuredAt), featuredStamp(b.e.isFeatured, b.e.featuredAt)) ||
+          (legendOrder.get(a.e.doctor) ?? 0) - (legendOrder.get(b.e.doctor) ?? 0) ||
           a.i - b.i,
       )
       .map(({ e }) => e);
-  }, [data, courseByDoctorSlug]);
+  }, [data, programs]);
 
   const filtered = useMemo(() => {
     const filter = FILTERS.find((f) => f.key === active);
     if (!filter || filter.specialties.length === 0) return entries;
-    return entries.filter((e) =>
-      [
-        ...e.doctor.specialty,
-        ...(courseSpecialtiesByDoctor.get(e.doctor.slug) ?? []),
-        ...(courseSpecialtiesByDoctor.get(String(e.doctor.id)) ?? []),
-      ].some((sp) => filter.specialties.includes(sp)),
-    );
-  }, [active, entries, courseSpecialtiesByDoctor]);
+    return entries.filter((e) => e.specialties.some((sp) => (filter.specialties as string[]).includes(sp)));
+  }, [active, entries]);
 
   // Track scroll position so the bottom pagination reflects the reader's place
   // in the rail. Recomputes on scroll, on filter change, and when the rail resizes.
@@ -309,19 +298,24 @@ export function ProgramsSection({
           style={{ "--rail-inset": "calc(max(0px, (100vw - 1440px) / 2) + 3.5rem)" } as React.CSSProperties}
         >
           {entries.length === 0 ? (
-            <div className="w-full rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/55">
-              No programmes yet — a Legend appears here once a row in the{" "}
-              <code className="text-white/80">courses</code> module points at them.
-            </div>
+            <UpdatingNotice
+              title="Our programmes are"
+              accent="being updated."
+              body="New cohorts with the Legends are being prepared. Please check back shortly, or talk to us about the next intake."
+              secondary={null}
+              // Centred in the rail: the rail pads its left by --rail-inset but its
+              // right by only pr-5 / sm:pr-10, so the notice evens that out.
+              className="!w-auto min-w-0 flex-1 mr-[calc(var(--rail-inset)-1.25rem)] sm:mr-[calc(var(--rail-inset)-2.5rem)]"
+            />
           ) : filtered.length === 0 ? (
             <div className="w-full rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-white/55">
               No programmes in this specialty yet.
             </div>
           ) : (
-            filtered.map(({ doctor: d, courseName, courseSlug, isNew }) => {
+            filtered.map(({ doctor: d, courseName, courseSlug, isNew, image }) => {
               return (
                 <Link
-                  key={d.id}
+                  key={courseSlug}
                   href={`/programmes/${courseSlug}`}
                   className="group relative aspect-[306/482] w-[248px] shrink-0 snap-start overflow-hidden rounded-xl border border-white/15 bg-ink-850 transition duration-300 hover:-translate-y-1 hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:w-[306px]"
                 >
@@ -330,9 +324,9 @@ export function ProgramsSection({
                       New
                     </span>
                   )}
-                  {d.imageUrl ? (
+                  {image ? (
                     <Image
-                      src={d.imageUrl}
+                      src={image}
                       alt={`${d.name}${courseName ? `, ${courseName}` : ""}${d.city ? ` — ${d.city}` : ""}`}
                       fill
                       sizes="(max-width: 640px) 248px, 306px"
@@ -384,7 +378,7 @@ export function ProgramsSection({
                   aria-label={`Go to page ${i + 1} of ${pageCount}`}
                   onClick={() => goToPage(i)}
                   className={cn(
-                    "h-1.5 rounded-full transition-all duration-300",
+                    "relative h-1.5 rounded-full transition-all duration-300 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']",
                     selected ? "w-7 bg-white" : "w-1.5 bg-white/25 hover:bg-white/50",
                   )}
                 />

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchDoctorsFromBackend } from "@/lib/courses";
+import { hasSpecialty } from "@/lib/data";
 import type { Specialty } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
   const q = url.searchParams.get("q")?.toLowerCase().trim() ?? "";
 
   let result = await fetchDoctorsFromBackend();
-  if (specialty) result = result.filter((d) => d.specialty.includes(specialty));
+  if (specialty) result = result.filter((d) => hasSpecialty(d.specialty, specialty));
   if (q) {
     result = result.filter(
       (d) =>

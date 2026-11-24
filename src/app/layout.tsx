@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display, Anton, Great_Vibes } from "next/font/google";
 import "./globals.css";
-import { buildMetadata, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { buildMetadata, organizationJsonLd, websiteJsonLd, jsonLdHtml } from "@/lib/seo";
 
 /* UI + body: the geometric-humanist grotesque the Figma sets everything in. */
 const jakarta = Plus_Jakarta_Sans({
@@ -64,11 +64,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans antialiased" suppressHydrationWarning>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(organizationJsonLd()) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml(websiteJsonLd()) }}
         />
         {children}
       </body>

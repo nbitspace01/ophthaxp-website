@@ -24,7 +24,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full bg-black">
       <nav
         aria-label="Primary"
-        className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 sm:px-10 lg:px-14"
+        className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 max-[359px]:px-4 sm:px-10 lg:px-14"
       >
         <Link href="/" aria-label="Legends of Medicine — home" className="inline-flex shrink-0 items-center">
           <Image
@@ -33,7 +33,7 @@ export function Navbar() {
             width={623}
             height={290}
             priority
-            className="h-14 w-auto sm:h-[62px]"
+            className="h-14 w-auto max-[359px]:h-11 sm:h-[62px]"
           />
         </Link>
 
@@ -51,7 +51,9 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3 sm:gap-5">
+        {/* Below 360px the logo, gaps and side padding tighten so the menu
+            button stays on screen; every wider screen is unchanged. */}
+        <div className="flex items-center gap-3 max-[359px]:gap-2 sm:gap-5">
           <HeaderTools />
           <AccountMenu />
           <button

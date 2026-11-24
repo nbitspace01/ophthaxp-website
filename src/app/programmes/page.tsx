@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ProgramsPageClient } from "./ProgramsPageClient";
-import { fetchCoursesFromBackend, fetchDoctorsFromBackend } from "@/lib/courses";
+import { fetchCoursesFromBackend, fetchDoctorsFromBackend, publicDoctor, publicProgram } from "@/lib/courses";
 import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -25,5 +25,11 @@ export default async function ProgramsIndexPage({
 
   const view = sp.view === "legends" ? "legends" : "courses";
 
-  return <ProgramsPageClient programs={programs} doctors={doctors} view={view} />;
+  return (
+    <ProgramsPageClient
+      programs={programs.map(publicProgram)}
+      doctors={doctors.map(publicDoctor)}
+      view={view}
+    />
+  );
 }

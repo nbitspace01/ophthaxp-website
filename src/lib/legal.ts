@@ -61,9 +61,11 @@ export const LEGAL = {
     process.env.LEGAL_SUPPORT_EMAIL,
     "admissions@legendsofmedicine.com",
   ),
+  // Falls back to the support inbox (never a "TODO" placeholder a visitor
+  // would see) until a dedicated privacy address is set.
   privacyEmail: fromEnv(
     process.env.LEGAL_PRIVACY_EMAIL,
-    "TODO — privacy@legendsofmedicine.com",
+    fromEnv(process.env.LEGAL_SUPPORT_EMAIL, "admissions@legendsofmedicine.com"),
   ),
 
   /** A working number with a stated answering window. Razorpay requires a phone number. */
@@ -78,14 +80,19 @@ export const LEGAL = {
    * and contact details are published on the website.
    */
   grievanceOfficer: {
-    name: fromEnv(process.env.LEGAL_GRIEVANCE_NAME, "TODO — Full Name"),
+    name: fromEnv(process.env.LEGAL_GRIEVANCE_NAME, "Grievance Officer"),
     designation: fromEnv(
       process.env.LEGAL_GRIEVANCE_DESIGNATION,
       "Grievance Officer",
     ),
+    // Until a dedicated grievance inbox is set, complaints go to the privacy
+    // inbox (then support), so the published address always reaches someone.
     email: fromEnv(
       process.env.LEGAL_GRIEVANCE_EMAIL,
-      "TODO — grievance@legendsofmedicine.com",
+      fromEnv(
+        process.env.LEGAL_PRIVACY_EMAIL,
+        fromEnv(process.env.LEGAL_SUPPORT_EMAIL, "admissions@legendsofmedicine.com"),
+      ),
     ),
     responseWindow: "30 days",
   },

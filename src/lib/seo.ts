@@ -111,11 +111,6 @@ export function websiteJsonLd() {
     "@type": "WebSite",
     url: SITE_URL,
     name: SITE_NAME,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 
@@ -137,4 +132,19 @@ export function courseListJsonLd(
       },
     })),
   };
+}
+
+/**
+ * JSON-LD ready to sit inside a <script> tag. JSON.stringify leaves "<" alone,
+ * so a course description or bio from the admin panel containing "</script>"
+ * would close the tag and run as markup. Escaping <, >, & and the two line
+ * separators keeps the JSON identical to a parser while making it inert HTML.
+ */
+export function jsonLdHtml(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }

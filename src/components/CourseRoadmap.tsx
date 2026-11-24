@@ -259,7 +259,8 @@ function ArcCard({
 
 function PhaseAxis({ left, right }: { left: string; right: string }) {
   return (
-    <div className="phase-axis grid items-center" style={{
+    // Below 360px the line and gaps shrink so both labels fit; wider screens unchanged.
+    <div className="phase-axis grid items-center max-[359px]:!gap-2 max-[359px]:![grid-template-columns:auto_minmax(8px,1fr)_auto]" style={{
       gridTemplateColumns: "auto minmax(28px,1fr) auto",
       gap: 12, color: "#b8b8bb", fontSize: 8, fontWeight: 650,
       letterSpacing: ".24em", whiteSpace: "nowrap",
@@ -343,11 +344,11 @@ function ArcPanel({
         </p>
         <div className="flex items-center gap-5">
           <button type="button" onClick={onPrev} disabled={index === 0}
-            className="flex items-center gap-1.5 border-0 bg-transparent text-[13px] font-bold text-[#e8e8ea] transition hover:text-white disabled:opacity-30">
+            className="relative flex items-center gap-1.5 border-0 bg-transparent text-[13px] font-bold text-[#e8e8ea] transition hover:text-white disabled:opacity-30 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']">
             <ArrowLeft className="h-3.5 w-3.5 text-accent" /> Previous
           </button>
           <button type="button" onClick={onNext} disabled={index === total - 1}
-            className="flex items-center gap-1.5 border-0 bg-transparent text-[13px] font-bold text-[#e8e8ea] transition hover:text-white disabled:opacity-30">
+            className="relative flex items-center gap-1.5 border-0 bg-transparent text-[13px] font-bold text-[#e8e8ea] transition hover:text-white disabled:opacity-30 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']">
             Next <ArrowRight className="h-3.5 w-3.5 text-accent" />
           </button>
         </div>
@@ -402,11 +403,11 @@ function ArcPanelMobile({
         </p>
         <div className="flex items-center gap-5">
           <button type="button" onClick={onPrev} disabled={index === 0}
-            className="flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30">
+            className="relative flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']">
             <ArrowLeft className="h-3.5 w-3.5 text-accent" /> Prev
           </button>
           <button type="button" onClick={onNext} disabled={index === total - 1}
-            className="flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30">
+            className="relative flex items-center gap-1.5 text-[13px] text-[#aaa] transition hover:text-white disabled:opacity-30 after:absolute after:-inset-x-1 after:-inset-y-3 after:content-['']">
             Next <ArrowRight className="h-3.5 w-3.5 text-accent" />
           </button>
         </div>

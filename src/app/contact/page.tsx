@@ -25,10 +25,10 @@ export default function ContactPage() {
     >
       <Section id="reach-us" heading="Talk to us">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+          <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.02] p-5">
             <p className="text-xs uppercase tracking-[0.2em] text-white/40">Email</p>
             <a
-              className="mt-2 block text-lg text-accent-soft underline"
+              className="mt-2 block text-lg text-accent-soft underline [overflow-wrap:anywhere]"
               href={`mailto:${LEGAL.supportEmail}`}
             >
               {LEGAL.supportEmail}
@@ -38,7 +38,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+          <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.02] p-5">
             <p className="text-xs uppercase tracking-[0.2em] text-white/40">Phone</p>
             <p className="mt-2 text-lg text-white/90">{LEGAL.supportPhone}</p>
             <p className="mt-2 text-sm text-white/50">{LEGAL.supportHours}</p>

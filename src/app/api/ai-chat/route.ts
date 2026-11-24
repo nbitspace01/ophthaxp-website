@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
+import { clientKey, rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
+
+/** Each visitor's share of the assistant (it runs on the company's API key). */
+const PER_IP_LIMIT = 20;
+const PER_IP_WINDOW_MS = 10 * 60_000;
+/** Only the recent conversation is sent on, each turn short and of a real role. */
+const MAX_HISTORY_TURNS = 10;
+const MAX_TURN_CHARS = 2000;
+const UPSTREAM_TIMEOUT_MS = 20_000;
 
 // POST /api/ai-chat
 // Body: { message: string, history?: { role: 'user'|'assistant', content: string }[] }
@@ -12,10 +21,27 @@ export async function POST(req: Request) {
     | { message?: string; history?: { role: "user" | "assistant"; content: string }[] }
     | null;
 
-  const message = body?.message?.trim();
+  const message = typeof body?.message === "string" ? body.message.trim().slice(0, MAX_TURN_CHARS) : "";
   if (!message) {
     return NextResponse.json({ error: "message is required" }, { status: 422 });
   }
+
+  const limited = rateLimit(`ai-chat:ip:${clientKey(req)}`, PER_IP_LIMIT, PER_IP_WINDOW_MS);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "You have sent a lot of messages. Please wait a few minutes and try again." },
+      { status: 429, headers: { "retry-after": String(limited.retryAfter) } },
+    );
+  }
+
+  // Only user/assistant turns with text, the last few, each kept short.
+  const history = (Array.isArray(body?.history) ? body.history : [])
+    .filter(
+      (m): m is { role: "user" | "assistant"; content: string } =>
+        !!m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string",
+    )
+    .slice(-MAX_HISTORY_TURNS)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_TURN_CHARS) }));
 
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {
@@ -35,19 +61,15 @@ export async function POST(req: Request) {
         max_tokens: 512,
         system:
           "You are the Legends of Medicine assistant. Help final-year MBBS students and practising ophthalmologists choose mentorship cohorts (cataract, retina, glaucoma, cornea, paediatric, neuro, refractive, uveitis). Keep replies under 4 sentences. Suggest a relevant program slug when helpful.",
-        messages: [
-          ...(body?.history ?? []).map((m) => ({ role: m.role, content: m.content })),
-          { role: "user", content: message },
-        ],
+        messages: [...history, { role: "user", content: message }],
       }),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json(
-        { error: "Upstream error", details: text },
-        { status: 502 },
-      );
+      // The provider's own error text stays in the server log, not the reply.
+      console.error("[ai-chat] upstream", res.status, (await res.text()).slice(0, 500));
+      return NextResponse.json({ error: "The assistant is unavailable right now." }, { status: 502 });
     }
 
     const data = (await res.json()) as {

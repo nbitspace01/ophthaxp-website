@@ -27,7 +27,7 @@ import {
   fetchRelatedDoctors,
 } from "@/lib/courses";
 import type { CourseModule, Doctor, Faculty } from "@/types";
-import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { buildMetadata, SITE_NAME, SITE_URL, jsonLdHtml } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +119,8 @@ function signatureRole(title?: string): string {
 }
 
 const SPECIALTY_LABELS: Record<string, string> = {
+  cataract: "Cataract",
+  refractive: "Refractive",
   "cornea-ocular-surface": "Cornea",
   "glaucoma": "Glaucoma",
   "retina-vitreo-retinal-surgery": "Retina",
@@ -299,7 +301,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(courseLd) }}
       />
       <Navbar />
       <main className="bg-ink-950 text-white">

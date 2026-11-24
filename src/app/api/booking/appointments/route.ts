@@ -7,6 +7,7 @@ import {
 } from "@/lib/bookingApi";
 import { getApplicationById, STEP, updateApplication } from "@/lib/applyApi";
 import { getSessionUser } from "@/lib/session";
+import { legendEmailForCourse } from "@/lib/courses";
 
 /**
  * Holding the call.
@@ -60,25 +61,30 @@ export async function POST(req: Request) {
   const applicationId = Number(body.applicationId);
   const start = String(body.start || "");
   const end = String(body.end || "");
-  const legendEmail = String(body.legendEmail || "").trim();
-
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
     return NextResponse.json({ error: "applicationId is required" }, { status: 422 });
   }
   if (!start || !end) {
     return NextResponse.json({ error: "Pick a time to continue." }, { status: 422 });
   }
-  if (!legendEmail) {
-    return NextResponse.json(
-      { error: "This programme has no Legend calendar set up yet." },
-      { status: 422 },
-    );
-  }
 
   // Confirms the row is theirs, and supplies every detail below.
   const application = await getApplicationById(applicationId, user.email);
   if (!application) {
     return NextResponse.json({ error: "Application not found" }, { status: 404 });
+  }
+
+  // The Legend's calendar comes from the course on their own application (the
+  // page's course is the fallback), looked up on the server: the browser can
+  // neither see the address nor pick another Legend's calendar.
+  const legendEmail =
+    (await legendEmailForCourse(application.course_id)) ||
+    (await legendEmailForCourse(typeof body.course === "string" ? body.course : ""));
+  if (!legendEmail) {
+    return NextResponse.json(
+      { error: "This programme has no Legend calendar set up yet." },
+      { status: 422 },
+    );
   }
 
   // Somebody who refreshed, or has two tabs open. Hand back what they have

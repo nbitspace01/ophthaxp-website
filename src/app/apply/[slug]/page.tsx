@@ -63,12 +63,14 @@ export default async function ApplyPage({
   // Star who has booked cannot be handed a blank form and apply twice.
   const application =
     user && isConfigured()
-      ? await findApplicationForCourse(user.email, String(course.id))
+      ? // A slow or failing backend must not crash the page: the form then
+        // simply opens fresh, as it would for a first visit.
+        await findApplicationForCourse(user.email, String(course.id)).catch(() => null)
       : null;
 
   const profile =
     user && isConfigured() && !application
-      ? await findApplicantProfile(user.email)
+      ? await findApplicantProfile(user.email).catch(() => null)
       : null;
 
   // The call already booked for this application, if any. Read on the server so
@@ -76,7 +78,7 @@ export default async function ApplyPage({
   // asked to pick a time all over again.
   const appointment =
     application?.id && isBookingConfigured()
-      ? await findAppointmentForApplication(application.id)
+      ? await findAppointmentForApplication(application.id).catch(() => null)
       : null;
 
   return (
@@ -98,7 +100,9 @@ export default async function ApplyPage({
         courseSlug={params.slug}
         courseName={plainName(course.name)}
         mentorName={course.mentorName ?? undefined}
-        mentorEmail={course.mentorEmail ?? course.faculty?.email ?? undefined}
+        // Whether booking is set up, not the Legend's address: the booking
+        // routes look that up from the course on the server.
+        hasLegendCalendar={Boolean(course.mentorEmail || course.faculty?.email)}
         feeInr={process.env.APPLY_EXPLORATORY_FEE_INR || undefined}
         user={
           user

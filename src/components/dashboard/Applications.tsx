@@ -10,6 +10,7 @@ import {
 } from "@/lib/applicationStatus";
 import { isPaidStatus, listPaymentsForLead, type PaymentRecord } from "@/lib/paymentsApi";
 import { LEGAL } from "@/lib/legal";
+import { safeRedirectPath } from "@/lib/utils";
 
 /**
  * Everything a doctor has actually applied to, and what it cost.
@@ -29,7 +30,7 @@ import { LEGAL } from "@/lib/legal";
  */
 function resumeHref(returnPath: string | undefined, step: number): string {
   const safe =
-    returnPath && returnPath.startsWith("/") && !returnPath.startsWith("//")
+    returnPath && safeRedirectPath(returnPath)
       ? returnPath.split("?")[0]
       : "";
 

@@ -4,9 +4,11 @@ import {
   fetchAllDoctorsFromBackend,
   fetchCoursesFromBackend,
   fetchDoctorsFromBackend,
+  publicDoctor,
+  publicProgram,
   selectDisplayDoctors,
 } from "@/lib/courses";
-import { buildMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { buildMetadata, SITE_NAME, SITE_URL, jsonLdHtml } from "@/lib/seo";
 import { LEGAL } from "@/lib/legal";
 import { DoctorDetailClient } from "./DoctorDetailClient";
 
@@ -97,9 +99,12 @@ export default async function DoctorDetailPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(personLd) }}
       />
-      <DoctorDetailClient doctor={d} otherDoctors={others} programs={programs}
+      <DoctorDetailClient
+        doctor={publicDoctor(d)}
+        otherDoctors={others.map(publicDoctor)}
+        programs={programs.map(publicProgram)}
         fromSpecialty={searchParams?.specialty}
         supportEmail={LEGAL.supportEmail}
       />

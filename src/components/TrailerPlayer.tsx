@@ -56,7 +56,6 @@ function DirectVideo({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
-  const [hovered, setHovered] = useState(false);
 
   const handleStart = () => {
     setStarted(true);
@@ -68,8 +67,6 @@ function DirectVideo({
   return (
     <div
       className={`relative bg-black ${className ?? ""}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       {!started && <ImageBackdrop src={poster} />}
       <video
@@ -77,7 +74,7 @@ function DirectVideo({
         playsInline
         preload="metadata"
         poster={poster}
-        controls={started && hovered}
+        controls={started}
         // object-contain so the entire poster (and the playing video) is
         // visible — letterbox bars sit on the black wrapper background and
         // read as normal video-player behaviour.

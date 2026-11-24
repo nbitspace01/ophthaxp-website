@@ -1,5 +1,7 @@
 export type Specialty =
   | "all"
+  | "cataract"
+  | "refractive"
   | "cornea-ocular-surface"
   | "phaco-refractive-surgery"
   | "retina-vitreo-retinal-surgery"

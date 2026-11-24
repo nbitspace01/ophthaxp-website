@@ -9,11 +9,14 @@ import { TrailerPlayer } from "@/components/TrailerPlayer";
 import { ImageBackdrop } from "@/components/ImageBackdrop";
 import { useShowWhole } from "@/components/SmartFitImage";
 import type { Doctor, Program } from "@/types";
+import { hasSpecialty } from "@/lib/data";
 import "./legend-profile.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SPECIALTY_LABELS: Record<string, string> = {
+  cataract: "Cataract Surgery",
+  refractive: "Refractive Surgery",
   "cornea-ocular-surface": "Cornea & Ocular Surface",
   "phaco-refractive-surgery": "Phaco & Refractive Surgery",
   "retina-vitreo-retinal-surgery": "Vitreo-Retinal Surgery",
@@ -26,13 +29,15 @@ const SPECIALTY_LABELS: Record<string, string> = {
 /* The breadcrumb uses the same names as the specialty filter buttons on the
    Legends page, so the word matches the filter it links back to. */
 const CRUMB_LABELS: Record<string, string> = {
+  cataract: "Cataract",
+  refractive: "Refractive",
   "cornea-ocular-surface": "Cornea",
   "phaco-refractive-surgery": "Refractive Surgery",
   "retina-vitreo-retinal-surgery": "Retina",
   glaucoma: "Glaucoma",
   "pediatric-ophthalmology": "Paediatric",
   oculoplasty: "Oculoplasty",
-  "ophthalmology-practice-mastery": "Practice Management",
+  "ophthalmology-practice-mastery": "Practice Mastery",
 };
 
 /** The short word the breadcrumb uses, e.g. "Cornea" from "Cornea & Ocular Surface". */
@@ -329,7 +334,7 @@ export function DoctorDetailClient({
   // The breadcrumb names the specialty the reader filtered by on the Legends
   // page, when this Legend has it; otherwise their first specialty.
   const crumbKey =
-    fromSpecialty && doctor.specialty.includes(fromSpecialty as Doctor["specialty"][number])
+    fromSpecialty && hasSpecialty(doctor.specialty, fromSpecialty)
       ? fromSpecialty
       : doctor.specialty.find((s) => s !== "all");
   const crumbLabel = crumbKey ? SPECIALTY_LABELS[crumbKey] ?? crumbKey : undefined;
@@ -394,7 +399,7 @@ export function DoctorDetailClient({
   const posterWhole = useShowWhole(stage.image, posterImgRef, 0.7);
 
   const courseName = comingSoon ? "Programme | Coming Soon" : leadProgram?.name || doctor.courseName || "";
-  const plainCourseName = courseName.replace(/s*|s*/g, " ");
+  const plainCourseName = courseName.replace(/\s*\|\s*/g, " ");
   const cardInner = (
     <>
       {comingSoon ? (

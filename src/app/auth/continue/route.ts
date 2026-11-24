@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeRedirectPath } from "@/lib/utils";
 
 /**
  * GET /auth/continue — retired.
@@ -10,10 +11,10 @@ import { NextResponse } from "next/server";
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const next = url.searchParams.get("next");
+  const next = safeRedirectPath(url.searchParams.get("next"));
 
   const login = new URL("/login", url.origin);
-  if (next && next.startsWith("/") && !next.startsWith("//")) {
+  if (next) {
     login.searchParams.set("next", next);
   }
   login.searchParams.set("error", "link");

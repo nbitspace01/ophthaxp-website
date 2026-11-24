@@ -10,12 +10,14 @@ import { SmartAssist } from "@/components/SmartAssist";
 import { FaqSection } from "@/components/FaqSection";
 import { LEGAL } from "@/lib/legal";
 import { Footer } from "@/components/Footer";
-import { courseListJsonLd } from "@/lib/seo";
+import { courseListJsonLd, jsonLdHtml } from "@/lib/seo";
 import {
   fetchCoursesFromBackend,
   fetchDoctorsFromBackend,
   fetchFeaturedProgrammeFromBackend,
   fetchHeroImagesFromBackend,
+  publicDoctor,
+  publicProgram,
   selectDisplayDoctors,
 } from "@/lib/courses";
 
@@ -37,14 +39,17 @@ export default async function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(courseLd) }}
       />
       <Navbar />
       <main>
         <Hero images={heroImages} />
         <JourneySection />
         <LegendsVideo featured={featuredProgramme} />
-        <ProgramsSection doctors={selectDisplayDoctors(doctors)} programs={programs} />
+        <ProgramsSection
+          doctors={selectDisplayDoctors(doctors).map(publicDoctor)}
+          programs={programs.map(publicProgram)}
+        />
         <HowItWorks />
         <HomeRoiSection />
         <CertificatesPromo />

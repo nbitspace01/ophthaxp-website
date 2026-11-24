@@ -767,8 +767,10 @@ async function listAllPrograms(): Promise<Program[]> {
     }
   }
 
-  // 3. Last resort: local mock data so the page is never empty in dev.
-  if (programs.length === 0) {
+  // 3. Last resort: local mock data so the page is never empty in dev. Never
+  // in production: a backend outage must not put demo courses with demo
+  // prices on the live site, so it shows no courses instead.
+  if (programs.length === 0 && process.env.NODE_ENV !== "production") {
     console.log(`[courses] backend returned no programs — using local PROGRAMS mock`);
     return PROGRAMS;
   }
@@ -1120,4 +1122,38 @@ export async function fetchFeaturedProgrammeFromBackend(): Promise<FeaturedProgr
 
 function plainCourseName(name: string): string {
   return name.split("|").map((s) => s.trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
+}
+
+/**
+ * The course a lead or booking refers to, by row id or page link, looked up on
+ * the server. Used so the brochure link, names and the Legend's calendar come
+ * from the course record, never from what a browser sent.
+ */
+export async function findCourseByIdOrSlug(ref: string | undefined | null): Promise<Program | null> {
+  const key = String(ref ?? "").trim();
+  if (!key) return null;
+  const all = await fetchCoursesFromBackend();
+  const bySlug = toUrlSlug(key);
+  const found = all.find((p) => String(p.id) === key || p.slug === bySlug);
+  return found ? await attachFaculty(found) : null;
+}
+
+/** The Legend's calendar address for a course (server only), or "" when none is set. */
+export async function legendEmailForCourse(ref: string | undefined | null): Promise<string> {
+  const course = (await findCourseByIdOrSlug(ref)) ?? (ref ? await fetchCourseFromBackend(String(ref)) : null);
+  return (course?.mentorEmail || course?.faculty?.email || "").trim();
+}
+
+/** A Legend as the browser may see it: the private contact fields removed. */
+export function publicDoctor(d: Doctor): Doctor {
+  const { email: _email, phone: _phone, ...rest } = d;
+  return rest as Doctor;
+}
+
+/** A course as the browser may see it: the Legend's contact address removed. */
+export function publicProgram(p: Program): Program {
+  const { mentorEmail: _mentorEmail, ...rest } = p;
+  if (!rest.faculty) return rest as Program;
+  const { email: _facultyEmail, ...faculty } = rest.faculty;
+  return { ...rest, faculty: faculty as Faculty } as Program;
 }
