@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchSlots, isBookingConfigured } from "@/lib/bookingApi";
 import { getSessionUser } from "@/lib/session";
-import { legendEmailForCourse } from "@/lib/courses";
+import { courseIdForRef, legendEmailForCourse } from "@/lib/courses";
 
 /**
  * The times a Star can pick from.
@@ -46,6 +46,7 @@ export async function GET(req: Request) {
     legendEmail,
     from: params.get("from") || undefined,
     to: params.get("to") || undefined,
+    courseId: (await courseIdForRef(params.get("course"))) || undefined,
   });
 
   if (!result.ok) {

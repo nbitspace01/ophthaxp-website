@@ -151,6 +151,14 @@ export interface Program {
   /** False when no start date was entered and `startDate` is today's placeholder. */
   startDateSet?: boolean;
   priceInr: number;
+  /** Admissions (PDF): this course's Dialogue fee; unset = the standard fee. */
+  dialogueFeeInr?: number;
+  /** Short SOP questions asked in the application (step 1). */
+  sopQuestions?: string[];
+  /** Whether the Legend requires Caseroom before a Dialogue slot can be picked. */
+  caseroomRequired?: boolean;
+  /** The one or two cases the Prospect answers when Caseroom is required. */
+  caseroomCases?: Array<{ title: string; prompt: string }>;
   highlights: string[];
   // Detail page presentation
   headline?: string;

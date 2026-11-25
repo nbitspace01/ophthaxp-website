@@ -103,7 +103,14 @@ export default async function ApplyPage({
         // Whether booking is set up, not the Legend's address: the booking
         // routes look that up from the course on the server.
         hasLegendCalendar={Boolean(course.mentorEmail || course.faculty?.email)}
-        feeInr={process.env.APPLY_EXPLORATORY_FEE_INR || undefined}
+        sopQuestions={course.sopQuestions ?? []}
+        caseroomRequired={Boolean(course.caseroomRequired)}
+        caseroomCases={course.caseroomCases ?? []}
+        feeInr={
+          course.dialogueFeeInr && course.dialogueFeeInr > 0
+            ? String(Math.round(course.dialogueFeeInr))
+            : process.env.APPLY_EXPLORATORY_FEE_INR || undefined
+        }
         user={
           user
             ? {

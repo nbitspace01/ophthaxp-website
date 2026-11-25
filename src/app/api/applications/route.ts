@@ -37,6 +37,7 @@ const WRITABLE: (keyof ApplicationRecord)[] = [
   "mentor_name",
   "return_path",
   "loma_cases",
+  "sop_answers",
 ];
 
 /**

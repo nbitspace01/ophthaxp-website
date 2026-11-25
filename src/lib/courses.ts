@@ -431,6 +431,10 @@ function mapRecordToProgram(rec: RawRecord): Program | null {
       new Date().toISOString().slice(0, 10),
     startDateSet: !!pickString(rec, "startDate", "start_date", "starts_at"),
     priceInr: pickNumber(rec, "priceInr", "price_inr", "price", "fee") ?? 0,
+    dialogueFeeInr: pickNumber(rec, "dialogueFeeInr", "dialogue_fee_inr"),
+    sopQuestions: pickStringArray(rec, "sopQuestions", "sop_questions"),
+    caseroomRequired: pickBool(rec, "caseroomRequired", "caseroom_required") ?? false,
+    caseroomCases: pickCases(rec.caseroomCases ?? rec.caseroom_cases),
     highlights: pickStringArray(rec, "highlights", "Highlights"),
     headline: pickString(rec, "headline", "Headline"),
     tagline: pickString(rec, "tagline", "Tagline"),
@@ -1138,10 +1142,49 @@ export async function findCourseByIdOrSlug(ref: string | undefined | null): Prom
   return found ? await attachFaculty(found) : null;
 }
 
+/** Caseroom cases from the course: a JSON list of {title, prompt} (or of plain prompts). At most two. */
+function pickCases(raw: unknown): Array<{ title: string; prompt: string }> {
+  let v: unknown = raw;
+  for (let i = 0; i < 2 && typeof v === "string"; i += 1) {
+    try {
+      v = JSON.parse(v as string);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((c, i) =>
+      typeof c === "string"
+        ? { title: `Case ${i + 1}`, prompt: c.trim() }
+        : { title: String((c as any)?.title ?? `Case ${i + 1}`).trim(), prompt: String((c as any)?.prompt ?? (c as any)?.question ?? "").trim() },
+    )
+    .filter((c) => c.prompt)
+    .slice(0, 2);
+}
+
+/** This course's Dialogue fee in rupees: its own when set, else the standard fee. Null = cannot charge. */
+export async function dialogueFeeForCourse(ref: string | undefined | null): Promise<number | null> {
+  const course = await findCourseByIdOrSlug(ref).catch(() => null);
+  const own = Number(course?.dialogueFeeInr);
+  if (Number.isFinite(own) && own > 0) return Math.round(own);
+  const raw = Number(process.env.APPLY_EXPLORATORY_FEE_INR);
+  return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : null;
+}
+
 /** The Legend's calendar address for a course (server only), or "" when none is set. */
 export async function legendEmailForCourse(ref: string | undefined | null): Promise<string> {
   const course = (await findCourseByIdOrSlug(ref)) ?? (ref ? await fetchCourseFromBackend(String(ref)) : null);
   return (course?.mentorEmail || course?.faculty?.email || "").trim();
+}
+
+/**
+ * The platform row id of a course, for booking: hours a Legend set for one
+ * course only are offered for that course. "" when the course is not found.
+ */
+export async function courseIdForRef(ref: string | undefined | null): Promise<string> {
+  const course = await findCourseByIdOrSlug(ref);
+  return course?.id ? String(course.id) : "";
 }
 
 /** A Legend as the browser may see it: the private contact fields removed. */

@@ -126,10 +126,13 @@ export async function fetchSlots(input: {
   legendEmail: string;
   from?: string;
   to?: string;
+  /** The course being booked; hours set for other courses only are left out. */
+  courseId?: string;
 }): Promise<Envelope<SlotsResult>> {
   const params = new URLSearchParams({ legendEmail: input.legendEmail });
   if (input.from) params.set("from", input.from);
   if (input.to) params.set("to", input.to);
+  if (input.courseId) params.set("courseId", input.courseId);
 
   return call<SlotsResult>(`/slots?${params.toString()}`);
 }
@@ -228,6 +231,32 @@ export async function findAppointmentForApplication(
 
   // A confirmed call wins over a stale hold if both somehow exist.
   return live.find((a) => a.status === "confirmed") ?? live[0] ?? null;
+}
+
+/**
+ * The appointment a returning payment is for. Like findAppointmentForApplication,
+ * but a hold that ran out while they were paying (`expired`) or one already
+ * flagged `paid_slot_lost` still counts: the money may have landed after the
+ * timer, and the platform re-checks the time before booking it.
+ */
+export async function findAppointmentToConfirm(
+  applicationId: number,
+): Promise<Appointment | null> {
+  const result = await call<{ appointments: Appointment[] }>(
+    `/appointments?applicationId=${applicationId}`,
+  );
+  const all = result.data?.appointments ?? [];
+  const newest = (status: string) =>
+    all
+      .filter((a) => a.status === status)
+      .sort((a, b) => Number(b.id) - Number(a.id))[0];
+  return (
+    newest("confirmed") ??
+    newest("pending_payment") ??
+    newest("expired") ??
+    newest("paid_slot_lost") ??
+    null
+  );
 }
 
 export async function listAppointmentsForStar(starEmail: string): Promise<Appointment[]> {

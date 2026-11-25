@@ -52,11 +52,21 @@ function passwordProblem(password: string): string | null {
 // 5 done) so saved applications and the backend are untouched. The old step 2
 // ("Your cases") only held the Submit button, which now runs at the end of
 // step 1, so it is no longer shown or counted.
-const STEP_LABELS = [
-  "Your details",
-  "Pick a slot",
-  "Confirm & pay",
-] as const;
+const STEP_LABELS_PLAIN = ["Your details", "Pick a slot", "Confirm & pay"] as const;
+const STEP_LABELS_CASEROOM = ["Your details", "Caseroom", "Pick a slot", "Confirm & pay"] as const;
+
+/** SOP answers as readable text for the team: each question, then its answer. */
+function formatSopAnswers(questions: string[], answers: string[]): string {
+  return questions
+    .map((q, i) => `${q}\n${(answers[i] ?? "").trim()}`)
+    .join("\n\n---\n\n");
+}
+
+/** Saved SOP text back into answers, matched to the questions by position. */
+function readSopAnswers(saved: string | undefined, questions: string[]): string[] {
+  const blocks = String(saved ?? "").split("\n\n---\n\n");
+  return questions.map((_, i) => (blocks[i] ? blocks[i].split("\n").slice(1).join("\n") : ""));
+}
 
 /** Past the last form step: the journey is finished. */
 const DONE_STEP = 5;
@@ -90,6 +100,7 @@ export interface BookedAppointment {
 
 interface ApplicationLike {
   id?: number;
+  sop_answers?: string;
   status?: string;
   current_step?: number;
   first_name?: string;
@@ -115,6 +126,9 @@ export function ApplyWizard({
   appointment: initialAppointment,
   requestedStep,
   paymentReturn,
+  sopQuestions = [],
+  caseroomRequired = false,
+  caseroomCases = [],
 }: {
   courseId: string;
   courseSlug: string;
@@ -132,6 +146,11 @@ export function ApplyWizard({
   requestedStep?: number;
   /** How they came back from the gateway, if they have just been to one. */
   paymentReturn?: "return" | "cancelled";
+  /** The course's short SOP questions (PDF 1.1), answered in step 1. */
+  sopQuestions?: string[];
+  /** PDF 1.2: the Legend requires Caseroom; the cases come before the slot. */
+  caseroomRequired?: boolean;
+  caseroomCases?: Array<{ title: string; prompt: string }>;
 }) {
   const router = useRouter();
 
@@ -151,10 +170,14 @@ export function ApplyWizard({
   const [applicationId, setApplicationId] = useState<number | null>(
     application?.id ?? null,
   );
+  // Caseroom (step 2) only when this course's Legend requires it.
+  const caseroomOn = Boolean(caseroomRequired && caseroomCases.length);
   const [step, setStep] = useState<number>(() => {
-    // A saved step 2 means details were saved but never submitted; step 2 no
-    // longer exists, so that person finishes (and submits) from step 1.
-    const normalise = (n: number) => (n === 2 ? 1 : n);
+    // Step 2 is Caseroom, and only for a submitted application on a course
+    // that requires it. Any other saved step 2 (details saved, never
+    // submitted) finishes — and submits — from step 1.
+    const normalise = (n: number) =>
+      n === 2 ? (caseroomOn && application?.status === "submitted" ? 2 : 1) : n;
     if (requestedStep && requestedStep >= 1 && requestedStep <= 5) return normalise(requestedStep);
     return normalise(Number(application?.current_step) || 1);
   });
@@ -186,6 +209,11 @@ export function ApplyWizard({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // PDF 1.1: answers to the course's short SOP questions, saved with step 1.
+  const [sop, setSop] = useState<string[]>(() => readSopAnswers(known.sop_answers, sopQuestions));
+  // PDF 1.2: answers to the Legend's cases (step 2).
+  const [caseAnswers, setCaseAnswers] = useState<string[]>(() => caseroomCases.map(() => ""));
 
   // Booking. `booked` is the call that exists; `slot` is the one being chosen.
   const [booked, setBooked] = useState<BookedAppointment | null>(initialAppointment);
@@ -253,6 +281,11 @@ export function ApplyWizard({
       setErrorMsg("Please select your qualification.");
       return;
     }
+    const sopMissing = sopQuestions.findIndex((_, i) => !(sop[i] ?? "").trim());
+    if (!submitted && sopMissing >= 0) {
+      setErrorMsg(`Please answer: ${sopQuestions[sopMissing]}`);
+      return;
+    }
     if (!user) {
       const problem = passwordProblem(password);
       if (problem) return setErrorMsg(`Password: ${problem}`);
@@ -261,7 +294,7 @@ export function ApplyWizard({
 
     // Details were already submitted; they are locked, so just move on.
     if (submitted && applicationId) {
-      goTo(3);
+      goTo(caseroomOn ? 2 : 3);
       return;
     }
 
@@ -297,6 +330,7 @@ export function ApplyWizard({
           course_name: courseName,
           mentor_name: mentorName ?? "",
           return_path: `/apply/${courseSlug}`,
+          ...(sopQuestions.length ? { sop_answers: formatSopAnswers(sopQuestions, sop) } : {}),
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -329,7 +363,7 @@ export function ApplyWizard({
       // which looked like another step flashing past.
       const ok = await submitApplication(body.applicationId);
       if (body.user) setUser(body.user);
-      if (ok) goTo(3);
+      if (ok) goTo(caseroomOn ? 2 : 3);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -354,6 +388,32 @@ export function ApplyWizard({
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
       return false;
+    }
+  };
+
+  // ─── step 2 — Caseroom (only when the Legend requires it) ──────────────────
+
+  const submitCases = async () => {
+    if (!applicationId) return setErrorMsg("Your application could not be found.");
+    const missing = caseroomCases.findIndex((_, i) => !(caseAnswers[i] ?? "").trim());
+    if (missing >= 0) {
+      return setErrorMsg(`Please answer ${caseroomCases[missing].title || `case ${missing + 1}`}.`);
+    }
+    setBusy(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch("/api/applications/caseroom", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: applicationId, answers: caseAnswers }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Your cases could not be saved. Please try again.");
+      goTo(3);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Your cases could not be saved.");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -483,6 +543,11 @@ export function ApplyWizard({
 
       // 409: somebody took it while this Star was deciding. Reloading the list
       // is the useful response — an error they cannot act on is not.
+      if (res.status === 409 && data?.step === 2) {
+        setErrorMsg(data.error);
+        goTo(2);
+        return;
+      }
       if (res.status === 409) {
         setErrorMsg(data?.error || "That time has just been taken. Here are the times still open.");
         setSlot(null);
@@ -717,7 +782,7 @@ export function ApplyWizard({
       <h1 className="mt-2 font-display text-[clamp(2rem,4.4vw,3rem)] uppercase leading-[1.02] tracking-[-0.01em] text-white">{courseName}</h1>
       {mentorName ? <p className="mt-1 text-sm text-white/60">with {mentorName}</p> : null}
 
-      {step <= 4 ? <Stepper current={step} /> : null}
+      {step <= 4 ? <Stepper current={step} caseroom={caseroomOn} /> : null}
 
       {justSignedUp && step === 3 ? (
         <p className="mt-6 rounded-xl bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-200 ring-1 ring-amber-500/30">
@@ -808,6 +873,33 @@ export function ApplyWizard({
               </Field>
             </div>
 
+            {sopQuestions.length ? (
+              <div className="grid gap-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                  A few short questions
+                </p>
+                {sopQuestions.map((q, i) => (
+                  <Field key={q} label={q} required>
+                    <textarea
+                      required={!submitted}
+                      disabled={submitted}
+                      rows={3}
+                      maxLength={1500}
+                      className={inputCls}
+                      value={sop[i] ?? ""}
+                      onChange={(e) =>
+                        setSop((list) => {
+                          const next = [...list];
+                          next[i] = e.target.value;
+                          return next;
+                        })
+                      }
+                    />
+                  </Field>
+                ))}
+              </div>
+            ) : null}
+
             {user ? null : (
               <>
                 <Field label="Password" required>
@@ -858,6 +950,47 @@ export function ApplyWizard({
               </p>
             )}
           </form>
+        </Panel>
+      ) : null}
+
+      {step === 2 && caseroomOn ? (
+        <Panel>
+          <h2 className="font-serif text-[22px] leading-[1.25] tracking-[-0.01em] text-white">Caseroom</h2>
+          <p className="mt-2 text-sm text-white/65">
+            {mentorName || "Your Legend"} asks every applicant to work through{" "}
+            {caseroomCases.length === 1 ? "this case" : "these cases"} before the Dialogue. Once you
+            submit, you can pick your Dialogue slot.
+          </p>
+          <div className="mt-6 grid gap-6">
+            {caseroomCases.map((c, i) => (
+              <div key={`${c.title}-${i}`} className="rounded-xl bg-ink-800 px-4 py-4 ring-1 ring-white/10">
+                <p className="text-sm font-semibold text-white">{c.title || `Case ${i + 1}`}</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/70">{c.prompt}</p>
+                <textarea
+                  rows={6}
+                  maxLength={6000}
+                  className={`${inputCls} mt-4`}
+                  placeholder="Your answer"
+                  value={caseAnswers[i] ?? ""}
+                  onChange={(e) =>
+                    setCaseAnswers((list) => {
+                      const next = [...list];
+                      next[i] = e.target.value;
+                      return next;
+                    })
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 flex items-center gap-3">
+            <SecondaryButton onClick={() => goTo(1)} disabled={busy}>
+              ← Back
+            </SecondaryButton>
+            <PrimaryButton busy={busy} busyLabel="Submitting…" onClick={() => void submitCases()} type="button">
+              Submit cases →
+            </PrimaryButton>
+          </div>
         </Panel>
       ) : null}
 
@@ -1072,6 +1205,7 @@ export function ApplyWizard({
           {/* Paid, but the confirmation has not reached us while they watched. */}
           {paymentStalled ? (
             <div className="mt-5 rounded-xl bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200 ring-1 ring-amber-500/30">
+              <strong className="block text-amber-100">Payment pending</strong>
               Your payment is taking longer than usual to reach us. Nothing is lost — your time
               is still held and your payment is recorded. Check again in a moment, or leave it
               with us and we&rsquo;ll email your confirmation.
@@ -1081,8 +1215,10 @@ export function ApplyWizard({
           {/* Came back without paying. The hold has not been spent. */}
           {paymentCancelled && !confirming && !paymentStalled ? (
             <div className="mt-5 rounded-xl bg-ink-800 px-4 py-3 text-sm leading-relaxed text-white/70 ring-1 ring-white/10">
-              No payment was taken. Your time is still held for a short while — you can pay
-              whenever you&rsquo;re ready.
+              <strong className="block text-white">Payment failed or cancelled</strong>
+              No payment was taken. Your time is still held for a short while — try again
+              whenever you&rsquo;re ready. If the time has gone by then, you&rsquo;ll be asked to
+              pick another before paying.
             </div>
           ) : null}
 
@@ -1168,9 +1304,10 @@ export function ApplyWizard({
 
 // ─── small pieces ────────────────────────────────────────────────────────────
 
-function Stepper({ current: internal }: { current: number }) {
-  // Internal step 2 no longer exists, so 3 and 4 show as 2 and 3.
-  const current = internal >= 3 ? internal - 1 : internal;
+function Stepper({ current: internal, caseroom }: { current: number; caseroom?: boolean }) {
+  // Step 2 (Caseroom) shows only when the Legend requires it; otherwise 3 and 4 show as 2 and 3.
+  const STEP_LABELS = caseroom ? STEP_LABELS_CASEROOM : STEP_LABELS_PLAIN;
+  const current = caseroom ? internal : internal >= 3 ? internal - 1 : internal;
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">

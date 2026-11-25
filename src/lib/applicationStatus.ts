@@ -10,6 +10,7 @@
 export type LeadStatus =
   | "new"
   | "call_fee_paid"
+  | "dialogue_completed"
   | "selected"
   | "not_selected"
   | "course_fee_paid"
@@ -42,15 +43,22 @@ export const STAGES: Stage[] = [
   },
   {
     key: "call_fee_paid",
-    label: "Slot booked",
-    short: "Slot booked",
-    detail: "Your session with your Legend is confirmed.",
+    label: "Dialogue booked",
+    short: "Dialogue",
+    detail: "Your Dialogue with your Legend is confirmed. Join at the booked time.",
+  },
+  {
+    key: "dialogue_completed",
+    label: "Awaiting decision",
+    short: "Awaiting",
+    detail: "Your Dialogue is complete. Your Legend is making their decision.",
   },
   {
     key: "selected",
-    label: "Legend's decision",
-    short: "Decision",
-    detail: "Your Legend has reviewed your case after the session.",
+    label: "Accepted — you're a Star",
+    short: "Star",
+    detail:
+      "Your Legend has accepted you. Our admissions team will begin onboarding and share your programme payment link.",
   },
   {
     key: "course_fee_paid",
@@ -70,11 +78,12 @@ export const STAGES: Stage[] = [
 const RANK: Record<string, number> = {
   new: 0,
   call_fee_paid: 1,
+  dialogue_completed: 2,
   // A decision either way is the same stage of the funnel.
-  selected: 2,
-  not_selected: 2,
-  course_fee_paid: 3,
-  enrolled: 4,
+  selected: 3,
+  not_selected: 3,
+  course_fee_paid: 4,
+  enrolled: 5,
 };
 
 export function stageRank(status: string | null | undefined): number {
@@ -120,6 +129,11 @@ export function headlineFor(input: {
   applicationStatus?: string;
   currentStep?: number;
   leadStatus?: string | null;
+  /** The Legend's applicant-facing reason, when rejected. */
+  decisionReason?: string | null;
+  /** The programme balance after the Dialogue fee credit, once accepted. */
+  amountDueInr?: number | null;
+  creditInr?: number | null;
 }): Headline {
   if (input.applicationStatus !== "submitted") {
     const step = Number(input.currentStep) >= 2 ? 2 : 1;
@@ -137,6 +151,13 @@ export function headlineFor(input: {
   // call, confirming it, paying. Their next action beats the lead's status,
   // because the lead cannot move until they take it.
   const step = Number(input.currentStep) || 0;
+  if (step === 2) {
+    return {
+      tone: "progress",
+      title: "Complete your Caseroom",
+      body: "Your Legend has assigned case(s). Submit them to open Dialogue booking.",
+    };
+  }
   if (step === 3) {
     return {
       tone: "progress",
@@ -172,8 +193,24 @@ export function headlineFor(input: {
   if (isRejected(status)) {
     return {
       tone: "closed",
-      title: "Not taken forward this time",
-      body: "Your Legend felt this cohort wasn't the right fit. Our team can suggest alternatives.",
+      title: "Rejected",
+      body: input.decisionReason
+        ? `Your Legend's note: ${input.decisionReason} This application is now closed.`
+        : "Your Legend could not offer you a place this time. This application is now closed; the reason has been emailed to you.",
+    };
+  }
+  if (status === "selected") {
+    const rupees = (n: number) => `Rs. ${n.toLocaleString("en-IN")}`;
+    const balance =
+      typeof input.amountDueInr === "number" && input.amountDueInr > 0
+        ? ` Balance to pay: ${rupees(input.amountDueInr)}${
+            input.creditInr ? ` (after your ${rupees(input.creditInr)} Dialogue fee credit)` : ""
+          }.`
+        : "";
+    return {
+      tone: "progress",
+      title: "Accepted — you're a Star",
+      body: `Congratulations! Our admissions team will begin your onboarding and share your programme payment link.${balance}`,
     };
   }
 

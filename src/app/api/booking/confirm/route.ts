@@ -1,5 +1,6 @@
+import { dialogueFeeForCourse } from "@/lib/courses";
 import { NextResponse } from "next/server";
-import { confirmSlot, findAppointmentForApplication, isBookingConfigured } from "@/lib/bookingApi";
+import { confirmSlot, findAppointmentToConfirm, isBookingConfigured } from "@/lib/bookingApi";
 import { getApplicationById, STEP, updateApplication } from "@/lib/applyApi";
 import { findPaidPaymentForLead, isPaymentConfigured } from "@/lib/paymentsApi";
 import { getSessionUser } from "@/lib/session";
@@ -48,7 +49,9 @@ export async function POST(req: Request) {
 
   // The appointment id comes from the server's own record, not the browser —
   // otherwise a caller could confirm somebody else's held slot.
-  const held = await findAppointmentForApplication(applicationId);
+  // An expired hold still counts here: paying can outlast the hold (a card
+  // refused, then a retry), and the platform re-checks the time when confirming.
+  const held = await findAppointmentToConfirm(applicationId);
   if (!held) {
     return NextResponse.json(
       { error: "No slot is being held for this application. Please pick a time again." },
@@ -65,6 +68,18 @@ export async function POST(req: Request) {
       appointment: held,
       nextStep: STEP.done,
     });
+  }
+
+  // Already paid and flagged: the time was taken before the payment landed.
+  if (held.status === "paid_slot_lost") {
+    return NextResponse.json(
+      {
+        error:
+          "Your payment went through, but that time is no longer available. Our team will " +
+          "be in touch to rebook you — you will not be charged again.",
+      },
+      { status: 409 },
+    );
   }
 
   if (!isPaymentConfigured()) {
@@ -85,7 +100,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const payment = await findPaidPaymentForLead(leadId);
+  const payment = await findPaidPaymentForLead(
+    leadId,
+    await dialogueFeeForCourse(application.course_id),
+  );
   if (!payment) {
     // 402 is the wizard's cue to keep waiting rather than to show a failure:
     // a payment that has been made but whose webhook has not landed yet looks

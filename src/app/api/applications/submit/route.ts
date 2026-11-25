@@ -1,3 +1,4 @@
+import { findCourseByIdOrSlug } from "@/lib/courses";
 import { NextResponse } from "next/server";
 import {
   createLead,
@@ -59,6 +60,10 @@ export async function POST(req: Request) {
     );
   }
 
+  // PDF 1.2: Caseroom comes next only when this course's Legend requires it.
+  const course = await findCourseByIdOrSlug(application.course_id).catch(() => null);
+  const caseroomRequired = Boolean(course?.caseroomRequired && course?.caseroomCases?.length);
+
   const leadId = await createLead({
     firstName,
     lastName,
@@ -72,6 +77,8 @@ export async function POST(req: Request) {
     courseId: application.course_id ?? "",
     courseName: application.course_name ?? "",
     mentorName: application.mentor_name ?? "",
+    sopAnswers: application.sop_answers || undefined,
+    caseroomStatus: caseroomRequired ? "pending" : "skipped",
   });
 
   if (leadId == null) {
@@ -90,8 +97,8 @@ export async function POST(req: Request) {
     {
       status: "submitted",
       lead_id: leadId,
-      // Submitting is step 4 of ten; picking a slot with the Legend comes next.
-      current_step: STEP.booking,
+      // Next: the Legend's cases when Caseroom is required, otherwise the slot.
+      current_step: caseroomRequired ? STEP.cases : STEP.booking,
       submitted_at: new Date().toISOString(),
       last_seen_at: new Date().toISOString(),
     },
@@ -115,7 +122,7 @@ export async function POST(req: Request) {
     ok: true,
     applicationId: id,
     leadId,
-    nextStep: STEP.booking,
+    nextStep: caseroomRequired ? STEP.cases : STEP.booking,
     whatsapp,
   });
 }

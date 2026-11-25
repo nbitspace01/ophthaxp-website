@@ -1,3 +1,4 @@
+import { dialogueFeeForCourse } from "@/lib/courses";
 import { NextResponse } from "next/server";
 import {
   createExploratoryCheckout,
@@ -67,7 +68,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const feeInr = exploratoryFeeInr();
+  // This course's own Dialogue fee when Admin set one, else the standard fee.
+  const feeInr = (await dialogueFeeForCourse(courseSlug)) ?? exploratoryFeeInr();
   if (!isPaymentConfigured() || !feeInr) {
     return NextResponse.json(
       {
@@ -118,7 +120,7 @@ export async function POST(req: Request) {
 
   // Somebody who paid and came back through a stale tab. Charging them twice
   // for one call is the worst outcome available here.
-  const existing = await findPaidPaymentForLead(leadId);
+  const existing = await findPaidPaymentForLead(leadId, feeInr);
   if (existing) {
     return NextResponse.json({ ok: true, alreadyPaid: true, appointment: held });
   }
@@ -129,6 +131,7 @@ export async function POST(req: Request) {
 
   const session = await createExploratoryCheckout({
     leadId,
+    feeInr,
     starName: `${firstName} ${lastName}`.trim() || user.email,
     starEmail: application.email || user.email,
     courseId: application.course_id ?? "",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { getLeadStatus, isConfigured, listApplications } from "@/lib/applyApi";
+import { getLeadSummary, isConfigured, listApplications } from "@/lib/applyApi";
 import {
   combinedStageRank,
   headlineFor,
@@ -92,13 +92,14 @@ export async function loadApplications(email: string): Promise<ApplicationRow[]>
 
   // Only submitted applications have a lead, and the lead is where the status
   // after submission lives. Fetched together rather than one after another.
-  const leadStatuses = await Promise.all(
+  const leads = await Promise.all(
     applications.map((app) =>
       app.status === "submitted" && app.lead_id
-        ? getLeadStatus(app.lead_id).catch(() => null)
+        ? getLeadSummary(app.lead_id).catch(() => null)
         : Promise.resolve(null),
     ),
   );
+  const leadStatuses = leads.map((l) => l?.status ?? null);
 
   // What they have actually been charged, per application. Read from the
   // platform's payments record — the same rows the finance side reconciles —
@@ -123,6 +124,9 @@ export async function loadApplications(email: string): Promise<ApplicationRow[]>
       applicationStatus: app.status,
       currentStep: app.current_step,
       leadStatus: leadStatuses[index],
+      decisionReason: leads[index]?.decisionReason,
+      amountDueInr: leads[index]?.amountDueInr,
+      creditInr: leads[index]?.creditInr,
     }),
     // Through the server-side resolver so a renamed course cannot 404.
     resumeTo:

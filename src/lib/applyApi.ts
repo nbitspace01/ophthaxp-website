@@ -64,6 +64,8 @@ export interface ApplicationRecord {
   course_name?: string;
   mentor_name?: string;
   loma_cases?: unknown;
+  /** Answers to the course's short SOP questions, as readable text. */
+  sop_answers?: string;
   lead_id?: number | null;
   source?: string;
   return_path?: string;
@@ -141,6 +143,10 @@ export interface LeadRecord {
   courseId?: string;
   courseName?: string;
   mentorName?: string;
+  /** SOP answers as readable text (written to the lead's sop_answers). */
+  sopAnswers?: string;
+  /** Caseroom: 'pending' when the Legend requires it, 'skipped' when not. */
+  caseroomStatus?: "pending" | "skipped";
 }
 
 /**
@@ -152,7 +158,13 @@ export interface LeadRecord {
  * to send the welcome email: that mail carried a payment link, and payment now
  * happens in the flow at checkout instead.
  */
-export async function createLead(record: LeadRecord): Promise<number | null> {
+export async function createLead(input: LeadRecord): Promise<number | null> {
+  // The admissions columns are snake_case on the lead; the rest keep their names.
+  const { sopAnswers, caseroomStatus, ...record } = input;
+  const admissions = {
+    ...(sopAnswers ? { sop_answers: sopAnswers } : {}),
+    ...(caseroomStatus ? { caseroom_status: caseroomStatus } : {}),
+  };
   return withTimeout(async (signal) => {
     const res = await fetch(leadsUrl(), {
       method: "POST",
@@ -164,6 +176,7 @@ export async function createLead(record: LeadRecord): Promise<number | null> {
         // one of theirs.
         data: {
           ...record,
+          ...admissions,
           intent: "apply",
           source: "apply-flow",
           // Every lead enters the funnel untouched; the admin panel moves it on.
@@ -189,6 +202,25 @@ export async function createLead(record: LeadRecord): Promise<number | null> {
       return null;
     }
   });
+}
+
+/** Write fields on a lead (the website's own admissions fields, e.g. Caseroom answers). */
+export async function updateLeadFields(leadId: number, data: Record<string, unknown>): Promise<boolean> {
+  return withTimeout(async (signal) => {
+    const res = await fetch(leadsUrl(), {
+      method: "PUT",
+      headers: headers(),
+      body: JSON.stringify({ dId: leadId, data }),
+      signal,
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      console.error(`[apply] lead ${leadId} update failed status=${res.status} body=${await res.text().catch(() => "")}`);
+      return false;
+    }
+    const body = await res.json().catch(() => ({}));
+    return (body as { success?: boolean })?.success !== false;
+  }).then((ok) => ok ?? false);
 }
 
 export interface CreateApplicationResult {
@@ -495,6 +527,45 @@ export async function listApplications(ownerEmail: string): Promise<ApplicationR
  * moves along — the mentor's decision, the call fee, the course fee. Read
  * through the same data API, and read-only: nothing here writes to a lead.
  */
+/** What the portal shows about an application after submission (PDF stages 2–3). */
+export interface LeadSummary {
+  status: string | null;
+  /** The Legend's applicant-facing reason, when rejected. */
+  decisionReason: string | null;
+  /** Caseroom: pending / complete / skipped (empty for older applications). */
+  caseroomStatus: string | null;
+  /** Programme fee, Dialogue fee credited, and the balance, once accepted. */
+  courseFeeInr: number | null;
+  creditInr: number | null;
+  amountDueInr: number | null;
+}
+
+const numOrNull = (v: unknown) => {
+  const n = Number(v);
+  return v === null || v === undefined || v === "" || !Number.isFinite(n) ? null : n;
+};
+
+export async function getLeadSummary(leadId: number): Promise<LeadSummary | null> {
+  const leadsModule = process.env.NOCODE_APPLY_LEADS_MODULE || "ophthaxp_apply_leads";
+  const url = `${BASE}/api/data/${encodeURIComponent(leadsModule)}?id=${leadId}&limit=1`;
+  return withTimeout(async (signal) => {
+    const res = await fetch(url, { headers: headers(), signal, cache: "no-store" });
+    if (!res.ok) return null;
+    const rows = unwrapRows(await res.json().catch(() => ({})));
+    const row = rows.find((r) => Number(r.id) === leadId);
+    if (!row) return null;
+    const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+    return {
+      status: text(row.status),
+      decisionReason: text(row.decision_reason),
+      caseroomStatus: text(row.caseroom_status),
+      courseFeeInr: numOrNull(row.course_fee_inr),
+      creditInr: numOrNull(row.call_fee_credit_inr),
+      amountDueInr: numOrNull(row.amount_due_inr),
+    };
+  });
+}
+
 export async function getLeadStatus(leadId: number): Promise<string | null> {
   const leadsModule = process.env.NOCODE_APPLY_LEADS_MODULE || "ophthaxp_apply_leads";
   const url = `${BASE}/api/data/${encodeURIComponent(

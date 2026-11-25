@@ -147,6 +147,8 @@ export interface CheckoutInput {
   courseName: string;
   successUrl: string;
   cancelUrl: string;
+  /** The course's Dialogue fee (see dialogueFeeForCourse); unset = the standard fee. */
+  feeInr?: number | null;
 }
 
 /**
@@ -169,7 +171,7 @@ export interface CheckoutInput {
 export async function createExploratoryCheckout(
   input: CheckoutInput,
 ): Promise<{ ok: true; data: CheckoutSession } | { ok: false; error: string }> {
-  const feeInr = exploratoryFeeInr();
+  const feeInr = input.feeInr && input.feeInr > 0 ? Math.round(input.feeInr) : exploratoryFeeInr();
   if (!isPaymentConfigured() || !feeInr) {
     console.error(
       "[payments] cannot create a checkout — " +
@@ -369,13 +371,17 @@ export async function listPaymentsForLead(leadId: number): Promise<PaymentRecord
  * call is short, and a refunded call is a support conversation rather than
  * something to unbook underneath somebody.
  */
-export async function findPaidPaymentForLead(leadId: number): Promise<PaymentRecord | null> {
+export async function findPaidPaymentForLead(
+  leadId: number,
+  /** The course's Dialogue fee; unset = the standard fee. */
+  feeInr?: number | null,
+): Promise<PaymentRecord | null> {
   const payments = await listPaymentsForLead(leadId);
   // A paid status alone is not proof of the fee: the platform's checkout is
   // reachable without the site, so a lead could carry a small payment the site
   // never asked for. Only a payment of at least the exploratory fee, in INR,
   // counts. The platform stores amounts in rupees (major units).
-  const fee = exploratoryFeeInr();
+  const fee = feeInr && feeInr > 0 ? feeInr : exploratoryFeeInr();
   return (
     payments.find(
       (payment) =>

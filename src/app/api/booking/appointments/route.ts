@@ -5,9 +5,9 @@ import {
   isBookingConfigured,
   listAppointmentsForStar,
 } from "@/lib/bookingApi";
-import { getApplicationById, STEP, updateApplication } from "@/lib/applyApi";
+import { getApplicationById, getLeadSummary, STEP, updateApplication } from "@/lib/applyApi";
 import { getSessionUser } from "@/lib/session";
-import { legendEmailForCourse } from "@/lib/courses";
+import { findCourseByIdOrSlug, legendEmailForCourse } from "@/lib/courses";
 
 /**
  * Holding the call.
@@ -85,6 +85,19 @@ export async function POST(req: Request) {
       { error: "This programme has no Legend calendar set up yet." },
       { status: 422 },
     );
+  }
+
+  // PDF 1.2: when the Legend requires Caseroom, scheduling opens only once
+  // every assigned case is submitted.
+  const course = await findCourseByIdOrSlug(application.course_id).catch(() => null);
+  if (course?.caseroomRequired && course.caseroomCases?.length && application.lead_id) {
+    const lead = await getLeadSummary(Number(application.lead_id)).catch(() => null);
+    if (lead && lead.caseroomStatus !== "complete" && lead.caseroomStatus !== "skipped") {
+      return NextResponse.json(
+        { error: "Please submit your Caseroom cases before choosing a Dialogue slot.", step: STEP.cases },
+        { status: 409 },
+      );
+    }
   }
 
   // Somebody who refreshed, or has two tabs open. Hand back what they have
