@@ -80,6 +80,7 @@ export function CaseroomShell() {
 
   const { profile } = state;
 
+
   // Every role (trainee, legend, admin) gets the same Caseroom. The platform
   // lets any signed-in user work cases; only the mentor tools are role-gated.
   return <StudentDashboard profile={profile} aiReady={aiReady} />;
