@@ -25,36 +25,6 @@ type State =
   | { status: "ready"; profile: LomaProfile }
   | { status: "failed"; message: string };
 
-/**
- * Legends and admins, for now.
- *
- * Their consoles are the next thing to be ported. Until they are, saying so
- * plainly is better than dropping a mentor into the student dashboard, where
- * every number would be zero and none of their programmes would appear.
- */
-function ConsoleComingSoon({ role }: { role: string }) {
-  return (
-    <div className="mx-auto max-w-lg py-24 text-center">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-        {role === "admin" ? "Administration" : "Mentor console"}
-      </p>
-      <h1 className="mt-4 font-serif text-[clamp(1.5rem,2.6vw,2.25rem)] font-medium leading-[1.25] text-white">
-        Not here yet
-      </h1>
-      <p className="mt-4 text-sm leading-relaxed text-white/55">
-        Your {role === "admin" ? "administration tools are" : "programmes, roster and case review are"}{" "}
-        still on the standalone Caseroom app. They are being moved here next.
-      </p>
-      <Link
-        href="/account"
-        className="mt-8 inline-flex rounded-full bg-white/[0.06] px-6 py-3 text-sm font-medium text-white/80 ring-1 ring-white/10 transition hover:text-white"
-      >
-        Back to your dashboard
-      </Link>
-    </div>
-  );
-}
-
 export function CaseroomShell() {
   const [state, setState] = useState<State>({ status: "loading" });
   /* Whether the platform can currently write a case. Its own call, and a
@@ -110,9 +80,7 @@ export function CaseroomShell() {
 
   const { profile } = state;
 
-  if (profile.role === "legend" || profile.role === "admin") {
-    return <ConsoleComingSoon role={profile.role} />;
-  }
-
+  // Every role (trainee, legend, admin) gets the same Caseroom. The platform
+  // lets any signed-in user work cases; only the mentor tools are role-gated.
   return <StudentDashboard profile={profile} aiReady={aiReady} />;
 }
